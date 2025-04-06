@@ -1,8 +1,7 @@
 // src/stores/product/productStore.ts
-import { defineStore } from 'pinia'
-import type { Product ,ProductState} from '@myshared/shared/types/product/product'
-import type { DocumentMeta } from '@myshared/shared/types/common/documentMeta'
-import { createProductService } from '@myshared/shared/services/product/productService'
+import type { Product ,ProductState} from '@/shared-types/product/product'
+import type { DocumentMeta } from '@/shared-types/common/documentMeta'
+import { createProductService } from '@/services/product/productService'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 
 

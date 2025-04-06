@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase/firestore'
 
 // 'registered' → 회원가입 완료 (아직 승인 요청 전)
 // 'pending_approval' → 가입 후 승인 요청한 상태

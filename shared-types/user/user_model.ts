@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase/firestore'
 
 // Define the UserModel type
 export type UserModel = {

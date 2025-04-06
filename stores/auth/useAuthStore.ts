@@ -1,19 +1,22 @@
+// stores/auth/useAuthStore.ts
 import { useNuxtApp } from '#app';
-import { defineStore } from 'pinia';
 import { useRouter } from 'vue-router'; // 라우터 가져오기
 import  {  type Administrator } from '@/shared-types/administrator/administrator'; // 앱 유저 타입 가져오기
 import type { Company } from '@/shared-types/company/company'; // 회사 타입 가져오기
-import type { User } from 'firebase/auth'; // Firebase User 타입 가져오기
-import { createAdministratorService } from '@myshared/shared/services/administrator/administratorService'; 
-import { createCompanyService } from '@myshared/shared/services/company/companyService'; 
-import { convertTimestamps } from '@myshared/shared/utils/client/convertTimestamps'; 
-import { defaultTimestampKeys } from '@myshared/shared/types/common/timestampKeys'; 
+import type { User as FirebaseUser } from 'firebase/auth'
+import { createAdministratorService } from '@/services/administrator/administratorService'; // 앱 유저 서비스 가져오기
+import { createCompanyService } from '@/services/company/companyService'; // 회사 서비스 가져오기
+
+interface AuthState {
+  currentUser: FirebaseUser | null
+  currentAdministrator: Administrator | null
+  currentCompany: Company | null
+}
 
 
-
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore<'auth', AuthState>({
   state: () => ({
-    currentUser: null as User | null, // Firebase Auth 유저
+    currentUser: null as FirebaseUser | null,
     currentAdministrator: null as Administrator | null, // 앱의 유저
     currentCompany: null as Company | null, // 현재 로그인한 사용자의 회사 정보
   }),
@@ -84,9 +87,9 @@ export const useAuthStore = defineStore('auth', {
               console.log('로그인 회사 받으 값', JSON.stringify(getCompanyResponse));
               if (getCompanyResponse.isSuccess) {
                 
-                this.currentAdministrator = convertTimestamps(getAdministratorResponse.data, [...defaultTimestampKeys]) as Administrator
+                this.currentAdministrator = getAdministratorResponse.data as Administrator
 
-                this.currentCompany = convertTimestamps(getCompanyResponse.data, [...defaultTimestampKeys]) as Company
+                this.currentCompany = getCompanyResponse.data as Company
                 console.log('[authStore] App User and Company set:', this.currentAdministrator, this.currentCompany);
 
 

@@ -1,5 +1,5 @@
 // types/product/product.ts
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase/firestore'
 import type { DocumentMeta } from '../common/documentMeta'
 
 export interface Product {

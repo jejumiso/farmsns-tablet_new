@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase/firestore'
 
 //types/models/tablet/tablet_model.ts
 export interface TabletSettings {

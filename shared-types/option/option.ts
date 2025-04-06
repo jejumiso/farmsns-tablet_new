@@ -1,5 +1,5 @@
 // /types/Option/optionModel.ts
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase/firestore'
 
 export interface Option {
   id: string
