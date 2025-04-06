@@ -3,7 +3,7 @@ import type { Product ,ProductState} from '@/shared-types/product/product'
 import type { DocumentMeta } from '@/shared-types/common/documentMeta'
 import { createProductService } from '@/services/product/productService'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
-
+import { defineStore } from 'pinia'
 
 
 export const useProductStore = defineStore('product', {

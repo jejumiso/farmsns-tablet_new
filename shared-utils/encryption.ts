@@ -1,4 +1,4 @@
-import { getEncryptionKey, getEncryptionIv } from '../../env';
+import { getEnv } from '@/composables/env'
 
 
 
@@ -50,8 +50,10 @@ export function decryptData(encryptedText: string, key: string, iv: string): str
 
 // 암호화 함수
 export function encryptAndUrlSafe2(data: string): string {
-    const key = getEncryptionKey();
-    const iv = getEncryptionIv();
+
+
+    const key = getEnv().getEncryptionKey;
+    const iv = getEnv().getEncryptionIv;
 
     if (!key || !iv) {
         throw new Error('Encryption key or IV is not defined.');
@@ -77,8 +79,8 @@ export function decryptData2(encryptedText: string): string {
         return '';
     }
 
-    const key = getEncryptionKey();
-    const iv = getEncryptionIv();
+    const key = getEnv().getEncryptionKey;
+    const iv = getEnv().getEncryptionIv;
 
     if (!key || !iv) {
         throw new Error('Encryption key or IV is not defined.');

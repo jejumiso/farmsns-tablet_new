@@ -1,4 +1,4 @@
-import { useAuthStore } from '~/stores/auth/useAuthStore'
+import { useAuthStore } from '@/stores/auth/useAuthStore'
 
 export default defineNuxtPlugin((nuxtApp) => {
   console.log('Auth plugin initialized'); // 디버깅 로그 추가

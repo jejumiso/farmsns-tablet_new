@@ -1,6 +1,6 @@
 console.log('🔧 [nuxt.config.ts] FIREBASE_API_KEY:', process.env.API_BASE_URL)
 
-import { defineNuxtConfig } from 'nuxt/config' // 꼭 이거 필요합니다!!
+import { defineNuxtConfig } from 'nuxt/config' 
 
 
 export default defineNuxtConfig({

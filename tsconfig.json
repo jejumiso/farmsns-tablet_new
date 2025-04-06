@@ -5,15 +5,19 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
+      "#app": ["node_modules/nuxt/dist/app/index.d.ts"],
+      "#app/*": ["node_modules/nuxt/dist/app/*"],
       "~/*": ["./*"],
       "@/*": ["./*"]
     },
-    "types": ["nuxt",  "node"]
+    "types": ["nuxt", "node"] 
   },
   "include": [
     "nuxt.config.ts",
     "**/*.ts",
     "**/*.vue",
-    "types"
+    "types",
+    "nuxt.d.ts",
+    "globals.d.ts"
   ]
 }

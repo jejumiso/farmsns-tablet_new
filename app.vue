@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '~/stores/auth/useAuthStore';
+import { useAuthStore } from '@/stores/auth/useAuthStore';
 
 const authStore = useAuthStore();
 authStore.initializeAuth(); // 앱 초기화 시 인증 상태 동기화

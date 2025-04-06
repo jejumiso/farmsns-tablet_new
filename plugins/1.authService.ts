@@ -1,3 +1,4 @@
+// plugins/1.authService.ts
 import { createAuthService } from '@/services/auth/authService';
 // import { setBaseURL } from '@myshared/shared/services/http';
 import { initializeFirebase } from '@/services/firebaseService';

@@ -1,22 +1,18 @@
-// stores/auth/useAuthStore.ts
 import { useNuxtApp } from '#app';
+import { defineStore } from 'pinia';
 import { useRouter } from 'vue-router'; // 라우터 가져오기
-import  {  type Administrator } from '@/shared-types/administrator/administrator'; // 앱 유저 타입 가져오기
+import  {  type Administrator } from '@/shared-types/administrator/administrator';
 import type { Company } from '@/shared-types/company/company'; // 회사 타입 가져오기
-import type { User as FirebaseUser } from 'firebase/auth'
-import { createAdministratorService } from '@/services/administrator/administratorService'; // 앱 유저 서비스 가져오기
-import { createCompanyService } from '@/services/company/companyService'; // 회사 서비스 가져오기
-
-interface AuthState {
-  currentUser: FirebaseUser | null
-  currentAdministrator: Administrator | null
-  currentCompany: Company | null
-}
+import type { User } from 'firebase/auth'; // Firebase User 타입 가져오기
+import { createAdministratorService } from '@/services/administrator/administratorService'; 
+import { createCompanyService } from '@/services/company/companyService'; 
 
 
-export const useAuthStore = defineStore<'auth', AuthState>({
+
+
+export const useAuthStore = defineStore('auth', {
   state: () => ({
-    currentUser: null as FirebaseUser | null,
+    currentUser: null as User | null, // Firebase Auth 유저
     currentAdministrator: null as Administrator | null, // 앱의 유저
     currentCompany: null as Company | null, // 현재 로그인한 사용자의 회사 정보
   }),
