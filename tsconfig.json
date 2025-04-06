@@ -8,7 +8,7 @@
       "~/*": ["./*"],
       "@/*": ["./*"]
     },
-    "types": ["nuxt", "@nuxt/schema", "node"]
+    "types": ["nuxt",  "node"]
   },
   "include": [
     "nuxt.config.ts",

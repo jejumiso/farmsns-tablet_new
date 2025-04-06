@@ -60,7 +60,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
-import { formatPhone } from '@myshared/shared/utils/common/common';
+import { formatPhone } from '@/';
 import BusinessInfo from '@/components/common/BusinessInfo.vue';
 const { $authService } = useNuxtApp(); // 명시적으로 가져오기
 
