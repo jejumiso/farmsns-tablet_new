@@ -149,7 +149,7 @@ import { useAuthStore } from '@/stores/auth/useAuthStore';
 import SidebarMenu from '@/components/layout/SidebarMenu.vue';
 import { formatPhone } from '@myshared/shared/utils/common/common';
 import { createKakaoService } from '@myshared/shared/services/kakao/kakaoService';
-import { type Template } from '@myshared/shared/types/kakao/templateResponse';
+import { type Template } from '@/shared-types/kakao/template';
 
 interface Row {
   name: string;

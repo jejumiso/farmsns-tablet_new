@@ -1,10 +1,10 @@
 import { useNuxtApp } from '#app';
 import { defineStore } from 'pinia';
 import { useRouter } from 'vue-router'; // 라우터 가져오기
-import  {  type Administrator } from '@myshared/shared/types/administrator/administrator';
-import type { Company } from '@myshared/shared/types/company/company'; 
+import  {  type Administrator } from '@/shared-types/administrator/administrator'; // 앱 유저 타입 가져오기
+import type { Company } from '@/shared-types/company/company'; // 회사 타입 가져오기
 import type { User } from 'firebase/auth'; // Firebase User 타입 가져오기
-import { createAdministratorService } from '@myshared/shared/services/administrator/administratorService'; 
+import { createAdministratorService } from '@/shared'; 
 import { createCompanyService } from '@myshared/shared/services/company/companyService'; 
 import { convertTimestamps } from '@myshared/shared/utils/client/convertTimestamps'; 
 import { defaultTimestampKeys } from '@myshared/shared/types/common/timestampKeys'; 

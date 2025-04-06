@@ -105,7 +105,7 @@ import { createKakaoService } from '@myshared/shared/services/kakao/kakaoService
 import { createAuthService } from '@myshared/shared/services/auth/authService';
 import { encryptAndUrlSafe2 } from '@myshared/shared/utils/common/encryption';
 import { createEmptyAdministrator, type Administrator } from '@myshared/shared/types/administrator/administrator';
-import { createEmptyCompany, type Company } from '@myshared/shared/types/company/company';
+import { createEmptyCompany, type Company } from '@/shared-types/company/company';
 import { formatPhone } from '@myshared/shared/utils/common/common';
 
 const router = useRouter();
