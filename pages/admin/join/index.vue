@@ -101,12 +101,12 @@ import { useAuthStore } from '@/stores/auth/useAuthStore';
 import SidebarMenu from '@/components/layout/SidebarMenu.vue';
 import KakaoChannelGuide from './kakao-channel-guide.vue';
 
-import { createKakaoService } from '@myshared/shared/services/kakao/kakaoService';
-import { createAuthService } from '@myshared/shared/services/auth/authService';
-import { encryptAndUrlSafe2 } from '@myshared/shared/utils/common/encryption';
-import { createEmptyAdministrator, type Administrator } from '@myshared/shared/types/administrator/administrator';
+import { createKakaoService } from '@/services/kakao/kakaoService';
+import { createAuthService } from '@/services/auth/authService';
+import { encryptAndUrlSafe2 } from '@/shared-utils/encryption';
+import { createEmptyAdministrator, type Administrator } from '@/shared-types/administrator/administrator';
 import { createEmptyCompany, type Company } from '@/shared-types/company/company';
-import { formatPhone } from '@myshared/shared/utils/common/common';
+import { formatPhone } from '@/shared-utils/common';
 
 const router = useRouter();
 const authStore = useAuthStore();

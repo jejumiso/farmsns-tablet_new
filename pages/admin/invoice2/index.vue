@@ -147,9 +147,9 @@ import { onMounted, reactive, ref, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
 import SidebarMenu from '@/components/layout/SidebarMenu.vue';
-import { formatPhone } from '@myshared/shared/utils/common/common';
-import { createKakaoService } from '@myshared/shared/services/kakao/kakaoService';
-import { type Template } from '@/shared-types/kakao/template';
+import { formatPhone } from '@/shared-utils/common';
+import { createKakaoService } from '@/services/kakao/kakaoService';
+import { type Template } from '@/shared-types/kakao/templateResponse';
 
 interface Row {
   name: string;
