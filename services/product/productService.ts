@@ -6,9 +6,11 @@ import type { Product  } from '@/shared-types/product/product';
 export function createProductService() {
   const api = useApi() // ✅ 여기서 axios 인스턴스 생성
   return {
-    async getProductsByCompanyId(companyId: string): Promise<ApiResponse> {
+    async getCompanyProducts(companyId: string, dateLastFetched:number): Promise<ApiResponse> {
       // const response = await api.get(`/api/products/${companyId}`); // 단수형 엔드포인트로 변경
-      const response =  await api.get(`/api/companies/${companyId}/products`);
+      const response = await api.get(`/api/products/${companyId}`, {
+        params: { since: dateLastFetched } // ✅ 서버는 since로 받음
+      });
       return response.data as ApiResponse;
     },
     async create(companyId: string, product: Product ): Promise<ApiResponse> {

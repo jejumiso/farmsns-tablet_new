@@ -2,6 +2,7 @@
 export const COMPANIES_COLLECTION: string = 'v2_companies';
 export const NICEPAYSUBSCRIPTIONS_COLLECTION: string = 'v2_nicepaySubscriptions';
 export const USERS_COLLECTION: string = 'v2_users';
+export const PRODUCTS_COLLECTION: string = 'v2_products';
 export const PRODUCTS_ADMIN_COLLECTION: string = 'v2_productsAdmin';
 export const CATEGORIES_ADMIN_COLLECTION: string = 'v2_categoriesAdmin';
 export const OPTIONS_ADMIN_COLLECTION: string = 'v2_optionsAdmin';
