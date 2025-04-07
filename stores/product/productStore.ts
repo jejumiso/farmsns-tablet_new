@@ -28,9 +28,10 @@ export const useProductStore = defineStore('product', {
       try {
         const storedProducts = this.products;  // 현재 저장소에서의 상품들
         const res = await createProductService().getCompanyProducts(companyId, this.dateLastFetched);
-        const { fetchedProducts, fetchedDocuments } = res.data as {
-          fetchedProducts: Product[];
-          fetchedDocuments: DocumentMeta[];
+
+        const { products: fetchedProducts, documents: fetchedDocuments } = res.data as {
+          products: Product[];  // products는 Product[] 타입
+          documents: DocumentMeta[];  // documents는 DocumentMeta[] 타입
         };
 
         // 1. 문서 목록 업데이트: fetchedDocuments에 속하지 않는 문서에 속한 상품들 삭제
@@ -56,21 +57,21 @@ export const useProductStore = defineStore('product', {
       }
     },
 
-    async createProduct(product: Product) {
+    async saveProduct(product: Product) {
       const companyId = useAuthStore().currentCompany?.id || '';
       if (!companyId) return;
 
-      await createProductService().create(companyId, product);
+      await createProductService().save(companyId, product);
       await this.fetchProductsIfChanged();
     },
 
-    async updateProduct(product: Product) {
-      const companyId = useAuthStore().currentCompany?.id || '';
-      if (!companyId || !product.id) return;
+    // async updateProduct(product: Product) {
+    //   const companyId = useAuthStore().currentCompany?.id || '';
+    //   if (!companyId || !product.id) return;
 
-      await createProductService().update(companyId, product.id, product);
-      await this.fetchProductsIfChanged();
-    },
+    //   await createProductService().save(companyId, product);
+    //   await this.fetchProductsIfChanged();
+    // },
 
     async refreshProducts() {
       await this.fetchProductsIfChanged();

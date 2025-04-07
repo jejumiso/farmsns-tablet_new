@@ -13,13 +13,14 @@ export function createProductService() {
       });
       return response.data as ApiResponse;
     },
-    async create(companyId: string, product: Product ): Promise<ApiResponse> {
-       const response =  await api.post(`/api/companies/${companyId}/products`, product);
+    async save(companyId: string, product: Product ): Promise<ApiResponse> {
+       const response =  await api.post(`/api/product/${companyId}`, product);
        return response.data as ApiResponse;
       },
-      async update(companyId: string, productId: string, product: Product): Promise<ApiResponse> {
-        const response = await api.put(`/api/companies/${companyId}/products/${productId}`, product)
-        return response.data as ApiResponse
-      }
     }
+    // async update(companyId: string, productId: string, product: Product): Promise<ApiResponse> {
+    //   const response =  await api.post(`/api/product/${companyId}/${productId}`, product);
+    //   return response.data as ApiResponse;
+    //   }
+    // }
 }

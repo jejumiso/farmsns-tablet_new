@@ -19,15 +19,15 @@
     </div>
 
     <!-- 이미지 URL -->
-    <div>
+    <!-- <div>
       <label for="imgUrl" class="block text-sm font-medium text-gray-700">상품 이미지 URL</label>
       <input v-model="product.imgUrl" type="text" id="imgUrl" class="w-full mt-2 p-2 border rounded" required />
-    </div>
+    </div> -->
 
     <!-- 카테고리 -->
     <div>
       <label for="categories" class="block text-sm font-medium text-gray-700">카테고리</label>
-      <input v-model="product.categories" type="text" id="categories" class="w-full mt-2 p-2 border rounded" placeholder="카테고리 입력" required />
+      <input v-model="product.categories" type="text" id="categories" class="w-full mt-2 p-2 border rounded" placeholder="카테고리 입력"  />
     </div>
 
     <!-- 추가/수정 버튼 -->
@@ -45,7 +45,7 @@ import { type Product } from '@/shared-types/product/product';
 
 const props = defineProps({
   product: {
-    type: Object,
+    type: Object as () => Product,
     required: true,
   },
   isEditMode: {

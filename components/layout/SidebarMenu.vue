@@ -36,8 +36,8 @@
           <ul v-if="isProductMenuOpen" class="pl-6">
             <li>
               <button
-                @click="$emit('navigate', '/admin/products')"
-                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/products' ? 'bg-gray-600' : '']"
+                @click="$emit('navigate', '/admin/product')"
+                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/product' ? 'bg-gray-600' : '']"
               >
                 상품
               </button>
@@ -144,7 +144,7 @@ watch(
   (newPath) => {
     currentPath.value = newPath;
     // 상품, 옵션, 옵션그룹, 카테고리 경로일 때 상품관리 메뉴 열기
-    const productPaths = ['/admin/products', '/admin/options', '/admin/option-groups', '/admin/categories'];
+    const productPaths = ['/admin/product', '/admin/product/create','/admin/options', '/admin/option-groups', '/admin/categories'];
     isProductMenuOpen.value = productPaths.includes(newPath);
   },
   { immediate: true }
