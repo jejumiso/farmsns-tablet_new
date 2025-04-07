@@ -57,6 +57,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+  layout: 'empty', // layouts/empty.vue 사용
+});
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth/useAuthStore';

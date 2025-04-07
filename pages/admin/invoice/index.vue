@@ -1,8 +1,4 @@
 <template>
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <SidebarMenu @navigate="navigateTo"  />
-
     <!-- Main Content -->
     <main class="flex-1 bg-gray-100 p-6">
       <div v-if="authStore.currentAdministrator === null || authStore.company === null" class="login-status bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded mb-4">
@@ -81,7 +77,6 @@
         </table>
       </section>
     </main>
-  </div>
 </template>
 
 <script setup>

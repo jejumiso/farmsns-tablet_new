@@ -1,16 +1,11 @@
 <template>
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <SidebarMenu @navigate="navigateTo"  />
-
     <!-- Main Content -->
-    <main class="flex-1 bg-gray-100 p-6">
+    <div class="w-full max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div class="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4">상품 추가</h2>
         <ProductForm :product="newProduct" :isEditMode="false" @submit="addProduct" />
       </div>
-    </main>
-  </div>
+    </div>
 </template>
 
 <script setup lang="ts">

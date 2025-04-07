@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
+  <div class="w-full max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-4">상품 수정</h2>
     <ProductForm
   v-if="product"

@@ -1,8 +1,4 @@
 <template>
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <SidebarMenu @navigate="navigateTo" />
-
     <!-- Main Content -->
     <main class="flex-1 bg-gray-100 p-6">
       <h1 class="text-2xl font-bold text-gray-800 mb-4">상품 목록</h1>
@@ -42,7 +38,6 @@
         <router-link to="/admin/product/create" class="text-blue-600 hover:underline">상품 추가하기</router-link>
       </div>
     </main>
-  </div>
 </template>
 
 

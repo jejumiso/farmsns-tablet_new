@@ -1,8 +1,4 @@
 <template>
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <SidebarMenu @navigate="navigateTo"  />
-
     <!-- Main Content -->
     <main class="flex-1 bg-gray-100 p-6 flex">
       <!-- 왼쪽: 데이터 입력 -->
@@ -140,7 +136,6 @@
 
 
     </main>
-  </div>
 </template>
 <script setup lang="ts">
 import { onMounted, reactive, ref, nextTick, computed } from 'vue';

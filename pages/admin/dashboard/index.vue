@@ -1,8 +1,4 @@
 <template>
-  <div class="flex h-screen bg-gray-50">
-    <!-- Sidebar -->
-    <SidebarMenu @navigate="navigateTo" />
-
     <!-- Main Content -->
     <main class="flex-1 bg-gray-100 p-8">
       
@@ -28,13 +24,11 @@
 
       </section>
     </main>
-  </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
-import SidebarMenu from '@/components/layout/SidebarMenu.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
