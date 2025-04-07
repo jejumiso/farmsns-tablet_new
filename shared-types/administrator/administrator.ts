@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore'
+import { Timestamp, DocumentReference } from '../../shared/firebase/firebaseTypes';
 
 // 'registered' → 회원가입 완료 (아직 승인 요청 전)
 // 'pending_approval' → 가입 후 승인 요청한 상태
@@ -11,8 +11,8 @@ export type RoleType = 'super' | 'admin' // ✅ 가능한 값만 지정
 export interface Administrator {
   id: string
   token: string
-  idCompany: string
   companyId: string
+  companyRef: DocumentReference | null; // ✅ 회사 문서 참조
   email: string
   username: string
   resPhoneNumber: string
@@ -33,7 +33,7 @@ export function createEmptyAdministrator(): Administrator {
   return {
     id: '',
     token: '',
-    idCompany: '',
+    companyRef: null,
     companyId: '',
     email: '',
     username: '',

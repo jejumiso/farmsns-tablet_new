@@ -1,8 +1,9 @@
-// composables/env.ts
+// /env.ts
 export const getEnv = () => {
     const config = useRuntimeConfig()
   
     return {
+      nodeEnv: config.public.NODE_ENV as string,
       firebaseApiKey: config.public.FIREBASE_API_KEY as string,
       firebaseProjectId: config.public.FIREBASE_PROJECT_ID as string,
       firebaseAuthDomain: config.public.FIREBASE_AUTH_DOMAIN as string,

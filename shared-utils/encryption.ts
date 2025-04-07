@@ -1,4 +1,4 @@
-import { getEnv } from '@/composables/env'
+import { getEnv } from '@/env'
 
 
 

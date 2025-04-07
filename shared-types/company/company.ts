@@ -1,5 +1,5 @@
 // path: src/types/company/company.ts
-import { Timestamp ,GeoPoint} from 'firebase/firestore'
+import { Timestamp, GeoPoint } from '../../shared/firebase/firebaseTypes';
 import type { DeliveryCost } from '../deliveryCost/deliveryCost'
 import type { Product } from '../product/product'
 import type { Category } from '../category/category'

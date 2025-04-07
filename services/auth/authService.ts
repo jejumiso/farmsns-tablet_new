@@ -23,9 +23,17 @@ export function createAuthService() {
     async verifySms(phoneNumber: string, code: string): Promise<User | null> {
       try {
         const response = await api.post('/api/auth/verify-sms', { phoneNumber, code }); // api 인스턴스 사용
+
+        console.log('response:', response);
+        console.log('status:', response.status);
+        if (!response.data?.customToken) {
+          throw new Error('서버 응답에 customToken이 없습니다');
+        }
+
+
         const { customToken } = response.data;
 
-        console.log('SMS verified successfully, signing in with custom token...');
+        console.log('SMS verified 성공 ',customToken);
         const userCredential = await signInWithCustomToken(auth, customToken);
         return userCredential.user;
       } catch (error: any) {

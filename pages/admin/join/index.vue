@@ -110,7 +110,9 @@ import { formatPhone } from '@/shared-utils/common';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const { $authService } = useNuxtApp();
+
+const nuxtApp = useNuxtApp()
+
 
 const form = ref({
   kakaoId: '@moapoint',
@@ -218,7 +220,7 @@ async function handleSuccessfulVerification(senderKey: string) {
 
     newAdmin.id = authStore.user!.uid;
     console.log('새로 등록 할 회사 정보:', newCompany);
-    const result = await $authService.addAdministratorAndCompany(newAdmin, newCompany);
+    const result = await nuxtApp.$authService.addAdministratorAndCompany(newAdmin, newCompany);
 
     if (result.isSuccess) {
       // authStore.setAppUser(newAdmin);

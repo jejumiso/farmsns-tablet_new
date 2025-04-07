@@ -20,7 +20,7 @@
             />
           </div>
           <div class="form-group" v-if="isCodeSent">
-            <label for="code" class="form-label">Verification Code</label>
+            <label for="code" class="form-label">인증번호</label>
             <input 
               id="code" 
               v-model="verificationCode" 
@@ -60,21 +60,22 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
-import { formatPhone } from '@/';
+import { formatPhone } from '@/shared-utils/common';
 import BusinessInfo from '@/components/common/BusinessInfo.vue';
-const { $authService } = useNuxtApp(); // 명시적으로 가져오기
 
 const phoneNumber = ref('010-');
 const verificationCode = ref('');
 const isCodeSent = ref(false);
 const errorMessage = ref('');
-const router = useRouter();
-const authStore = useAuthStore();
+
+import { useNuxtApp } from '#app'
+
+const nuxtApp = useNuxtApp()
 
 const sendCode = async () => {
   try {
     errorMessage.value = ''
-    await $authService.sendSms(phoneNumber.value); // 명시적으로 가져온 $authService 사용
+    await nuxtApp.$authService.sendSms(phoneNumber.value); // 명시적으로 가져온 $authService 사용
     isCodeSent.value = true;
   } catch (error) {
     console.error('Send code error:', error);
@@ -85,7 +86,7 @@ const sendCode = async () => {
 const handleLogin = async () => {
   try {
     errorMessage.value = '';
-    const user = await $authService.verifySms(phoneNumber.value, verificationCode.value);
+    const user = await nuxtApp.$authService.verifySms(phoneNumber.value, verificationCode.value);
     // authStore.user = user; // 로그인 성공 시 useAuthStore의 user 업데이트
 
     // router.push('/admin/dashboard'); // 로그인 성공 시 대시보드로 이동

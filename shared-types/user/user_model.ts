@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore'
+import { Timestamp } from '../../shared/firebase/firebaseTypes';
 
 // Define the UserModel type
 export type UserModel = {

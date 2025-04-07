@@ -6,6 +6,7 @@ import type { Company } from '@/shared-types/company/company'; // 회사 타입 
 import type { User } from 'firebase/auth'; // Firebase User 타입 가져오기
 import { createAdministratorService } from '@/services/administrator/administratorService'; 
 import { createCompanyService } from '@/services/company/companyService'; 
+import { useProductStore } from '@/stores/product/productStore';
 
 
 
@@ -35,13 +36,13 @@ export const useAuthStore = defineStore('auth', {
 
     async login(email: string, password: string) {
       //이메일 로그인 없는데 지워도 되나..
+      const nuxtApp = useNuxtApp()
       
-      const { $authService } = useNuxtApp(); // shared의 authService 호출
-      this.currentUser = await $authService.login(email, password); // Firebase 로그인 처리
+      this.currentUser = await nuxtApp.$authService.login(email, password); // Firebase 로그인 처리
     },
     async logout() {
-      const { $authService } = useNuxtApp(); // shared의 authService 호출
-      await $authService.logout(); // 로그아웃 처리
+      const nuxtApp = useNuxtApp()
+      await nuxtApp.$authService.logout(); // 로그아웃 처리
       this.currentUser = null; // Firebase 유저 초기화
       this.currentAdministrator = null; // 앱 유저 초기화
       this.currentCompany = null; // 회사 정보 초기화
@@ -60,7 +61,7 @@ export const useAuthStore = defineStore('auth', {
       console.log('[authStore] Company set:', company);
     },
     initializeAuth() {
-      const { $authService } = useNuxtApp(); // shared의 authService 호출
+      const nuxtApp = useNuxtApp()
       const router = useRouter(); // 라우터 인스턴스 생성
 
       if (this.currentUser !== null) {
@@ -68,7 +69,7 @@ export const useAuthStore = defineStore('auth', {
         return; // 이미 초기화된 경우 중복 호출 방지
       }
 
-      $authService.onAuthStateChange(async (firebaseUser: any) => {
+      nuxtApp.$authService.onAuthStateChange(async (firebaseUser: any) => {
         this.currentUser = firebaseUser as User; // Firebase 인증 상태 동기화
         console.log('[authStore] Firebase Auth state changed:', firebaseUser);
 
@@ -82,12 +83,13 @@ export const useAuthStore = defineStore('auth', {
               const getCompanyResponse = await createCompanyService().getCompanyById(getAdministratorResponse.data.companyId);
               console.log('로그인 회사 받으 값', JSON.stringify(getCompanyResponse));
               if (getCompanyResponse.isSuccess) {
-                
                 this.currentAdministrator = getAdministratorResponse.data as Administrator
-
                 this.currentCompany = getCompanyResponse.data as Company
                 console.log('[authStore] App User and Company set:', this.currentAdministrator, this.currentCompany);
-
+                
+                 // ✅ 여기에 상품 초기화 호출
+                  const productStore = useProductStore();
+                  await productStore.fetchProductsIfChanged(); // 회사 ID 기준 상품 목록 로딩
 
               } else {
                 console.error('[authStore] Error fetching company:', getCompanyResponse.error);

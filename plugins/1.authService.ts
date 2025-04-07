@@ -1,6 +1,5 @@
 // plugins/1.authService.ts
 import { createAuthService } from '@/services/auth/authService';
-// import { setBaseURL } from '@myshared/shared/services/http';
 import { initializeFirebase } from '@/services/firebaseService';
 
 export default defineNuxtPlugin(() => {
@@ -8,12 +7,7 @@ export default defineNuxtPlugin(() => {
 
   // ✅ 디버깅 로그
   console.log('🛠️ Nuxt Plugin 초기화 중...');
-  console.log('🌐 API_BASE_URL:', config.public.API_BASE_URL);
-  console.log('🔥 Firebase 설정값:');
-  console.log('   🔑 apiKey:', config.public.FIREBASE_API_KEY);
-  console.log('   🌍 authDomain:', config.public.FIREBASE_AUTH_DOMAIN);
-  console.log('   🏷️ projectId:', config.public.FIREBASE_PROJECT_ID);
-  console.log('   📦 appId:', config.public.FIREBASE_APP_ID);  
+
 
   // 디버깅 로그 추가
   console.log('Runtime Config (public):', config.public);
@@ -28,6 +22,9 @@ export default defineNuxtPlugin(() => {
     projectId: config.public.FIREBASE_PROJECT_ID as string,
     appId: config.public.FIREBASE_APP_ID as string,
   });
+  // 🔍 디버깅용 출력
+console.log('✅ Firebase 초기화 완료');
+console.log('🔧 연결된 Firebase 프로젝트 ID:', config.public.FIREBASE_PROJECT_ID);
 
   const authService = createAuthService();
 

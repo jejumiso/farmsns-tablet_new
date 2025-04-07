@@ -5,7 +5,10 @@ import axios from 'axios'
 
 export const useApi = () => {
   const config = useRuntimeConfig()
-  const baseURL = config.public.apiBaseUrl as string | undefined
+  const baseURL = config.public.API_BASE_URL as string | undefined
+
+  console.log('📡 axios baseURL:', baseURL); // 👈 이거 추가!
+
 
   const token = useCookie('token') // 클라이언트/서버 모두 가능
 

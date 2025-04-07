@@ -4,7 +4,7 @@ import type { Auth } from 'firebase/auth'  // firebase/auth에서 Auth 타입 �
 import { Router } from 'vue-router'
 export {}
 
-import type { AuthService } from '@myshared/shared/services/auth/authService';
+import type { AuthService } from '@/services/auth/authService';
 
 declare module '#app' {
   interface NuxtApp {

@@ -1,5 +1,5 @@
 // option_model.ts
-import { Timestamp } from 'firebase/firestore'
+import { Timestamp } from '../../shared/firebase/firebaseTypes';
 
 
 // 사용자 회사 정보 타입 정의
