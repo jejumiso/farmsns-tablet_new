@@ -11,7 +11,6 @@ export interface Product {
   productName: string
   productNameShort: string
   priceOri: number
-  priceShort: string
   priceSale: number
   imgUrl: string
   unit: string
@@ -44,7 +43,6 @@ export function createEmptyProduct(): Product {
     productName: ' 상품이름',
     productNameShort: '',
     priceOri: 0,
-    priceShort: '',
     priceSale: 0,
     imgUrl: '이미지url',
     unit: '',

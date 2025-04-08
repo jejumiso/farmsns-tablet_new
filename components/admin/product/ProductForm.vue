@@ -17,7 +17,7 @@
     <!-- 탭: 기본 정보 -->
     <div v-if="currentTab === '기본 정보'" class="space-y-4">
       <FormInput label="상품명" v-model="product.productName" id="productName" required />
-      <FormInput label="상품명(약식)" v-model="product.productNameShort" id="productNameShort" />
+      <!-- <FormInput label="상품명(약식)" v-model="product.productNameShort" id="productNameShort" /> -->
       <FormInput label="이미지 URL" v-model="product.imgUrl" id="imgUrl" />
       <FormInput label="단위" v-model="product.unit" id="unit" />
       <div>
@@ -29,7 +29,6 @@
     <!-- 탭: 가격 정보 -->
     <div v-else-if="currentTab === '가격 정보'" class="space-y-4">
       <FormInput label="정상 가격" v-model="product.priceOri" id="priceOri" type="number" required />
-      <FormInput label="짧은 가격" v-model="product.priceShort" id="priceShort" />
       <FormInput label="할인 가격" v-model="product.priceSale" id="priceSale" type="number" />
     </div>
 

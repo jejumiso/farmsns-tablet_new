@@ -144,8 +144,22 @@ watch(
   (newPath) => {
     currentPath.value = newPath;
     // 상품, 옵션, 옵션그룹, 카테고리 경로일 때 상품관리 메뉴 열기
-    const productPaths = ['/admin/product', '/admin/product/create','/admin/options', '/admin/option-groups', '/admin/categories'];
-    isProductMenuOpen.value = productPaths.includes(newPath);
+    const productPaths = [
+      '/admin/product',
+      '/admin/product/create',
+      '/admin/product/edit/[id]', // 🔥 추가!
+      '/admin/options',
+      '/admin/option-groups',
+      '/admin/categories',
+    ];
+
+    const isProductPath =
+      productPaths.includes(newPath) ||
+      productPaths.some(path =>
+        path.includes('[id]') && newPath.startsWith('/admin/product/edit/')
+      );
+
+    isProductMenuOpen.value = isProductPath;
   },
   { immediate: true }
 );
