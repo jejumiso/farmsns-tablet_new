@@ -1,6 +1,6 @@
 // types/product/product.ts
 import { Timestamp } from '../../shared/firebase/firebaseTypes';
-import type { DocumentMeta } from '../common/documentMeta'
+import type {  DocumentMetaOnly } from '../common/documentMeta'
 
 export interface Product {
   id: string
@@ -65,7 +65,7 @@ export function createEmptyProduct(): Product {
 
 export interface ProductState {
   products: Product[]
-  documents: DocumentMeta[]
+  documents: DocumentMetaOnly[]
   dateLastFetched: number     // ✅ 새로 추가
   loading: boolean
   error: string | null

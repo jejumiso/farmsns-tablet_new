@@ -1,6 +1,6 @@
 // src/stores/product/productStore.ts
 import type { Product ,ProductState} from '@/shared-types/product/product'
-import type { DocumentMeta } from '@/shared-types/common/documentMeta'
+import type {  DocumentMetaOnly } from '@/shared-types/common/documentMeta'
 import { createProductService } from '@/services/product/productService'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { defineStore } from 'pinia'
@@ -31,7 +31,7 @@ export const useProductStore = defineStore('product', {
 
         const { products: fetchedProducts, documents: fetchedDocuments } = res.data as {
           products: Product[];  // products는 Product[] 타입
-          documents: DocumentMeta[];  // documents는 DocumentMeta[] 타입
+          documents: DocumentMetaOnly[];  // documents는 DocumentMeta[] 타입
         };
 
         // 1. 문서 목록 업데이트: fetchedDocuments에 속하지 않는 문서에 속한 상품들 삭제

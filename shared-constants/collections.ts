@@ -1,5 +1,6 @@
 // Firestore 컬렉션 이름들을 상수로 정의
 export const COMPANIES_COLLECTION: string = 'v2_companies';
+export const COUNTER_COLLECTION = 'v2_counters';
 export const NICEPAYSUBSCRIPTIONS_COLLECTION: string = 'v2_nicepaySubscriptions';
 export const USERS_COLLECTION: string = 'v2_users';
 export const PRODUCTS_COLLECTION: string = 'v2_products';
@@ -8,7 +9,7 @@ export const CATEGORIES_ADMIN_COLLECTION: string = 'v2_categoriesAdmin';
 export const OPTIONS_ADMIN_COLLECTION: string = 'v2_optionsAdmin';
 export const OPTIONSGROUP_ADMIN_COLLECTION: string = 'v2_optionsGroups';
 export const STORAGEIMGS_COLLECTION: string = 'v2_storageImgs';
-
+export const OPTIONGROUPS_COLLECTION = 'v2_optionGroups';
 export const ORDERS_COLLECTION: string = 'v2_orders';
 export const COMPANY_REGISTER_COLLECTION: string = 'v2_company_register';
 
