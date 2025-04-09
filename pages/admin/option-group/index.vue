@@ -32,7 +32,7 @@
 
     <!-- 옵션 그룹 추가 링크 -->
     <div class="mt-6 text-center">
-      <router-link to="/admin/option-groups/create" class="text-blue-600 hover:underline">옵션 그룹 추가하기</router-link>
+      <router-link to="/admin/option-group/create" class="text-blue-600 hover:underline">옵션 그룹 추가하기</router-link>
     </div>
   </main>
 </template>

@@ -14,6 +14,7 @@
         <thead class="bg-gray-200 text-left">
           <tr>
             <th class="px-4 py-2">번호</th>
+            <th class="px-4 py-2">진열순위</th>
             <th class="px-4 py-2">옵션명</th>
             <th class="px-4 py-2">타입</th>
             <th class="px-4 py-2">항목 수</th>
@@ -23,9 +24,11 @@
         <tbody>
           <tr v-for="(option, index) in options" :key="option.id" class="border-t">
             <td class="px-4 py-2">{{ index + 1 }}</td>
+            <td class="px-4 py-2">{{ option.displayLevel }}</td>
             <td class="px-4 py-2">{{ option.optionName }}</td>
             <td class="px-4 py-2">{{ option.type }}</td>
             <td class="px-4 py-2">{{ option.optionItems?.length || 0 }}</td>
+            
             <td class="px-4 py-2">
               <router-link
                 :to="`/admin/option/edit/${option.id}`"

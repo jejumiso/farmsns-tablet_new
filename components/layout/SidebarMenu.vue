@@ -52,16 +52,16 @@
             </li>
             <li>
               <button
-                @click="$emit('navigate', '/admin/option-groups')"
-                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/option-groups' ? 'bg-gray-600' : '']"
+                @click="$emit('navigate', '/admin/option-group')"
+                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/option-group' ? 'bg-gray-600' : '']"
               >
                 옵션그룹
               </button>
             </li>
             <li>
               <button
-                @click="$emit('navigate', '/admin/categories')"
-                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/categories' ? 'bg-gray-600' : '']"
+                @click="$emit('navigate', '/admin/category')"
+                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/category' ? 'bg-gray-600' : '']"
               >
                 카테고리
               </button>
@@ -151,7 +151,7 @@ watch(
       '/admin/option',
       '/admin/option/create',
       '/admin/option/edit/[id]', // 🔥 추가!      
-      '/admin/option-groups',
+      '/admin/option-group',
       '/admin/categories',
     ];
 

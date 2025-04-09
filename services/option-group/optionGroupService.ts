@@ -18,5 +18,12 @@ export function createOptionGroupService() {
       const response = await api.post(`/api/option-group/${companyId}`, optionGroup);
       return response.data as ApiResponse;
     },
+    async delete(companyId: string, docId: string, optionGroupId: string): Promise<ApiResponse> {
+      console.log('📡 LOGGER - 삭제요청청'); // 👈 이거 추가!
+      const response = await api.delete(`/api/option-group/${companyId}/${docId}/${optionGroupId}`);
+      
+      return response.data;
+    }
+
   };
 }

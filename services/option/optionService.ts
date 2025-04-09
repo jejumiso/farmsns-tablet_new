@@ -20,6 +20,11 @@ export function createOptionService() {
 
       console.log('📡 Response data:', response.data); 
       return response.data as ApiResponse;
+    },
+
+    async delete(companyId: string, docId: string, optionId: string): Promise<ApiResponse> {
+      const response = await api.delete(`/api/option/${companyId}/${docId}/${optionId}`);
+      return response.data;
     }
   };
 }

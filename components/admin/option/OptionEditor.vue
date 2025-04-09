@@ -66,8 +66,12 @@
           </div>
           <button
             type="button"
-            class="px-3 py-1 bg-green-600 text-white rounded"
-            :disabled="!canAddCombination"
+            :class="[
+              'px-4 py-2 rounded transition',
+              canAddCombination
+                ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            ]"
             @click="addInvalidCombination"
           >
             조합 추가
@@ -81,7 +85,9 @@
               >
                 <strong>이 옵션:</strong> {{ comb.thisValue.join(', ') }}  
                 <strong>금지 조합:</strong> {{ comb.otherValue.join(', ') }}  
-                <span class="text-gray-400">({{ comb.optionId }})</span>
+                <span class="text-gray-400">({{ getOptionNameById(comb.optionId) }})</span>
+                <button @click="removeCombination(idx)" class="ml-2 text-red-500 hover:underline">삭제</button>
+
               </li>
             </ul>
           </div>
@@ -92,6 +98,15 @@
           <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
             {{ isEditMode ? '수정' : '추가' }}하기
           </button>
+            <!-- 삭제 버튼 (수정 모드일 때만 표시) -->
+            <button
+              v-if="isEditMode"
+              type="button"
+              class="px-4 py-2 bg-red-500 text-white rounded"
+              @click="confirmDelete"
+            >
+              삭제하기
+            </button>
         </div>
       </form>
     </div>
@@ -115,7 +130,11 @@ import type { Option } from '@/shared-types/option/option';
 import FormInput from '@/components/common/FormInput.vue';
 import OptionPreview from './OptionPreview.vue';
 import OptionListView from './OptionListView.vue';
+import { useRouter } from 'vue-router';
+import { useOptionStore } from '@/stores/option/optionStore';
 
+const router = useRouter();
+const optionStore = useOptionStore();
 const props = defineProps<{
   option: Option;
   isEditMode: boolean;
@@ -149,7 +168,20 @@ const canAddCombination = computed(() => {
 });
 
 const addInvalidCombination = () => {
-  if (!canAddCombination.value || !selectedOtherOption.value) return;
+  if (!selectedOtherOption.value) {
+    alert('다른 옵션을 먼저 선택해주세요.');
+    return;
+  }
+
+  if (selectedThisValues.value.length === 0) {
+    alert('현재 옵션 항목에서 최소 1개 이상 선택해야 합니다.');
+    return;
+  }
+
+  if (selectedOtherValues.value.length === 0) {
+    alert('다른 옵션 항목에서 최소 1개 이상 선택해야 합니다.');
+    return;
+  }
 
   const newCombination = {
     optionId: selectedOtherOption.value.id,
@@ -171,6 +203,26 @@ const addInvalidCombination = () => {
 };
 
 
+const getOptionNameById = (id: string): string => {
+  const found = props.otherOptions.find(opt => opt.id === id);
+  return found?.optionName || '(옵션 없음)';
+};
+const removeCombination = (index: number) => {
+  props.option.invalidCombinations?.splice(index, 1);
+};
+
+const confirmDelete = async () => {
+  const ok = confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');
+  if (!ok) return;
+
+  const res = await optionStore.deleteOption(props.option);
+  if (res.isSuccess) {
+    alert('삭제되었습니다.');
+    router.push('/admin/option');
+  } else {
+    alert(res.message || '삭제에 실패했습니다.');
+  }
+};
 const submitForm = () => {
   emit('submit', props.option);
 };

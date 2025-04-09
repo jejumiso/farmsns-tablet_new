@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth/useAuthStore';
 import { createOptionGroupService } from '@/services/option-group/optionGroupService';
 import type { OptionGroup } from '@/shared-types/option/optionGroup';
 import type { DocumentMetaOnly } from '@/shared-types/common/documentMeta';
+import type { ApiResponse } from '~/shared-types/apiResponse';
 
 export interface OptionGroupState {
   optionGroups: OptionGroup[];
@@ -34,24 +35,30 @@ export const useOptionGroupStore = defineStore('optionGroup', {
       try {
         const stored = this.optionGroups;
         const res = await createOptionGroupService().getCompanyOptionGroups(companyId, this.dateLastFetched);
-
+      
         const { optionGroups: fetched, documents: fetchedDocuments } = res.data as {
           optionGroups: OptionGroup[];
           documents: DocumentMetaOnly[];
         };
+      
+        // 1. 삭제된 문서 제거
+        const fetchedDocIds = new Set(fetchedDocuments.map(d => d.id));
+        const filteredGroups = stored.filter(group => fetchedDocIds.has(group.docId));
 
-        const fetchedDocIds = new Set(fetchedDocuments.map(doc => doc.id));
-        const filtered = stored.filter(g => fetchedDocIds.has(g.docId));
+        // 2. 서버에서 수정된 문서의 그룹 제거
+        const updatedDocIds = new Set(fetched.map(g => g.docId));  // ✅ 문서 기준
+        const remainingGroups = filteredGroups.filter(group => !updatedDocIds.has(group.docId));
 
-        const fetchedGroupDocIds = new Set(fetched.map(g => g.docId));
-        const finalGroups = filtered.filter(g => !fetchedGroupDocIds.has(g.docId));
+        // 3. 최신 데이터 추가
+        const updatedGroups = [...remainingGroups, ...fetched];
 
-        finalGroups.push(...fetched);
-
-        this.optionGroups = finalGroups;
+        // 4. 저장소 반영
+        this.optionGroups = updatedGroups;
         this.documents = fetchedDocuments;
         this.dateLastFetched = Date.now();
         this.error = null;
+
+
       } catch (err: any) {
         this.error = err?.message || '옵션 그룹 불러오기 실패';
       } finally {
@@ -59,19 +66,25 @@ export const useOptionGroupStore = defineStore('optionGroup', {
       }
     },
 
-    async saveOptionGroup(optionGroup: OptionGroup) {
+    async saveOptionGroup(optionGroup: OptionGroup): Promise<ApiResponse> {
       const companyId = useAuthStore().currentCompany?.id || '';
-      if (!companyId) return;
-
-      await createOptionGroupService().save(companyId, optionGroup);
-      await this.fetchOptionGroupsIfChanged();
+      if (!companyId) {
+        return {
+          isSuccess: false,
+          message: '회사 정보가 없습니다.',
+        };
+      }
+    
+      const result = await createOptionGroupService().save(companyId, optionGroup);
+    
+      if (result.isSuccess) {
+        await this.fetchOptionGroupsIfChanged();
+      }
+    
+      return result;
     },
 
-    async refreshOptionGroups() {
-      await this.fetchOptionGroupsIfChanged();
-    }
   },
-
   persist: {
     key: 'optionGroup',
     storage: localStorage,

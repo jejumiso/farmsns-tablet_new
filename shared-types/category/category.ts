@@ -1,19 +1,30 @@
 // category.ts
 
+import { Timestamp } from '../../shared/firebase/firebaseTypes';
+
 export interface Category {
     id: string
+    docId: string
     categoryName: string
     displayLevel: number
-    isHeadData: boolean
-    originaCompanyId: string
+    useParentData: boolean
+    parentCategoryId: string
+    dateCreated: Timestamp | null;
+    dateModified: Timestamp | null;
   }
   
   // 기본값 생성 함수
-  export const createEmptyCategory = (): Category => ({
-    id: '',
-    categoryName: '',
-    displayLevel: 100,
-    isHeadData: false,
-    originaCompanyId: ''
-  })
+  export function createEmptyCategory(): Category {
+    return {
+      id: '',
+      docId: '',
+      categoryName: '',
+      displayLevel: 0,
+      useParentData: false,
+      parentCategoryId: '',
+      dateCreated: null,
+      dateModified: null,
+    };
+  }
+  
   
