@@ -44,8 +44,8 @@
             </li>
             <li>
               <button
-                @click="$emit('navigate', '/admin/options')"
-                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/options' ? 'bg-gray-600' : '']"
+                @click="$emit('navigate', '/admin/option')"
+                :class="['w-full text-left px-4 py-2 flex items-center hover:bg-gray-700', currentPath === '/admin/option' ? 'bg-gray-600' : '']"
               >
                 옵션
               </button>
@@ -148,7 +148,9 @@ watch(
       '/admin/product',
       '/admin/product/create',
       '/admin/product/edit/[id]', // 🔥 추가!
-      '/admin/options',
+      '/admin/option',
+      '/admin/option/create',
+      '/admin/option/edit/[id]', // 🔥 추가!      
       '/admin/option-groups',
       '/admin/categories',
     ];
@@ -156,7 +158,7 @@ watch(
     const isProductPath =
       productPaths.includes(newPath) ||
       productPaths.some(path =>
-        path.includes('[id]') && newPath.startsWith('/admin/product/edit/')
+        path.includes('[id]') && (newPath.startsWith('/admin/product/edit/') || newPath.startsWith('/admin/option/edit/'))
       );
 
     isProductMenuOpen.value = isProductPath;

@@ -1,7 +1,4 @@
 <template>
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <SidebarMenu @navigate="navigateTo" />
 
     <!-- Main Content -->
     <main class="flex-1 bg-gray-100 p-6">
@@ -89,7 +86,6 @@
           닫기
         </button>
       </div>
-    </div>
   </div>
 </template>
 

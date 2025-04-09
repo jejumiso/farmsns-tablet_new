@@ -4,8 +4,9 @@ import type {  DocumentMetaOnly } from '../common/documentMeta'
 
 export interface Product {
   id: string
-  idHeaderProduct: string
-  isHeadData: boolean
+  companyId: string
+  parentProductId: string
+  useParentData: boolean
   categories: string[]
   isHiddenProduct: boolean
   productName: string
@@ -36,8 +37,9 @@ export interface Product {
 export function createEmptyProduct(): Product {
   return {
     id: '',
-    idHeaderProduct: '',
-    isHeadData: false,
+    companyId: '',
+    parentProductId: '',
+    useParentData: false,
     categories: [],
     isHiddenProduct: false,
     productName: ' 상품이름',

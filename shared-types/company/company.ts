@@ -10,7 +10,7 @@ export interface Company {
   id: string
   storeType: string
   isOpen: boolean
-  idHeaderCompany: string
+  parentCompanyId: string
   isHeadCompany: boolean
   shopName: string
   imgUrl: string
@@ -81,7 +81,7 @@ export function createEmptyCompany(): Company {
     id: '',
     storeType: '',
     isOpen: false,
-    idHeaderCompany: '',
+    parentCompanyId: '',
     isHeadCompany: false,
     shopName: '',
     imgUrl: '',
