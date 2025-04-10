@@ -28,6 +28,7 @@ function navigateTo(path: string) {
 
 // 상품 추가 함수
 const addProduct = async (product: Product) => {
+  alert('상품 추가 요청: ' + JSON.stringify(product)); // 디버깅용
   try {
     await productStore.saveProduct(product); // 서버에 상품 추가
     newProduct.value = createEmptyProduct(); // 추가 후 초기화

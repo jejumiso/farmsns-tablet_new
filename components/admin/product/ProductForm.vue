@@ -17,8 +17,9 @@
     <!-- 탭: 기본 정보 -->
     <div v-if="currentTab === '기본 정보'" class="space-y-4">
       <FormInput label="상품명" v-model="product.productName" id="productName" required />
-      <!-- <FormInput label="상품명(약식)" v-model="product.productNameShort" id="productNameShort" /> -->
-      <FormInput label="이미지 URL" v-model="product.imgUrl" id="imgUrl" />
+      <FormInput label="단축 상품명" v-model="product.productNameShort" id="productNameShort" />
+      <FormInput label="썸네일 이미지 URL" v-model="product.imageThumbnailUrl" id="imageThumbnailUrl" />
+      <FormInput label="상세 이미지들 (쉼표 구분)" v-model="imageDetailUrlsInput" id="imageDetailUrls" />
       <FormInput label="단위" v-model="product.unit" id="unit" />
       <div>
         <label for="explanation" class="block text-sm font-medium text-gray-700">상품 설명</label>
@@ -34,10 +35,7 @@
 
     <!-- 탭: 재고 및 진열 -->
     <div v-else-if="currentTab === '재고 및 진열'" class="space-y-4">
-      <div class="flex items-center gap-2">
-        <input type="checkbox" v-model="product.stockStatus" id="stockStatus" />
-        <label for="stockStatus">재고 있음</label>
-      </div>
+      <FormInput label="재고 수량" v-model="product.stockQuantity" id="stockQuantity" type="number" />
       <div class="flex items-center gap-2">
         <input type="checkbox" v-model="product.isDisplay" id="isDisplay" />
         <label for="isDisplay">진열 중</label>
@@ -48,7 +46,6 @@
     <!-- 탭: 옵션 설정 -->
     <div v-else-if="currentTab === '옵션 설정'" class="space-y-4">
       <FormInput label="옵션 그룹 ID" v-model="product.optionGroupId" id="optionGroupId" />
-      <FormInput label="옵션 그룹명" v-model="product.optionGroupName" id="optionGroupName" />
       <FormInput label="옵션 IDs (쉼표 구분)" v-model="optionIdsInput" id="optionIds" />
     </div>
 
@@ -61,7 +58,24 @@
     <!-- 탭: 특가 설정 -->
     <div v-else-if="currentTab === '특가 설정'" class="space-y-4">
       <FormInput label="특가 가격" v-model="product.specialPrice" id="specialPrice" type="number" />
-      <FormInput label="특가 사용제한 수량" v-model="product.specialUsedQty" id="specialUsedQty" type="number" />
+      <FormInput label="특가 사용 제한 수량" v-model="product.specialUsedQty" id="specialUsedQty" type="number" />
+    </div>
+
+    <!-- 탭: 고급 설정 -->
+    <div v-else-if="currentTab === '고급 설정'" class="space-y-4">
+      <FormInput label="상위 상품 ID" v-model="product.parentProductId" id="parentProductId" />
+      <div class="flex items-center gap-2">
+        <input type="checkbox" v-model="product.useParentData" id="useParentData" />
+        <label for="useParentData">상위 상품 정보 사용</label>
+      </div>
+      <div>
+        <label for="categories" class="block text-sm font-medium text-gray-700">카테고리 (쉼표 구분)</label>
+        <input v-model="categoriesInput" id="categories" class="w-full mt-2 p-2 border rounded" />
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" v-model="product.isPrivateProduct" id="isPrivateProduct" />
+        <label for="isPrivateProduct">비공개 상품</label>
+      </div>
     </div>
 
     <!-- 저장 버튼 -->
@@ -87,7 +101,6 @@ const emit = defineEmits<{
   (e: 'submit', product: Product): void;
 }>();
 
-// 탭 구성
 const tabs = [
   '기본 정보',
   '가격 정보',
@@ -95,16 +108,28 @@ const tabs = [
   '옵션 설정',
   '보상 설정',
   '특가 설정',
+  '고급 설정',
 ];
 const currentTab = ref(tabs[0]);
 
-// 옵션 ID 문자열 입력 처리
+// 옵션 ID 입력 처리
 const optionIdsInput = ref(props.product.optionIds.join(','));
 watch(optionIdsInput, (val) => {
   props.product.optionIds = val.split(',').map((s) => s.trim()).filter(Boolean);
 });
 
-// 제출
+// 이미지 URL 배열 처리
+const imageDetailUrlsInput = ref(props.product.imageDetailUrls.join(','));
+watch(imageDetailUrlsInput, (val) => {
+  props.product.imageDetailUrls = val.split(',').map((s) => s.trim()).filter(Boolean);
+});
+
+// 카테고리 처리
+const categoriesInput = ref(props.product.categories.join(','));
+watch(categoriesInput, (val) => {
+  props.product.categories = val.split(',').map((s) => s.trim()).filter(Boolean);
+});
+
 const submitForm = () => {
   emit('submit', props.product);
 };

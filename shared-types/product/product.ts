@@ -8,21 +8,22 @@ export interface Product {
   parentProductId: string
   useParentData: boolean
   categories: string[]
-  isHiddenProduct: boolean
+  isPrivateProduct: boolean
   productName: string
   productNameShort: string
   priceOri: number
   priceSale: number
-  imgUrl: string
+  imageThumbnailUrl : string
+  imageDetailUrls: string[]
   unit: string
   explanation: string
-  stockStatus: boolean
+  stockQuantity : number
   isDisplay: boolean
   displayLevel: number
   specialPrice: number
   specialUsedQty: number
   optionGroupId: string
-  optionGroupName?: string
+  // optionGroupName?: string
   optionIds: string[]
   rewardStamp: number
   rewardPoint: number
@@ -41,21 +42,22 @@ export function createEmptyProduct(): Product {
     parentProductId: '',
     useParentData: false,
     categories: [],
-    isHiddenProduct: false,
+    isPrivateProduct: false,
     productName: ' 상품이름',
     productNameShort: '',
     priceOri: 0,
     priceSale: 0,
-    imgUrl: '이미지url',
+    imageThumbnailUrl: '',
+    imageDetailUrls: [],
     unit: '',
     explanation: '상품설명',
-    stockStatus: false,
+    stockQuantity : -1,
     isDisplay: false,
     displayLevel: 0,
     specialPrice: 0,
     specialUsedQty: 0,
     optionGroupId: '',
-    optionGroupName: undefined,
+    // optionGroupName: undefined,
     optionIds: [],
     rewardStamp: 0,
     rewardPoint: 0,

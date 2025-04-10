@@ -54,9 +54,9 @@ export const useOptionStore = defineStore('option', {
         const fetchedDocIds = new Set(fetchedDocuments.map(d => d.id));
         const filteredOptions = storedOptions.filter(option => fetchedDocIds.has(option.docId));
 
-        // 2. 기존 옵션 중에서 서버에서 수정된 옵션 ID를 제거
-        const fetchedOptionIds = new Set(fetchedOptions.map(opt => opt.id));
-        const remainingOptions = filteredOptions.filter(option => !fetchedOptionIds.has(option.id));
+        // 2. 서버에서 수정된 문서의 docId에 속한 옵션 제거
+        const updatedDocIds = new Set(fetchedOptions.map(opt => opt.docId));
+        const remainingOptions = filteredOptions.filter(option => !updatedDocIds.has(option.docId));
 
         // 3. 서버에서 받은 최신 옵션 추가
         const updatedOptions = [...remainingOptions, ...fetchedOptions];
@@ -66,6 +66,7 @@ export const useOptionStore = defineStore('option', {
         this.documents = fetchedDocuments;
         this.dateLastFetched = Date.now();
         this.error = null;
+
       } catch (err: any) {
         this.error = err?.message || '옵션 불러오기 실패';
       } finally {

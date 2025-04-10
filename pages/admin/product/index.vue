@@ -20,7 +20,7 @@
             <tr v-for="(product, index) in products" :key="product.id" class="border-t">
               <td class="px-4 py-2">{{ index + 1 }}</td>
               <td class="px-4 py-2">
-                <img :src="product.imgUrl" alt="상품 이미지" class="h-12 w-12 object-cover rounded" />
+                <!-- <img :src="product.imgUrls" alt="상품 이미지" class="h-12 w-12 object-cover rounded" /> -->
               </td>
               <td class="px-4 py-2">{{ product.productName }}</td>
               <td class="px-4 py-2">
