@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { defineStore } from 'pinia'
 import type { ApiResponse } from '~/shared-types/apiResponse'
 import { filterRemainingItems } from '@/utils/firestoreMerge'
+import { loadVersionCache, saveVersionCache } from '@/utils/versionCache'
 
 const ERROR_MESSAGE = {
   noCompany: '회사 정보가 없습니다.',
@@ -32,36 +33,47 @@ export const useProductStore = defineStore('product', {
       return companyId
     },
 
-    async fetchProductsIfChanged() {
+
+
+    async syncWithServer() {
       const companyId = this.getCompanyIdOrError()
       if (!companyId) return
 
       this.loading = true
       try {
-        const storedProducts = this.products
-        const res = await createProductService().getAll(companyId, this.dateLastFetched)
-        if (!res.isSuccess) {
-          this.error = res.message || ERROR_MESSAGE.loadFailed
-          return
+        // 1. 삭제된 ID 목록 조회
+        const resDeleted = await createProductService().getDeleted(companyId)
+        const deletedIds = resDeleted.isSuccess ? resDeleted.data ?? [] : []
+
+        // 2. 수정된 데이터 조회
+        const since = this.dateLastFetched
+        const resModified = await createProductService().getModified(companyId, since)
+        const updatedProducts = resModified.isSuccess ? (resModified.data ?? []) : []
+
+        // 3. 기존 products에서 삭제 목록 제거
+        const productMap = new Map(this.products.map(p => [p.id, p]))
+        for (const id of deletedIds) {
+          productMap.delete(id)
         }
 
-        const fetchedProducts = res.data!.items
-        const fetchedDocuments = res.data!.documents
+        // 4. 수정된 항목 덮어쓰기
+        for (const product of updatedProducts) {
+          productMap.set(product.id, product)
+        }
 
-        const finalProducts = filterRemainingItems(
-          storedProducts,
-          fetchedProducts,
-          fetchedDocuments,
-          product => product.docId
-        )
-        finalProducts.push(...fetchedProducts)
-
-        this.products = finalProducts
-        this.documents = fetchedDocuments
+        // 5. 갱신
+        this.products = Array.from(productMap.values())
         this.dateLastFetched = Date.now()
-        this.error = null // ✅ 성공 시 에러 초기화
-      } catch (err: any) {
-        this.error = err?.message || ERROR_MESSAGE.loadFailed
+        this.error = null
+
+        // 6. 버전 캐시 갱신
+        const versionCache = loadVersionCache()
+        versionCache.productVersion = useAuthStore().currentCompany?.productVersion ?? null
+        saveVersionCache(versionCache)
+
+      } catch (e: any) {
+        console.error('📛 syncWithServer 실패:', e)
+        this.error = e.message || ERROR_MESSAGE.loadFailed
       } finally {
         this.loading = false
       }
@@ -72,18 +84,15 @@ export const useProductStore = defineStore('product', {
       if (!companyId) return
 
       try {
-        
         const res = await createProductService().save(companyId, product)
-        console.log('✅ ✅ Saving product: 1', JSON.stringify(res))
         if (!res.isSuccess) {
           this.error = res.message || ERROR_MESSAGE.saveFailed
           return
         }
 
-        this.error = null // ✅ 성공 시 에러 초기화
-        await this.fetchProductsIfChanged()
+        this.error = null
+        // await this.fetchProductsIfChanged()
       } catch (err: any) {
-        console.log('✅ ✅ Saving product: 2', JSON.stringify(err))
         this.error = err?.message || ERROR_MESSAGE.saveFailed
       }
     },
@@ -99,8 +108,8 @@ export const useProductStore = defineStore('product', {
           return
         }
 
-        this.error = null // ✅ 성공 시 에러 초기화
-        await this.fetchProductsIfChanged()
+        this.error = null
+        // await this.fetchProductsIfChanged()
       } catch (err: any) {
         this.error = err?.message || ERROR_MESSAGE.saveFailed
       }
@@ -117,16 +126,16 @@ export const useProductStore = defineStore('product', {
           return
         }
 
-        this.error = null // ✅ 성공 시 에러 초기화
-        await this.fetchProductsIfChanged()
+        this.error = null
+        // await this.fetchProductsIfChanged()
       } catch (err: any) {
         this.error = err?.message || ERROR_MESSAGE.deleteFailed
       }
     },
 
-    async refreshProducts() {
-      await this.fetchProductsIfChanged()
-    },
+    // async refreshProducts() {
+    //   await this.fetchProductsIfChanged()
+    // },
   },
 
   persist: {

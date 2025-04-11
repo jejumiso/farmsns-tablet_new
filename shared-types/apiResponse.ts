@@ -5,7 +5,6 @@ export interface ApiResponse<T = any> {
     data?: T;
     error?: string;
     message?: string;
-    lastDocId?: string | null; // ✅ 페이징을 위한 마지막 문서 ID 추가가
 }  
 
 

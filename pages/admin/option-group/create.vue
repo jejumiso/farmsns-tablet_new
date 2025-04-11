@@ -14,12 +14,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useOptionGroupStore } from '@/stores/option-group/optionGroupStore';
+import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore';
 import { createEmptyOptionGroup } from '@/shared-types/option/optionGroup';
 import OptionGroupForm from '@/components/admin/option-group/OptionGroupForm.vue';
 import type { OptionGroup } from '@/shared-types/option/optionGroup';
 import type { Option } from '@/shared-types/option/option';
-import { useOptionStore } from '@/stores/option/optionStore';
+import { useOptionStore } from '@/stores/option/useOptionStore';
 
 const router = useRouter();
 const optionGroupStore = useOptionGroupStore();

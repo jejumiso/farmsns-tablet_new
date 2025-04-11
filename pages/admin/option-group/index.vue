@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import type { OptionGroup } from '@/shared-types/option/optionGroup';
-import { useOptionGroupStore } from '@/stores/option-group/optionGroupStore';
+import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore';
 
 const optionGroupStore = useOptionGroupStore();
 

@@ -1,18 +1,19 @@
 // packages/shared/services/userService.ts
 import type { ApiResponse } from '@/shared-types/apiResponse';
 import { useApi } from '@/composables/useApi'
+import { createDocumentService } from '../common/documentService';
+import { COLLECTION_PERMISSIONS } from '@/shared-constants/collections';
+import type { Administrator } from '~/shared-types/administrator/administrator';
+const documentService = createDocumentService<Administrator>(COLLECTION_PERMISSIONS.administrators.name)
+
 export function createAdministratorService() {
-  const api = useApi() // ✅ 여기서 axios 인스턴스 생성
-
-
   return {
-    async getAdministratorById(id: string): Promise<ApiResponse> {
-      const response = await api.get(`/api/administrator/AdministratorByLogin/${id}`); // 단수형 엔드포인트로 변경
-      return response.data as ApiResponse;
+    async getAdministratorById(adminId: string) {
+      return documentService.getOne('', adminId)
     },
-    async createAdministrator(data: any): Promise<ApiResponse> {
-      const response = await api.post(`/administrator`, data);
-      return response.data as ApiResponse;
-    },
-  };
+
+    // 📌 필요한 함수가 더 생기면 여기에 추가
+    // async getAllAdministrators(...) { ... }
+    // async saveAdministrator(...) { ... }
+  }
 }

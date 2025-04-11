@@ -74,6 +74,7 @@ export interface Company {
   optionsUser: Option[]
   idCompany: string
   tabletSettings: TabletSettings
+  productVersion : number
 }
 
 export function createEmptyCompany(): Company {
@@ -159,7 +160,8 @@ export function createEmptyCompany(): Company {
       pendingRewardAmount: 0,
       rewardResetValue: 0,
       dateCreated: null,
-    } as TabletSettings
+    } as TabletSettings,
+    productVersion: 0,
   }
 }
 

@@ -1,29 +1,62 @@
-// packages/shared/services/product/productService.ts
-import type { Product  } from '@/shared-types/product/product';
-import { createDocumentService } from '../common/documentService';
-import { PRODUCTS_COLLECTION } from '~/shared-constants/collections';
+// src/services/product/productService.ts
+import type { Product } from '@/shared-types/product/product'
+import { createDocumentService } from '@/services/common/documentService'
 
+export function createProductService() {
+  const documentService = createDocumentService<Product>('products')
 
-export const createProductService = () => createDocumentService<Product>(PRODUCTS_COLLECTION);
+  return {
+    /**
+     * 전체 상품 조회
+     */
+    async getAll(companyId: string) {
+        return  await documentService.getAll(companyId)
 
-// export function createProductService() {
-//   const api = useApi() // ✅ 여기서 axios 인스턴스 생성
-//   return {
-//     async getCompanyProducts(companyId: string, dateLastFetched:number): Promise<ApiResponse> {
-//       // const response = await api.get(`/api/products/${companyId}`); // 단수형 엔드포인트로 변경
-//       const response = await api.get(`/api/products/${companyId}`, {
-//         params: { since: dateLastFetched } // ✅ 서버는 since로 받음
-//       });
-//       return response.data as ApiResponse;
-//     },
-//     async save(companyId: string, product: Product ): Promise<ApiResponse> {
-//        const response =  await api.post(`/api/product/${companyId}`, product);
-//        return response.data as ApiResponse;
-//       },
-//     }
-//     // async update(companyId: string, productId: string, product: Product): Promise<ApiResponse> {
-//     //   const response =  await api.post(`/api/product/${companyId}/${productId}`, product);
-//     //   return response.data as ApiResponse;
-//     //   }
-//     // }
-// }
+    },
+
+    /**
+     * 수정된 상품만 조회 (since 기준)
+     */
+    async getModified(companyId: string, since: number) {
+        return  await documentService.getAll(companyId,since)
+
+    },
+
+    /**
+     * 단일 상품 조회
+     */
+    async getById(companyId: string, itemId: string) {
+      return await documentService.getOne(companyId, itemId)
+
+    },
+
+    /**
+     * 상품 저장 (단일)
+     */
+    async save(companyId: string, product: Product) {
+      return await documentService.save(companyId, product)
+    },
+
+    /**
+     * 상품 저장 (복수)
+     */
+    async saveMany(companyId: string, products: Product[]) {
+      return await documentService.saveMany(companyId, products)
+    },
+
+    /**
+     * 상품 삭제
+     */
+    async deleteItem(companyId: string, itemId: string) {
+      return await documentService.deleteItem(companyId, itemId)
+    },
+
+    /**
+     * 상품 삭제 문서(단일문서임)
+     */
+    // ✅ 삭제된 상품 ID 목록 조회
+    async getDeleted(companyId: string) {
+      return await documentService.getDeleted(companyId)
+    },
+  }
+}

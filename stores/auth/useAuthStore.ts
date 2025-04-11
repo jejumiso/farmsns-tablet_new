@@ -6,7 +6,8 @@ import type { Company } from '@/shared-types/company/company'; // 회사 타입 
 import type { User } from 'firebase/auth'; // Firebase User 타입 가져오기
 import { createAdministratorService } from '@/services/administrator/administratorService'; 
 import { createCompanyService } from '@/services/company/companyService'; 
-import { useProductStore } from '@/stores/product/productStore';
+import { useProductStore } from '@/stores/product/useProductStore';
+import { unwatchCompanyRealtime, watchCompanyRealtime } from '@/composables/company/useCompanyWatcher';
 
 
 
@@ -46,7 +47,11 @@ export const useAuthStore = defineStore('auth', {
       this.currentUser = null; // Firebase 유저 초기화
       this.currentAdministrator = null; // 앱 유저 초기화
       this.currentCompany = null; // 회사 정보 초기화
+      // ✅ 다른 저장소 초기화
+      const productStore = useProductStore()
+      productStore.$reset() // 상품 저장소 초기화
       console.log('[authStore] User logged out'); // 디버깅 로그 추가
+      unwatchCompanyRealtime();
     },
     setFirebaseUser(user: any) {
       this.currentUser = user; // Firebase 유저 상태 업데이트
@@ -80,16 +85,15 @@ export const useAuthStore = defineStore('auth', {
           
             if (getAdministratorResponse.isSuccess) {
               
-              const getCompanyResponse = await createCompanyService().getCompanyById(getAdministratorResponse.data.companyId);
+              const getCompanyResponse = await createCompanyService().getCompanyById(getAdministratorResponse.data!.companyId);
               console.log('로그인 회사 받으 값', JSON.stringify(getCompanyResponse));
               if (getCompanyResponse.isSuccess) {
                 this.currentAdministrator = getAdministratorResponse.data as Administrator
                 this.currentCompany = getCompanyResponse.data as Company
                 console.log('[authStore] App User and Company set:', this.currentAdministrator, this.currentCompany);
+                 // ✅ 여기 추가!
+                watchCompanyRealtime(this.currentCompany.id)
                 
-                 // ✅ 여기에 상품 초기화 호출
-                  const productStore = useProductStore();
-                  await productStore.fetchProductsIfChanged(); // 회사 ID 기준 상품 목록 로딩
 
               } else {
                 console.error('[authStore] Error fetching company:', getCompanyResponse.error);

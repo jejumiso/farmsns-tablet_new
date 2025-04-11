@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import type { Option } from '@/shared-types/option/option';
-import { useOptionStore } from '@/stores/option/optionStore';
+import { useOptionStore } from '@/stores/option/useOptionStore';
 
 const optionStore = useOptionStore();
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted, computed } from 'vue';
-import { useOptionStore } from '@/stores/option/optionStore';
+import { useOptionStore } from '@/stores/option/useOptionStore';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
 import OptionForm from '@/components/admin/option/OptionForm.vue';
 import type { Option } from '@/shared-types/option/option';

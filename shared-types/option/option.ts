@@ -34,7 +34,7 @@ export interface Option {
 
   // 충돌 조합 정보 (단순 + 복합 대응 가능)
   invalidCombinations?: InvalidCombination[];
-
+  isDeleted: boolean;
   dateCreated: Timestamp | null;
   dateModified: Timestamp | null;
 }
@@ -61,8 +61,9 @@ export function createEmptyOption(): Option {
     displayLevel: 0,
 
     invalidCombinations: [],
-
+    isDeleted: false,
     dateCreated: null,
     dateModified: null,
+    
   };
 }

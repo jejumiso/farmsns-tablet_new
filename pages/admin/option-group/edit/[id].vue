@@ -26,8 +26,8 @@
   <script setup lang="ts">
   import { ref, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { useOptionGroupStore } from '@/stores/option-group/optionGroupStore';
-  import { useOptionStore } from '@/stores/option/optionStore';
+  import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore';
+  import { useOptionStore } from '@/stores/option/useOptionStore';
   import { createOptionGroupService } from '@/services/option-group/optionGroupService';
   import OptionGroupForm from '@/components/admin/option-group/OptionGroupForm.vue';
   import { showConfirm } from '@/utils/confirmDialog'; // ✅ confirm 팝업 유틸이 있다면

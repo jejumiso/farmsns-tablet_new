@@ -10,7 +10,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SidebarMenu from '@/components/layout/SidebarMenu.vue'; // 메뉴 컴포넌트
-import { useProductStore } from '@/stores/product/productStore';
+import { useProductStore } from '@/stores/product/useProductStore';
 import ProductForm from '@/components/admin/product/ProductForm.vue';
 import { createEmptyProduct } from '@/shared-types/product/product'; // 기본 상품 객체
 import type { Product } from '@/shared-types/product/product'; // Product 타입

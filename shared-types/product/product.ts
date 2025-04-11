@@ -27,6 +27,7 @@ export interface Product {
   optionIds: string[]
   rewardStamp: number
   rewardPoint: number
+  isDeleted: boolean
   dateCreated: Timestamp | null
   dateModified: Timestamp | null
   docId : string
@@ -61,6 +62,7 @@ export function createEmptyProduct(): Product {
     optionIds: [],
     rewardStamp: 0,
     rewardPoint: 0,
+    isDeleted: false,
     dateCreated: null,
     dateModified: null,
     docId : '',

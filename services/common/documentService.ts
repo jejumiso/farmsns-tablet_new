@@ -3,44 +3,80 @@ import type { BaseDocument } from '@/shared-types/common/documentMeta'
 import { useApi } from '@/composables/useApi'
 import type { ApiResponse } from '@/shared-types/apiResponse'
 
-export function createDocumentService<T>(collectionName: string) {
+import { withApiSafety } from '@/utils/withApiSafety'
+import type { COLLECTION_PERMISSIONS } from '~/shared-constants/collections'
+
+export function createDocumentService<T>(collectionKey: keyof typeof COLLECTION_PERMISSIONS) {
+
   return {
-    async getAll(companyId: string, since: number) : Promise<ApiResponse<{
-      documents: BaseDocument<T>[],
-      items: T[]
-    }>> {
-      const res = await useApi().get<ApiResponse<{
-        documents: BaseDocument<T>[],
-        items: T[]
-      }>>(`api/document/${collectionName}?companyId=${companyId}&since=${since}`);
-      return res.data;
+    async getOne(companyId: string, itemId: string): Promise<ApiResponse<T>> {
+      return withApiSafety(() =>
+        useApi().get<ApiResponse<T>>(
+          `api/document/admin/${collectionKey}/${itemId}`,
+          { params: { companyId } }
+        )
+      )
     },
 
-    async save(companyId: string, item: T) {
-      const res = await useApi().post<ApiResponse>(
-        `api/document/${collectionName}`,
-        { companyId, item }
-      );
-      return res.data;
+    async getAll(companyId: string, since?: number): Promise<ApiResponse<T[]>> {
+      return withApiSafety(() =>
+        useApi().get<ApiResponse<T[]>>(
+          `api/document/admin/${collectionKey}`,
+          {
+            params: {
+              companyId,
+              ...(since ? { since } : {}),
+            },
+          }
+        )
+      )
     },
-    async saveMany(companyId: string, items: T[]) {
-      const res = await useApi().post<ApiResponse>(
-        `api/document/${collectionName}/saveMany`,
-        { companyId, items }
-      );
-      return res.data;
+
+    async save(companyId: string, item: T): Promise<ApiResponse> {
+      return withApiSafety(() =>
+        useApi().post<ApiResponse>(
+          `api/document/admin/${collectionKey}`,
+          { companyId, item }
+        )
+      )
     },
-    async deleteItem(companyId: string, itemId: string) {
-      const res = await useApi().delete<ApiResponse>(
-        `api/document/${collectionName}/delete`,
-        {
-          params: {
-            companyId,
-            itemId,
-          },
-        }
-      );
-      return res.data;
+
+    async saveMany(companyId: string, items: T[]): Promise<ApiResponse> {
+      return withApiSafety(() =>
+        useApi().post<ApiResponse>(
+          `api/document/admin/${collectionKey}/saveMany`,
+          { companyId, items }
+        )
+      )
+    },
+
+    async deleteItem(companyId: string, itemId: string): Promise<ApiResponse> {
+      return withApiSafety(() =>
+        useApi().delete<ApiResponse>(
+          `api/document/admin/${collectionKey}/delete`,
+          {
+            params: {
+              companyId,
+              itemId,
+            },
+          }
+        )
+      )
+    },
+    
+    // src/services/product/productService.ts
+    async getDeleted(companyId: string): Promise<ApiResponse<string[]>> {
+      return withApiSafety(() =>
+        useApi().get<ApiResponse<string[]>>(
+          `api/document/admin/${collectionKey}/deleted`, // ✅ 여기가 동적
+          {
+            params: { companyId }
+          }
+        )
+      )
     }
-  };
+    
+
+  }
 }
+

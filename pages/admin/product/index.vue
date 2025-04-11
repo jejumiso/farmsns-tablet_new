@@ -45,7 +45,7 @@
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import SidebarMenu from '@/components/layout/SidebarMenu.vue';
-import { useProductStore } from '@/stores/product/productStore'; // Pinia store
+import { useProductStore } from '@/stores/product/useProductStore'; // Pinia store
 import type { Product } from '@/shared-types/product/product'; // 경로는 실제 위치에 맞게 조정
 
 const router = useRouter();
@@ -67,8 +67,8 @@ async function loadProducts() {
   loading.value = true;
   error.value = '';
   try {
-    await productStore.fetchProductsIfChanged(); // 저장소에서 상품 목록 갱신
-    products.value = productStore.products; // 저장소에서 상품 목록 가져오기
+    // await productStore.fetchProductsIfChanged(); // 저장소에서 상품 목록 갱신
+    // products.value = productStore.products; // 저장소에서 상품 목록 가져오기
   } catch (err) {
     error.value = '상품 목록을 불러오는 데 실패했습니다.';
   } finally {

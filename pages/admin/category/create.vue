@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useCategoryStore } from '@/stores/category/categoryStore';
+import { useCategoryStore } from '@/stores/category/useCategoryStore';
 import { createEmptyCategory } from '@/shared-types/category/category';
 import CategoryForm from '@/components/admin/category/CategoryForm.vue';
 

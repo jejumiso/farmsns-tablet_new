@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
-import { useCategoryStore } from '@/stores/category/categoryStore';
+import { useCategoryStore } from '@/stores/category/useCategoryStore';
 import CategoryForm from '@/components/admin/category/CategoryForm.vue';
 import { showConfirm } from '@/utils/confirmDialog';
 import type { Category } from '@/shared-types/category/category';

@@ -9,6 +9,7 @@ export interface Category {
     displayLevel: number
     useParentData: boolean
     parentCategoryId: string
+    isDeleted: boolean
     dateCreated: Timestamp | null;
     dateModified: Timestamp | null;
   }
@@ -22,6 +23,7 @@ export interface Category {
       displayLevel: 0,
       useParentData: false,
       parentCategoryId: '',
+      isDeleted: false,  
       dateCreated: null,
       dateModified: null,
     };

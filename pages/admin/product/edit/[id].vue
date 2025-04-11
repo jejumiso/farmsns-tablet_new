@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useProductStore } from '@/stores/product/productStore';
+import { useProductStore } from '@/stores/product/useProductStore';
 import ProductForm from '@/components/admin/product/ProductForm.vue';
 import { useRoute } from 'vue-router';
 import type { Product } from '@/shared-types/product/product'; // 경로는 실제 위치에 맞게 조정

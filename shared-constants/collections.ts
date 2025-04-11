@@ -1,25 +1,123 @@
-// Firestore 컬렉션 이름들을 상수로 정의
-export const COMPANIES_COLLECTION: string = 'v2_companies';
-export const COUNTER_COLLECTION = 'v2_counters';
-export const NICEPAYSUBSCRIPTIONS_COLLECTION: string = 'v2_nicepaySubscriptions';
-export const USERS_COLLECTION: string = 'v2_users';
-export const PRODUCTS_COLLECTION: string = 'v2_products';
-export const CATEGORIES_COLLECTION: string = 'v2_categories';
-export const STORAGEIMGS_COLLECTION: string = 'v2_storageImgs';
-export const OPTIONS_COLLECTION = 'v2_option';
-export const OPTIONGROUPS_COLLECTION = 'v2_optionGroups';
-export const ORDERS_COLLECTION: string = 'v2_orders';
-export const COMPANY_REGISTER_COLLECTION: string = 'v2_company_register';
+type PermissionAction = 'read' | 'create' | 'update' | 'delete'; // 허용된 액션 정의
 
-export const ADMINISTRATORS_COLLECTION: string = 'v2_administrators';
+interface CollectionPermissions {
+  name: string;
+  key: string;
+  permissions: {
+    [key in PermissionAction]: string[]; // 'read', 'create', 'update', 'delete' 키에 대해 string 배열
+  };
+}
 
-export const REWARD_CODES_COLLECTION: string = 'v2_reward_codes'
-
-export const COUPONS_COLLECTION: string = 'v2_coupons';
-export const TABLETS_COLLECTION: string = 'v2_tablets';
-export const COUPONCREATIONCONDITIONS_COLLECTION: string = 'v2_couponCreationConditions';
-
-export const STAMPLOGS_COLLECTION: string = 'v2_stampLogs';
-
-export const ORDERS_WAITING_COLLECTION: string = 'v2_ordersWating';
-// 다른 컬렉션 상수도 여기 추가할 수 있습니다.
+  
+  export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = {
+    counter: {
+      name: 'v2_counter',
+      permissions: {
+        read: ['super'],
+        create: ['guest'],
+        update: ['super'],
+        delete: ['super'],
+      },
+      key: 'counter',
+    },
+    companies: {
+      name: 'v2_companies',
+      permissions: {
+        read: ['admin'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin', 'super'],
+      },
+      key: "company"
+    },
+    administrators: {
+      name: 'v2_administrators',
+      permissions: {
+        read: ['admin'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin', 'super'],
+      },
+      key: "administrator"
+    },
+    users: {
+      name: 'v2_users',
+      permissions: {
+        read: ['admin'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin','super'],
+      },
+      key: "user"
+    },
+    options: {
+      name: 'v2_options',
+      permissions: {
+        read: ['admin'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin', 'super'],
+      },
+      key: "option"
+    },
+    optionGroups: {
+      name: 'v2_optionGroups',
+      permissions: {
+        read: ['admin'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin', 'super'],
+      },
+      key: "optionGroup"
+    },
+    products: {
+      name: 'v2_products',
+      permissions: {
+        read: ['admin', 'user', 'guest'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin'],
+      },
+      key: "product"
+    },
+    orders: {
+      name: 'v2_orders',
+      permissions: {
+        read: ['admin', 'user'],
+        create: ['admin', 'user'],
+        update: ['admin', 'user'],
+        delete: ['admin', 'user'],
+      },
+      key: "order"
+    },
+    stampLogs: {
+      name: 'v2_stampLogs',
+      permissions: {
+        read: ['admin'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin'],
+      },
+      key: "stampLog"
+    },
+    adminLogs: {
+      name: 'v2_adminLogs',
+      permissions: {
+        read: ['admin'],
+        create: ['admin'],
+        update: ['admin'],
+        delete: ['admin'],
+      },
+      key: "adminLog"
+    },
+    ordersWating: {
+      name: 'v2_ordersWating',
+      permissions: {
+        read: ['admin', 'user'],
+        create: ['admin', 'user'],
+        update: ['admin', 'user'],
+        delete: ['admin', 'user'],
+      },
+      key: "orderWaiting"
+    },
+  };

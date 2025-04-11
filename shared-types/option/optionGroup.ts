@@ -9,6 +9,7 @@ export interface OptionGroup {
   optionIds: string[];
   options: Option[]; // 주의!! firestore에는 저장하지 않음.
   docId: string; 
+  isDeleted: boolean;
   dateModified: Timestamp;
   dateCreated: Timestamp;
 }
@@ -23,6 +24,7 @@ export function createEmptyOptionGroup(): OptionGroup {
     optionIds: [],
     options: [],
     docId: '', 
+    isDeleted: false,  
     dateCreated: Timestamp.fromDate(new Date(0)),
     dateModified: Timestamp.fromDate(new Date(0)), // 초기값: 1970-01-01
   };

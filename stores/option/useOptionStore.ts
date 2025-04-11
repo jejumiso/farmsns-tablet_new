@@ -83,7 +83,7 @@ export const useOptionStore = defineStore('option', {
       if (!companyId) {
         return {
           isSuccess: false,
-          message: '회사 정보가 없습니다.',
+          message: '회사 정보가 없습니다~.',
         };
       }
 

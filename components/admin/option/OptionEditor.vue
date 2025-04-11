@@ -131,7 +131,7 @@ import FormInput from '@/components/common/FormInput.vue';
 import OptionPreview from './OptionPreview.vue';
 import OptionListView from './OptionListView.vue';
 import { useRouter } from 'vue-router';
-import { useOptionStore } from '@/stores/option/optionStore';
+import { useOptionStore } from '@/stores/option/useOptionStore';
 
 const router = useRouter();
 const optionStore = useOptionStore();

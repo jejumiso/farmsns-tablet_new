@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useCategoryStore } from '@/stores/category/categoryStore';
+import { useCategoryStore } from '@/stores/category/useCategoryStore';
 import type { Category } from '@/shared-types/category/category';
 
 const categoryStore = useCategoryStore();

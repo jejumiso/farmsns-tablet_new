@@ -1,3 +1,4 @@
+//services/auth/authService.ts
 import { useApi } from '@/composables/useApi'
 import { signInWithCustomToken, signOut, onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
