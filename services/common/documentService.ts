@@ -6,13 +6,13 @@ import type { ApiResponse } from '@/shared-types/apiResponse'
 import { withApiSafety } from '@/utils/withApiSafety'
 import type { COLLECTION_PERMISSIONS } from '~/shared-constants/collections'
 
-export function createDocumentService<T>(collectionKey: keyof typeof COLLECTION_PERMISSIONS) {
+export function createDocumentService<T>(collectionId: keyof typeof COLLECTION_PERMISSIONS) {
 
   return {
     async getOne(companyId: string, itemId: string): Promise<ApiResponse<T>> {
       return withApiSafety(() =>
         useApi().get<ApiResponse<T>>(
-          `api/document/admin/${collectionKey}/${itemId}`,
+          `api/document/admin/${collectionId}/${itemId}`,
           { params: { companyId } }
         )
       )
@@ -21,7 +21,7 @@ export function createDocumentService<T>(collectionKey: keyof typeof COLLECTION_
     async getAll(companyId: string, since?: number): Promise<ApiResponse<T[]>> {
       return withApiSafety(() =>
         useApi().get<ApiResponse<T[]>>(
-          `api/document/admin/${collectionKey}`,
+          `api/document/admin/${collectionId}`,
           {
             params: {
               companyId,
@@ -35,7 +35,7 @@ export function createDocumentService<T>(collectionKey: keyof typeof COLLECTION_
     async save(companyId: string, item: T): Promise<ApiResponse> {
       return withApiSafety(() =>
         useApi().post<ApiResponse>(
-          `api/document/admin/${collectionKey}`,
+          `api/document/admin/${collectionId}`,
           { companyId, item }
         )
       )
@@ -44,7 +44,7 @@ export function createDocumentService<T>(collectionKey: keyof typeof COLLECTION_
     async saveMany(companyId: string, items: T[]): Promise<ApiResponse> {
       return withApiSafety(() =>
         useApi().post<ApiResponse>(
-          `api/document/admin/${collectionKey}/saveMany`,
+          `api/document/admin/${collectionId}/saveMany`,
           { companyId, items }
         )
       )
@@ -53,11 +53,10 @@ export function createDocumentService<T>(collectionKey: keyof typeof COLLECTION_
     async deleteItem(companyId: string, itemId: string): Promise<ApiResponse> {
       return withApiSafety(() =>
         useApi().delete<ApiResponse>(
-          `api/document/admin/${collectionKey}/delete`,
+          `api/document/admin/${collectionId}/${itemId}`,
           {
             params: {
-              companyId,
-              itemId,
+              companyId
             },
           }
         )
@@ -68,7 +67,7 @@ export function createDocumentService<T>(collectionKey: keyof typeof COLLECTION_
     async getDeleted(companyId: string): Promise<ApiResponse<string[]>> {
       return withApiSafety(() =>
         useApi().get<ApiResponse<string[]>>(
-          `api/document/admin/${collectionKey}/deleted`, // ✅ 여기가 동적
+          `api/document/admin/${collectionId}/deleted`, // ✅ 여기가 동적
           {
             params: { companyId }
           }

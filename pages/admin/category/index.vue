@@ -71,7 +71,6 @@ async function loadCategories() {
   loading.value = true;
   error.value = '';
   try {
-    await categoryStore.fetchCategoriesIfChanged();
     categories.value = categoryStore.categories;
   } catch (err) {
     error.value = '카테고리 목록을 불러오는 데 실패했습니다.';

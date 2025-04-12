@@ -18,7 +18,6 @@ const otherOptions = computed(() => {
 });
 
 onMounted(async () => {
-  await optionStore.fetchOptionsIfChanged();
   option.value = optionStore.options.find(o => o.id === optionId) || null;
 });
 

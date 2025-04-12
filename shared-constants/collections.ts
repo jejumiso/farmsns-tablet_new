@@ -1,123 +1,145 @@
-type PermissionAction = 'read' | 'create' | 'update' | 'delete'; // 허용된 액션 정의
+type PermissionAction = 'read' | 'create' | 'update' | 'delete';
 
 interface CollectionPermissions {
   name: string;
   key: string;
+  prefix: string;
   permissions: {
-    [key in PermissionAction]: string[]; // 'read', 'create', 'update', 'delete' 키에 대해 string 배열
+    [key in PermissionAction]: string[];
   };
 }
 
-  
-  export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = {
-    counter: {
-      name: 'v2_counter',
-      permissions: {
-        read: ['super'],
-        create: ['guest'],
-        update: ['super'],
-        delete: ['super'],
-      },
-      key: 'counter',
+export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = {
+  counter: {
+    name: 'v2_counter',
+    key: 'counter',
+    prefix: 'cnt',
+    permissions: {
+      read: ['super'],
+      create: ['guest'],
+      update: ['super'],
+      delete: ['super'],
     },
-    companies: {
-      name: 'v2_companies',
-      permissions: {
-        read: ['admin'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin', 'super'],
-      },
-      key: "company"
+  },
+  companies: {
+    name: 'v2_companies',
+    key: 'company',
+    prefix: 'co',
+    permissions: {
+      read: ['admin'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin', 'super'],
     },
-    administrators: {
-      name: 'v2_administrators',
-      permissions: {
-        read: ['admin'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin', 'super'],
-      },
-      key: "administrator"
+  },
+  administrators: {
+    name: 'v2_administrators',
+    key: 'administrator',
+    prefix: 'adm',
+    permissions: {
+      read: ['admin'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin', 'super'],
     },
-    users: {
-      name: 'v2_users',
-      permissions: {
-        read: ['admin'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin','super'],
-      },
-      key: "user"
+  },
+  users: {
+    name: 'v2_users',
+    key: 'user',
+    prefix: 'u',
+    permissions: {
+      read: ['admin'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin', 'super'],
     },
-    options: {
-      name: 'v2_options',
-      permissions: {
-        read: ['admin'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin', 'super'],
-      },
-      key: "option"
+  },
+  options: {
+    name: 'v2_options',
+    key: 'option',
+    prefix: 'opt',
+    permissions: {
+      read: ['admin'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin', 'super'],
     },
-    optionGroups: {
-      name: 'v2_optionGroups',
-      permissions: {
-        read: ['admin'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin', 'super'],
-      },
-      key: "optionGroup"
+  },
+  optionGroups: {
+    name: 'v2_optionGroups',
+    key: 'optionGroup',
+    prefix: 'og',
+    permissions: {
+      read: ['admin'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin', 'super'],
     },
-    products: {
-      name: 'v2_products',
-      permissions: {
-        read: ['admin', 'user', 'guest'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin'],
-      },
-      key: "product"
+  },
+  products: {
+    name: 'v2_products',
+    key: 'product',
+    prefix: 'p',
+    permissions: {
+      read: ['admin', 'user', 'guest'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin'],
     },
-    orders: {
-      name: 'v2_orders',
-      permissions: {
-        read: ['admin', 'user'],
-        create: ['admin', 'user'],
-        update: ['admin', 'user'],
-        delete: ['admin', 'user'],
-      },
-      key: "order"
+  },
+  orders: {
+    name: 'v2_orders',
+    key: 'order',
+    prefix: 'ord',
+    permissions: {
+      read: ['admin', 'user'],
+      create: ['admin', 'user'],
+      update: ['admin', 'user'],
+      delete: ['admin', 'user'],
     },
-    stampLogs: {
-      name: 'v2_stampLogs',
-      permissions: {
-        read: ['admin'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin'],
-      },
-      key: "stampLog"
+  },
+  stampLogs: {
+    name: 'v2_stampLogs',
+    key: 'stampLog',
+    prefix: 'stl',
+    permissions: {
+      read: ['admin'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin'],
     },
-    adminLogs: {
-      name: 'v2_adminLogs',
-      permissions: {
-        read: ['admin'],
-        create: ['admin'],
-        update: ['admin'],
-        delete: ['admin'],
-      },
-      key: "adminLog"
+  },
+  adminLogs: {
+    name: 'v2_adminLogs',
+    key: 'adminLog',
+    prefix: 'adl',
+    permissions: {
+      read: ['admin'],
+      create: ['admin'],
+      update: ['admin'],
+      delete: ['admin'],
     },
-    ordersWating: {
-      name: 'v2_ordersWating',
-      permissions: {
-        read: ['admin', 'user'],
-        create: ['admin', 'user'],
-        update: ['admin', 'user'],
-        delete: ['admin', 'user'],
-      },
-      key: "orderWaiting"
+  },
+  ordersWating: {
+    name: 'v2_ordersWating',
+    key: 'orderWaiting',
+    prefix: 'ow',
+    permissions: {
+      read: ['admin', 'user'],
+      create: ['admin', 'user'],
+      update: ['admin', 'user'],
+      delete: ['admin', 'user'],
     },
-  };
+  },
+  categories: {
+    name: 'v2_categories',
+    permissions: {
+      read: ['admin', 'user'],
+      create: ['admin', 'user'],
+      update: ['admin', 'user'],
+      delete: ['admin', 'user'],
+    },
+    key: "category",
+    prefix: "ctg"
+  },
+};

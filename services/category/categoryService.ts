@@ -1,23 +1,59 @@
-import { useApi } from '@/composables/useApi';
-import type { ApiResponse } from '@/shared-types/apiResponse';
-import type { Category } from '@/shared-types/category/category';
+// src/services/category/categoryService.ts
+import type { Category } from '@/shared-types/category/category'
+import { createDocumentService } from '@/services/common/documentService'
+import type { ApiResponse } from '~/shared-types/apiResponse'
 
 export function createCategoryService() {
-  const api = useApi();
+  const documentService = createDocumentService<Category>('categories') // 'categories'는 collectionId입니다.
 
   return {
-
-    // ✅ 카테고리 추가 또는 수정
-    async save(companyId: string, category: Category): Promise<ApiResponse> {
-      const response = await api.post(`/api/category/${companyId}`, category);
-      console.log('📡 save category:', companyId, category);
-      return response.data as ApiResponse;
+    /**
+     * 전체 카테고리 조회
+     */
+    async getAll(companyId: string) {
+      return await documentService.getAll(companyId)
     },
 
-    // ✅ 카테고리 삭제
-    async delete(companyId: string, docId: string, categoryId: string): Promise<ApiResponse> {
-      const response = await api.delete(`/api/category/${companyId}/${docId}/${categoryId}`);
-      return response.data as ApiResponse;
-    }
-  };
+    /**
+     * 수정된 카테고리만 조회 (since 기준)
+     */
+    async getModified(companyId: string, since: number) {
+      return await documentService.getAll(companyId, since)
+    },
+
+    /**
+     * 단일 카테고리 조회
+     */
+    async getById(companyId: string, itemId: string) {
+      return await documentService.getOne(companyId, itemId)
+    },
+
+    /**
+     * 카테고리 저장 (단일)
+     */
+    async save(companyId: string, category: Category) {
+      return await documentService.save(companyId, category)
+    },
+
+    /**
+     * 카테고리 저장 (복수)
+     */
+    async saveMany(companyId: string, categories: Category[]) {
+      return await documentService.saveMany(companyId, categories)
+    },
+
+    /**
+     * 카테고리 삭제
+     */
+    async deleteItem(companyId: string, itemId: string) {
+      return await documentService.deleteItem(companyId, itemId)
+    },
+
+    /**
+     * 삭제된 카테고리 ID 목록 조회
+     */
+    async getDeleted(companyId: string):Promise<ApiResponse<string[]>> {
+      return await documentService.getDeleted(companyId)
+    },
+  }
 }

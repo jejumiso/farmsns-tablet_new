@@ -1,7 +1,7 @@
 //services/firebaseService.ts
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore/lite';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
 let firebaseApp: ReturnType<typeof initializeApp> | null = null;
 let auth: Auth | null = null;

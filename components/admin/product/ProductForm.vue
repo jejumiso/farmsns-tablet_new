@@ -80,9 +80,22 @@
 
     <!-- 저장 버튼 -->
     <div class="mt-6 flex justify-end">
-      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
+      <button type="submit" 
+        class="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50 hover:bg-blue-700"
+        :class="{ 'opacity-50 cursor-not-allowed': loading }"
+      :disabled="loading">
         {{ isEditMode ? '수정' : '추가' }}하기
       </button>
+        <!-- ✅ 삭제 버튼 (수정 모드일 때만 표시) -->
+        <button
+          v-if="isEditMode"
+          type="button"
+          class="px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50 hover:bg-red-700"
+        :class="{ 'opacity-50 cursor-not-allowed': loading }"
+      :disabled="loading"
+      @click="emit('delete')">
+          삭제하기
+        </button>
     </div>
   </form>
 </template>
@@ -95,10 +108,12 @@ import FormInput from '@/components/common/FormInput.vue';
 const props = defineProps<{
   product: Product;
   isEditMode: boolean;
+  loading: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: 'submit', product: Product): void;
+  (e: 'delete'): void // ✅ 삭제 이벤
 }>();
 
 const tabs = [

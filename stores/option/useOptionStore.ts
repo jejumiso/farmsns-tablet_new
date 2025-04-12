@@ -1,119 +1,122 @@
-import { defineStore } from 'pinia';
-import { useAuthStore } from '@/stores/auth/useAuthStore';
-import { createOptionService } from '@/services/option/optionService';
-import type { Option } from '@/shared-types/option/option';
-import type { DocumentMetaOnly } from '@/shared-types/common/documentMeta';
-import type { ApiResponse } from '~/shared-types/apiResponse';
+// stores/option/optionStore.ts
+import { defineStore } from 'pinia'
+import { useAuthStore } from '@/stores/auth/useAuthStore'
+import { createOptionService } from '@/services/option/optionService'
+import type { Option } from '@/shared-types/option/option'
+import type { ApiResponse } from '~/shared-types/apiResponse'
+import { loadVersionCache, saveVersionCache } from '@/utils/versionCache'
 
-// 상태 타입 정의
-interface OptionState {
-  options: Option[];                 // 옵션 전체 목록
-  documents: DocumentMetaOnly[];    // 문서 메타 목록 (id, date 등만)
-  dateLastFetched: number;          // 마지막으로 데이터 fetch한 시간 (밀리초 기준)
-  loading: boolean;                 // 로딩 중 여부
-  error: string | null;             // 에러 메시지
+
+const ERROR_MESSAGE = {
+  noCompany: '회사 정보가 없습니다.',
+  loadFailed: '상품 불러오기 실패',
+  saveFailed: '상품 저장 실패',
+  deleteFailed: '상품 삭제 실패',
 }
 
-// 옵션 관련 Pinia 스토어 정의
+interface OptionState {
+  options: Option[]
+  dateLastFetched: number
+  loading: boolean
+  error: string | null
+}
+
 export const useOptionStore = defineStore('option', {
   state: (): OptionState => ({
     options: [],
-    documents: [],
     dateLastFetched: 0,
     loading: false,
     error: null,
   }),
 
   actions: {
-    // 🔄 서버에서 옵션 목록을 불러오되, 변경된 경우만 갱신
-    async fetchOptionsIfChanged() {
-      const authStore = useAuthStore();
-      const companyId = authStore.currentCompany?.id || '';
-      
+    getCompanyIdOrError(): string | null {
+      const companyId = useAuthStore().currentCompany?.id || ''
       if (!companyId) {
-        this.error = '회사 정보가 없습니다.';
-        return Promise.resolve(); // ⛳ 명시적으로 종료
+        this.error = ERROR_MESSAGE.noCompany
+        return null
       }
+      return companyId
+    },
 
-      this.loading = true;
+    async syncWithServer() {
+      const companyId = this.getCompanyIdOrError()
+      if (!companyId) return
+
+      this.loading = true
       try {
-        const storedOptions: Option[] = this.options;
+        // ⏰ 24시간 경과 시 전체 동기화
+        const now = Date.now()
+        const oneDay = 1000 * 60 * 60 * 24 // 24시간
+        const since = (now - this.dateLastFetched > oneDay) ? 0 : this.dateLastFetched
 
-        // ✅ 서버에서 옵션과 문서 정보 fetch (since 활용)
-        const res = await createOptionService().getCompanyOptions(
-          companyId,
-          this.dateLastFetched
-        );
+        // 1. 삭제된 ID 목록 조회
+        const resDeleted = await createOptionService().getDeleted(companyId)
+        const deletedIds = resDeleted.isSuccess ? resDeleted.data ?? [] : []
 
-        const { options: fetchedOptions, documents: fetchedDocuments } = res.data as {
-          options: Option[];
-          documents: DocumentMetaOnly[];
-        };
+        // 2. 수정된 데이터 조회
+        const resModified = await createOptionService().getModified(companyId, since)
+        const updatedOptions = resModified.isSuccess ? (resModified.data ?? []) : []
 
-        // 1. 삭제된 문서의 옵션 제거
-        const fetchedDocIds = new Set(fetchedDocuments.map(d => d.id));
-        const filteredOptions = storedOptions.filter(option => fetchedDocIds.has(option.docId));
+        // 3. 기존 options에서 삭제 목록 제거
+        const optionMap = new Map(this.options.map(o => [o.id, o]))
+        for (const id of deletedIds) {
+          optionMap.delete(id)
+        }
 
-        // 2. 서버에서 수정된 문서의 docId에 속한 옵션 제거
-        const updatedDocIds = new Set(fetchedOptions.map(opt => opt.docId));
-        const remainingOptions = filteredOptions.filter(option => !updatedDocIds.has(option.docId));
+        // 4. 수정된 항목 덮어쓰기
+        for (const option of updatedOptions) {
+          optionMap.set(option.id, option)
+        }
 
-        // 3. 서버에서 받은 최신 옵션 추가
-        const updatedOptions = [...remainingOptions, ...fetchedOptions];
+        // 5. 갱신
+        this.options = Array.from(optionMap.values())
+        this.dateLastFetched = now
+        this.error = null
 
-        // 4. 저장소에 반영
-        this.options = updatedOptions;
-        this.documents = fetchedDocuments;
-        this.dateLastFetched = Date.now();
-        this.error = null;
+        // 6. 버전 캐시 갱신
+        const versionCache = loadVersionCache()
+        versionCache.optionVersion = useAuthStore().currentCompany?.optionVersion ?? null
+        saveVersionCache(versionCache)
 
-      } catch (err: any) {
-        this.error = err?.message || '옵션 불러오기 실패';
+      } catch (e: any) {
+        console.error('📛 syncWithServer 실패:', e)
+        this.error = e.message || ERROR_MESSAGE.loadFailed
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
-    // ✅ 옵션 추가 또는 수정 (서버에 저장 후 재갱신)
-    async saveOption(option: Option):Promise<ApiResponse>  {
-     
-      const authStore = useAuthStore();
-      const companyId = authStore.currentCompany?.id || '';
-      
-      if (!companyId) {
-        return {
-          isSuccess: false,
-          message: '회사 정보가 없습니다~.',
-        };
-      }
+    async saveOption(option: Option): Promise<ApiResponse> {
+      const companyId = this.getCompanyIdOrError()
+      if (!companyId) return { isSuccess: false, message: ERROR_MESSAGE.noCompany }
 
-      const res = await createOptionService().save(companyId, option);
+      const res = await createOptionService().save(companyId, option)
       if (!res.isSuccess) {
-        this.error = res.message || '옵션 저장 실패';
-      } else {
-        await this.fetchOptionsIfChanged();
+        this.error = res.message || ERROR_MESSAGE.saveFailed
+      }
+      return res
+    },
+
+    async deleteOption(id: string): Promise<ApiResponse> {
+      const companyId = useAuthStore().currentCompany?.id || '';
+      if (!companyId) {
+        return { isSuccess: false, message: '회사 정보가 없습니다.' };
       }
     
-      return res;
-    },
-    async deleteOption(option: Option) {
-      const companyId = useAuthStore().currentCompany?.id || '';
-      if (!companyId || !option.docId) {
-        return { isSuccess: false, message: '회사 ID 또는 docId가 없습니다.' };
+      const res = await createOptionService().deleteItem(companyId, id);
+      if (res.isSuccess) {
+        this.options = this.options.filter(option => option.id !== id);
+      } else {
+        this.error = res.message || '옵션 삭제 실패';
       }
-      return await createOptionService().delete(companyId, option.docId, option.id);
-    },
-
-    // ✅ 강제 새로고침
-    async refreshOptions() {
-      await this.fetchOptionsIfChanged();
+      return res;
     }
   },
 
-  // ✅ 로컬스토리지에 옵션 상태 저장
   persist: {
     key: 'option',
     storage: localStorage,
-    paths: ['options', 'documents', 'dateLastFetched'], // 선택적: dateLastFetched 포함
-  }
-});
+    paths: ['options', 'dateLastFetched'],
+  },
+})

@@ -4,7 +4,7 @@ import { useApi } from '@/composables/useApi'
 import { createDocumentService } from '../common/documentService';
 import { COLLECTION_PERMISSIONS } from '@/shared-constants/collections';
 import type { Administrator } from '~/shared-types/administrator/administrator';
-const documentService = createDocumentService<Administrator>(COLLECTION_PERMISSIONS.administrators.name)
+const documentService = createDocumentService<Administrator>('administrators')
 
 export function createAdministratorService() {
   return {

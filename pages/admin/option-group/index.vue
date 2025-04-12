@@ -52,7 +52,6 @@ async function loadOptionGroups() {
   loading.value = true;
   error.value = '';
   try {
-    await optionGroupStore.fetchOptionGroupsIfChanged();
     optionGroups.value = optionGroupStore.optionGroups;
   } catch (err) {
     error.value = '옵션 그룹 목록을 불러오는 데 실패했습니다.';

@@ -212,15 +212,15 @@ const removeCombination = (index: number) => {
 };
 
 const confirmDelete = async () => {
-  const ok = confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');
-  if (!ok) return;
+  const confirmed = confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');
+  if (!confirmed) return;
 
-  const res = await optionStore.deleteOption(props.option);
+  const res = await optionStore.deleteOption(props.option.id);
   if (res.isSuccess) {
-    alert('삭제되었습니다.');
+    alert('✅ 삭제되었습니다.');
     router.push('/admin/option');
   } else {
-    alert(res.message || '삭제에 실패했습니다.');
+    alert('❌ 삭제 실패: ' + (res.message || '알 수 없는 오류'));
   }
 };
 const submitForm = () => {

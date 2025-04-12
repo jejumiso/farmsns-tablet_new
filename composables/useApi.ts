@@ -24,7 +24,9 @@ export const useApi = () => {
     const currentUser = getFirebaseAuth().currentUser
     if (currentUser) {
       const token  = await currentUser.getIdToken(true)
-      console.log('🔐 [useApi] Authorization 토큰:', token ) // ✅ 로그 출력
+      // console.log('🔐 [useApi] Authorization 
+      // 
+      // 토큰:', token ) // ✅ 로그 출력
 
       config.headers.Authorization = `Bearer ${token }`
     }

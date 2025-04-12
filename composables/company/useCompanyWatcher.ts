@@ -12,7 +12,12 @@ let unsubscribeCompany: (() => void) | null = null
 export function watchCompanyRealtime(companyId: string) {
   unsubscribeCompany?.()
   const db = getFirebaseDb()
-  const companyDocRef = doc(db, COLLECTION_PERMISSIONS.companies.name, companyId)
+  console.log('🔥 db:', db) // ✅ 여기서 undefined 이면 문제
+
+  const companyCollection = COLLECTION_PERMISSIONS.companies.name
+  console.log('companyCollection:', companyCollection)
+  console.log('companyId:', companyId)
+  const companyDocRef = doc(db, companyCollection, companyId)
 
   const prevVersions = loadVersionCache()
 

@@ -8,7 +8,9 @@ import { createAdministratorService } from '@/services/administrator/administrat
 import { createCompanyService } from '@/services/company/companyService'; 
 import { useProductStore } from '@/stores/product/useProductStore';
 import { unwatchCompanyRealtime, watchCompanyRealtime } from '@/composables/company/useCompanyWatcher';
-
+import { useCategoryStore } from '@/stores/category/useCategoryStore'
+import { useOptionStore } from '@/stores/option/useOptionStore'
+import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
 
 
 
@@ -44,15 +46,21 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       const nuxtApp = useNuxtApp()
       await nuxtApp.$authService.logout(); // 로그아웃 처리
+    
       this.currentUser = null; // Firebase 유저 초기화
       this.currentAdministrator = null; // 앱 유저 초기화
       this.currentCompany = null; // 회사 정보 초기화
-      // ✅ 다른 저장소 초기화
-      const productStore = useProductStore()
-      productStore.$reset() // 상품 저장소 초기화
-      console.log('[authStore] User logged out'); // 디버깅 로그 추가
+    
+      // ✅ 모든 관련 저장소 초기화
+      useProductStore().$reset()
+      useCategoryStore().$reset()
+      useOptionStore().$reset()
+      useOptionGroupStore().$reset()
+    
+      console.log('[authStore] User logged out'); // 디버깅 로그
       unwatchCompanyRealtime();
     },
+    
     setFirebaseUser(user: any) {
       this.currentUser = user; // Firebase 유저 상태 업데이트
       console.log('[authStore] Firebase User set:', user);

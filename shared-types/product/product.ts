@@ -69,11 +69,3 @@ export function createEmptyProduct(): Product {
   }
 }
 
-export interface ProductState {
-  products: Product[]
-  documents: DocumentMetaOnly[]
-  dateLastFetched: number     // ✅ 새로 추가
-  loading: boolean
-  error: string | null
-}
-

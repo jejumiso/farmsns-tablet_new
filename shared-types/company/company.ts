@@ -75,6 +75,9 @@ export interface Company {
   idCompany: string
   tabletSettings: TabletSettings
   productVersion : number
+  categoryVersion : number
+  optionVersion: number
+  optionGroupVersion: number
 }
 
 export function createEmptyCompany(): Company {
@@ -162,6 +165,9 @@ export function createEmptyCompany(): Company {
       dateCreated: null,
     } as TabletSettings,
     productVersion: 0,
+    categoryVersion: 0,
+    optionVersion: 0,
+    optionGroupVersion: 0,
   }
 }
 

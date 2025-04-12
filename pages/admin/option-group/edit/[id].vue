@@ -43,7 +43,6 @@
   
   onMounted(async () => {
     if (!optionGroup.value) {
-      await optionGroupStore.fetchOptionGroupsIfChanged();
       optionGroup.value = optionGroupStore.optionGroups.find((g) => g.id === id) || null;
     }
   });
@@ -70,10 +69,10 @@
         // 예외 처리
         return;
         }
-    const res = await createOptionGroupService().delete(companyId, optionGroup.value!.docId, optionGroup.value!.id);
+    const res = await optionGroupStore.deleteOptionGroup(optionGroup.value!.id);
+
     if (res.isSuccess) {
       alert('삭제되었습니다.');
-      await optionGroupStore.fetchOptionGroupsIfChanged();
       router.push('/admin/option-group');
     } else {
       alert('삭제 실패: ' + (res.message || ''));

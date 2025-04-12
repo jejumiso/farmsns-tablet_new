@@ -1,11 +1,10 @@
-import type { Product, ProductState } from '@/shared-types/product/product'
-import type { DocumentMetaOnly } from '@/shared-types/common/documentMeta'
+// stores/product/useProductStore.ts
+import type { Product } from '@/shared-types/product/product'
 import { createProductService } from '@/services/product/productService'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { defineStore } from 'pinia'
-import type { ApiResponse } from '~/shared-types/apiResponse'
-import { filterRemainingItems } from '@/utils/firestoreMerge'
 import { loadVersionCache, saveVersionCache } from '@/utils/versionCache'
+import type { ApiResponse } from '@/shared-types/apiResponse'
 
 const ERROR_MESSAGE = {
   noCompany: '회사 정보가 없습니다.',
@@ -14,13 +13,25 @@ const ERROR_MESSAGE = {
   deleteFailed: '상품 삭제 실패',
 }
 
+export interface ProductState {
+  products: Product[]
+  dateLastFetched: number
+  loading: boolean
+  error: string | undefined  
+  currentPage: number,           // 👉 페이징 대비
+  scrollY: number,               // 👉 스크롤 위치 저장
+
+}
+
 export const useProductStore = defineStore('product', {
   state: (): ProductState => ({
     products: [],
-    documents: [],
     dateLastFetched: 0,
     loading: false,
-    error: null,
+    error: '',
+    currentPage: 1,           // 👉 페이징 대비
+    scrollY: 0,               // 👉 스크롤 위치 저장
+
   }),
 
   actions: {
@@ -33,114 +44,110 @@ export const useProductStore = defineStore('product', {
       return companyId
     },
 
-
-
-    async syncWithServer() {
+    async syncWithServer(): Promise<ApiResponse> {
       const companyId = this.getCompanyIdOrError()
-      if (!companyId) return
+      if (!companyId) return { isSuccess: false, message: ERROR_MESSAGE.noCompany }
 
       this.loading = true
       try {
-        // 1. 삭제된 ID 목록 조회
+        const now = Date.now()
+        const oneDay = 1000 * 60 * 60 * 24
+        const since = (now - this.dateLastFetched > oneDay) ? 0 : this.dateLastFetched
+
         const resDeleted = await createProductService().getDeleted(companyId)
         const deletedIds = resDeleted.isSuccess ? resDeleted.data ?? [] : []
 
-        // 2. 수정된 데이터 조회
-        const since = this.dateLastFetched
         const resModified = await createProductService().getModified(companyId, since)
-        const updatedProducts = resModified.isSuccess ? (resModified.data ?? []) : []
-
-        // 3. 기존 products에서 삭제 목록 제거
-        const productMap = new Map(this.products.map(p => [p.id, p]))
-        for (const id of deletedIds) {
-          productMap.delete(id)
+        if (!resModified.isSuccess) {
+          this.error = resModified.message || ERROR_MESSAGE.loadFailed
+          return { isSuccess: false, message: this.error }
         }
 
-        // 4. 수정된 항목 덮어쓰기
-        for (const product of updatedProducts) {
-          productMap.set(product.id, product)
-        }
+        const updatedProducts = resModified.data ?? []
+        const filtered = this.products.filter(p => !deletedIds.includes(p.id))
+        const merged = [
+          ...filtered.filter(p => !updatedProducts.some(up => up.id === p.id)),
+          ...updatedProducts
+        ]
 
-        // 5. 갱신
-        this.products = Array.from(productMap.values())
-        this.dateLastFetched = Date.now()
-        this.error = null
+        this.products = merged
+        this.dateLastFetched = now
+        this.error = ''
 
-        // 6. 버전 캐시 갱신
         const versionCache = loadVersionCache()
         versionCache.productVersion = useAuthStore().currentCompany?.productVersion ?? null
         saveVersionCache(versionCache)
 
+        return { isSuccess: true, data: this.products }
       } catch (e: any) {
-        console.error('📛 syncWithServer 실패:', e)
         this.error = e.message || ERROR_MESSAGE.loadFailed
+        return { isSuccess: false, message: this.error }
       } finally {
         this.loading = false
       }
     },
 
-    async saveProduct(product: Product) {
+    async saveProduct(product: Product): Promise<ApiResponse<{ id: string }>> {
       const companyId = this.getCompanyIdOrError()
-      if (!companyId) return
+      if (!companyId) return { isSuccess: false, message: ERROR_MESSAGE.noCompany }
 
       try {
         const res = await createProductService().save(companyId, product)
         if (!res.isSuccess) {
           this.error = res.message || ERROR_MESSAGE.saveFailed
-          return
+          return { isSuccess: false, message: this.error }
         }
 
-        this.error = null
-        // await this.fetchProductsIfChanged()
+        this.error = ''
+        return { isSuccess: true, data: res.data }
       } catch (err: any) {
         this.error = err?.message || ERROR_MESSAGE.saveFailed
+        return { isSuccess: false, message: this.error }
       }
     },
 
-    async saveProducts(products: Product[]) {
+    async saveProducts(products: Product[]): Promise<ApiResponse> {
       const companyId = this.getCompanyIdOrError()
-      if (!companyId) return
+      if (!companyId) return { isSuccess: false, message: ERROR_MESSAGE.noCompany }
 
       try {
         const res = await createProductService().saveMany(companyId, products)
         if (!res.isSuccess) {
           this.error = res.message || ERROR_MESSAGE.saveFailed
-          return
+          return { isSuccess: false, message: this.error }
         }
 
-        this.error = null
-        // await this.fetchProductsIfChanged()
+        this.error = ''
+        return { isSuccess: true }
       } catch (err: any) {
         this.error = err?.message || ERROR_MESSAGE.saveFailed
+        return { isSuccess: false, message: this.error }
       }
     },
 
-    async deleteProduct(productId: string) {
+    async deleteProduct(id: string): Promise<ApiResponse> {
       const companyId = this.getCompanyIdOrError()
-      if (!companyId) return
+      if (!companyId) return { isSuccess: false, message: ERROR_MESSAGE.noCompany }
 
       try {
-        const res = await createProductService().deleteItem(companyId, productId)
-        if (!res.isSuccess) {
+        const res = await createProductService().deleteItem(companyId, id)
+        if (res.isSuccess) {
+          this.products = this.products.filter(p => p.id !== id)
+          return { isSuccess: true }
+        } else {
           this.error = res.message || ERROR_MESSAGE.deleteFailed
-          return
+          return { isSuccess: false, message: this.error }
         }
-
-        this.error = null
-        // await this.fetchProductsIfChanged()
       } catch (err: any) {
         this.error = err?.message || ERROR_MESSAGE.deleteFailed
+        return { isSuccess: false, message: this.error }
       }
-    },
-
-    // async refreshProducts() {
-    //   await this.fetchProductsIfChanged()
-    // },
+    }
   },
 
   persist: {
     key: 'product',
     storage: localStorage,
-    paths: ['products', 'documents'],
+    paths: ['products', 'dateLastFetched'],
   },
 })

@@ -1,4 +1,4 @@
-import type { UserModel } from "../user/user_model";
+import type { UserModel } from "../user/userModel";
 import type { UserInCompanyType } from "../userInCompany/user_in_company_model";
 
 export type CartModel = {

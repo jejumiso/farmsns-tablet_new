@@ -72,7 +72,6 @@ async function loadOptions() {
   loading.value = true;
   error.value = '';
   try {
-    await optionStore.fetchOptionsIfChanged();
     options.value = optionStore.options;
   } catch (err) {
     error.value = '옵션 목록을 불러오는 데 실패했습니다.';

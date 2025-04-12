@@ -106,6 +106,14 @@
         </li>
       </ul>
     </nav>
+    <!-- ✅ 상품만 새로 동기화하는 버튼 -->
+<button @click="syncProductStore" class="bg-blue-600 text-white px-4 py-2 m-2 rounded hover:bg-blue-700">
+  상품 동기화
+</button>
+    <!-- 임시 저장소 초기화 버튼 -->
+<button @click="resetStores" class="reset-button">
+  저장소 초기화
+</button>
     <button @click="logout" class="logout-button">
       {{ authStore.currentCompany === null || authStore.currentCompany.shopName === '' ? '관리자' : authStore.currentCompany.shopName  }} &nbsp;
       <PowerIcon class="h-5 w-5 mr-2" />
@@ -119,6 +127,25 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { HomeIcon, PencilIcon, PowerIcon, ShareIcon, RocketLaunchIcon, WrenchIcon } from '@heroicons/vue/24/outline';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
+import { useProductStore } from '@/stores/product/useProductStore'
+import { useCategoryStore } from '@/stores/category/useCategoryStore'
+import { useOptionStore } from '@/stores/option/useOptionStore'
+import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
+
+
+const productStore = useProductStore()
+
+function resetStores() {
+  productStore.$reset()
+  useCategoryStore().$reset()
+  useOptionStore().$reset()
+  useOptionGroupStore().$reset()
+  console.log('🧹 저장소 초기화 완료')
+}
+async function syncProductStore() {
+  await productStore.syncWithServer()
+  alert('상품 동기화 완료')
+}
 
 const router = useRouter();
 const currentPath = ref('');
@@ -185,4 +212,22 @@ watch(
 .logout-button:hover {
   background-color: #dc2626;
 }
+
+.reset-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reset-button:hover {
+  background-color: #2563eb;
+}
+
 </style>

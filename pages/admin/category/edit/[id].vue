@@ -28,7 +28,6 @@ const id = route.params.id as string;
 const category = ref<Category | null>(null);
 
 onMounted(async () => {
-  await categoryStore.fetchCategoriesIfChanged();
   category.value = categoryStore.categories.find(c => c.id === id) || null;
 });
 
@@ -46,7 +45,7 @@ const handleDelete = async () => {
   if (!category.value) return;
   const ok = await showConfirm('정말 삭제하시겠습니까?');
   if (!ok) return;
-  const res = await categoryStore.deleteCategory(category.value);
+  const res = await categoryStore.deleteCategory(category.value.id);
   if (res.isSuccess) {
     alert('삭제되었습니다.');
     router.push('/admin/category');
