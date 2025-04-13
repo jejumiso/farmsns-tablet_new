@@ -19,20 +19,24 @@ import { useCategoryStore } from '@/stores/category/useCategoryStore';
 import CategoryForm from '@/components/admin/category/CategoryForm.vue';
 import { showConfirm } from '@/utils/confirmDialog';
 import type { Category } from '@/shared-types/category/category';
-
+import { createCategoryService } from '~/services/category/categoryService';
+import { useAuthStore } from '@/stores/auth/useAuthStore';
 const route = useRoute();
 const router = useRouter();
-const categoryStore = useCategoryStore();
+const categoryStore = useCategoryStore;
+const authStore = useAuthStore()
 const id = route.params.id as string;
 
 const category = ref<Category | null>(null);
 
 onMounted(async () => {
-  category.value = categoryStore.categories.find(c => c.id === id) || null;
+  category.value = categoryStore.items.find(c => c.id === id) || null;
 });
 
 const handleSubmit = async (submitted: Category) => {
-  const res = await categoryStore.saveCategory(submitted);
+  const companyId = authStore.currentCompany?.id
+  if (!companyId ) return
+  const res = await createCategoryService().save(companyId, submitted);
   if (res.isSuccess) {
     alert('수정되었습니다.');
     router.push('/admin/category');
@@ -42,10 +46,12 @@ const handleSubmit = async (submitted: Category) => {
 };
 
 const handleDelete = async () => {
+  const companyId = authStore.currentCompany?.id
+  if (!companyId ) return
   if (!category.value) return;
   const ok = await showConfirm('정말 삭제하시겠습니까?');
   if (!ok) return;
-  const res = await categoryStore.deleteCategory(category.value.id);
+  const res = await createCategoryService().deleteItem(companyId,category.value.id);
   if (res.isSuccess) {
     alert('삭제되었습니다.');
     router.push('/admin/category');

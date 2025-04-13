@@ -2,15 +2,14 @@
   <div class="w-full max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-4">상품 수정</h2>
     <ProductForm
-  v-if="product"
-  :product="product"
-  :isEditMode="true"
-  :loading="loading"
-  @submit="updateProduct"
-  @delete="confirmDelete"
-/>
+      v-if="product"
+      :product="product"
+      :isEditMode="true"
+      :loading="loading"
+      @submit="handleSubmit"
+      @delete="confirmDelete"
+    />
     <div v-else class="text-center text-gray-500">상품을 불러오는 중...</div>
-    <div v-if="!product" class="text-center text-red-500">상품을 찾을 수 없습니다.</div>
   </div>
 </template>
 
@@ -21,10 +20,13 @@ import { useProductStore } from '@/stores/product/useProductStore';
 import ProductForm from '@/components/admin/product/ProductForm.vue';
 import { useRoute } from 'vue-router';
 import type { Product } from '@/shared-types/product/product'; // 경로는 실제 위치에 맞게 조정
-const productStore = useProductStore();
+import { createProductService } from '@/services/product/productService';
+import { useAuthStore } from '@/stores/auth/useAuthStore'
+const productStore = useProductStore;
 const route = useRoute();
 const router = useRouter();
 const loading = ref(false)
+const authStore = useAuthStore()
 // 상품 정보 초기화
 //
 const product = ref<Product | null>(null);
@@ -32,7 +34,7 @@ const product = ref<Product | null>(null);
 const fetchProduct = async () => {
   const productId = route.params.id;
   
-  const fetchedProduct = productStore.products.find(p => p.id === productId);
+  const fetchedProduct = productStore.items.find(p => p.id === productId);
   if (fetchedProduct) {
     product.value = { ...fetchedProduct };
   } else {
@@ -40,18 +42,21 @@ const fetchProduct = async () => {
   }
 };
 
-const updateProduct = async (updatedProduct: Product) => {
+const handleSubmit  = async (updatedProduct: Product) => {
+  const companyId = authStore.currentCompany?.id!
+
   if(loading.value) return
   loading.value = true
   
   try {
-    const res = await productStore.saveProduct(updatedProduct);
+    
+    const res = await createProductService().save(companyId,updatedProduct);
 
     if (res?.isSuccess) {
       // 👉 수정된 상품을 store에 반영
-      const index = productStore.products.findIndex(p => p.id === updatedProduct.id);
+      const index = productStore.items.findIndex(p => p.id === updatedProduct.id);
       if (index !== -1) {
-        productStore.products[index] = { ...updatedProduct };
+        productStore.items[index] = { ...updatedProduct };
       }
 
       // alert('상품이 수정되었습니다!');
@@ -68,6 +73,8 @@ const updateProduct = async (updatedProduct: Product) => {
   }
 };
 const confirmDelete = async () => {
+  const companyId = authStore.currentCompany?.id!
+
   if(loading.value) return
   loading.value = true
   const ok = confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
@@ -76,7 +83,7 @@ const confirmDelete = async () => {
     return
   }
 
-  const res = await productStore.deleteProduct(product.value.id)
+  const res = await createProductService().deleteItem(companyId,product.value.id)
 
   if (res.isSuccess) {
     // 스토어에서 삭제된 상태는 이미 반영됨

@@ -1,15 +1,53 @@
-type PermissionAction = 'read' | 'create' | 'update' | 'delete';
+/**
+ * PermissionAction:
+ * Firestore에서 가능한 작업들을 정의합니다.
+ * 각 작업별로 어떤 역할(role)이 허용되는지 설정할 수 있습니다.
+ */
+export type PermissionAction = 'read' | 'create' | 'update' | 'delete'
 
-interface CollectionPermissions {
-  name: string;
-  key: string;
-  prefix: string;
+/**
+ * CollectionPermissions:
+ * Firestore의 하나의 컬렉션(예: 상품, 카테고리 등)에 대한 설정을 정의하는 구조입니다.
+ */
+export interface CollectionPermissions {
+  name: string
+  key: string
+  prefix: string
   permissions: {
-    [key in PermissionAction]: string[];
-  };
+    [key in PermissionAction]: string[]
+  }
 }
 
-export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = {
+/**
+ * PermissionAction:
+ * Firestore에서 가능한 작업들을 정의합니다.
+ * 각 작업별로 어떤 역할(role)이 허용되는지 설정할 수 있습니다.
+ */
+
+/**
+ * CollectionPermissions:
+ * Firestore의 하나의 컬렉션(예: 상품, 카테고리 등)에 대한 설정을 정의하는 구조입니다.
+ */
+export type StoreKey =
+  | 'product'
+  | 'category'
+  | 'option'
+  | 'optionGroup'
+  | 'company'
+  | 'user'
+  | 'administrator'
+  | 'order'
+  | 'stampLog'
+  | 'adminLog'
+  | 'ordersWating'
+  | 'counter'
+
+  /**
+ * COLLECTION_PERMISSIONS:
+ * StoreKey를 기반으로 각 컬렉션의 메타 정보를 정의한 객체입니다.
+ * 실제 Firestore에서 사용할 컬렉션 이름과 권한 등을 포함하고 있습니다.
+ */
+export const COLLECTION_PERMISSIONS: Record<StoreKey, CollectionPermissions> = {
   counter: {
     name: 'v2_counter',
     key: 'counter',
@@ -21,7 +59,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['super'],
     },
   },
-  companies: {
+  company: {
     name: 'v2_companies',
     key: 'company',
     prefix: 'co',
@@ -32,7 +70,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin', 'super'],
     },
   },
-  administrators: {
+  administrator: {
     name: 'v2_administrators',
     key: 'administrator',
     prefix: 'adm',
@@ -43,7 +81,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin', 'super'],
     },
   },
-  users: {
+  user: {
     name: 'v2_users',
     key: 'user',
     prefix: 'u',
@@ -54,7 +92,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin', 'super'],
     },
   },
-  options: {
+  option: {
     name: 'v2_options',
     key: 'option',
     prefix: 'opt',
@@ -65,7 +103,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin', 'super'],
     },
   },
-  optionGroups: {
+  optionGroup: {
     name: 'v2_optionGroups',
     key: 'optionGroup',
     prefix: 'og',
@@ -76,7 +114,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin', 'super'],
     },
   },
-  products: {
+  product: {
     name: 'v2_products',
     key: 'product',
     prefix: 'p',
@@ -87,7 +125,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin'],
     },
   },
-  orders: {
+  order: {
     name: 'v2_orders',
     key: 'order',
     prefix: 'ord',
@@ -98,7 +136,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin', 'user'],
     },
   },
-  stampLogs: {
+  stampLog: {
     name: 'v2_stampLogs',
     key: 'stampLog',
     prefix: 'stl',
@@ -109,7 +147,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin'],
     },
   },
-  adminLogs: {
+  adminLog: {
     name: 'v2_adminLogs',
     key: 'adminLog',
     prefix: 'adl',
@@ -122,7 +160,7 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
   },
   ordersWating: {
     name: 'v2_ordersWating',
-    key: 'orderWaiting',
+    key: 'ordersWating',
     prefix: 'ow',
     permissions: {
       read: ['admin', 'user'],
@@ -131,15 +169,15 @@ export const COLLECTION_PERMISSIONS: { [key: string]: CollectionPermissions } = 
       delete: ['admin', 'user'],
     },
   },
-  categories: {
+  category: {
     name: 'v2_categories',
+    key: 'category',
+    prefix: 'ctg',
     permissions: {
       read: ['admin', 'user'],
       create: ['admin', 'user'],
       update: ['admin', 'user'],
       delete: ['admin', 'user'],
     },
-    key: "category",
-    prefix: "ctg"
   },
-};
+}

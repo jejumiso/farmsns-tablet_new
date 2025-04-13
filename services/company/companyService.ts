@@ -6,7 +6,7 @@ import { COLLECTION_PERMISSIONS } from '~/shared-constants/collections';
 import type { Company } from '~/shared-types/company/company';
 
 
-const documentService = createDocumentService<Company>(COLLECTION_PERMISSIONS.companies.name)
+const documentService = createDocumentService<Company>('company')
 
 export function createAdministratorService() {
   return {

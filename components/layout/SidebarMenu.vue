@@ -137,6 +137,7 @@ const productStore = useProductStore()
 
 function resetStores() {
   productStore.$reset()
+  useProductStore().$reset()
   useCategoryStore().$reset()
   useOptionStore().$reset()
   useOptionGroupStore().$reset()

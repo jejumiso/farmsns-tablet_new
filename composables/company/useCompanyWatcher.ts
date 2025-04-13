@@ -1,67 +1,51 @@
-// components/company/useCompanyWatcher.ts
-import { doc, onSnapshot } from 'firebase/firestore'
-import { getFirebaseDb } from '@/services/firebaseService'
-import { COLLECTION_PERMISSIONS } from '~/shared-constants/collections'
-import { useProductStore } from '@/stores/product/useProductStore'
-import { useCategoryStore } from '@/stores/category/useCategoryStore'
-import { useOptionStore } from '@/stores/option/useOptionStore'
-import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
-import { saveVersionCache, loadVersionCache } from '@/utils/versionCache'
-let unsubscribeCompany: (() => void) | null = null
+// import { onSnapshot, doc } from 'firebase/firestore'
+// import { versionWatchers, type VersionKey } from '@/constants/versionWatchers'
+// import { loadVersionCache, saveVersionCache } from '@/utils/versionCache'
+// import { useAuthStore } from '@/stores/auth/useAuthStore'
+// import { getFirebaseDb } from '@/services/firebaseService'
+// import { COLLECTION_PERMISSIONS } from '~/shared-constants/collections'
 
-export function watchCompanyRealtime(companyId: string) {
-  unsubscribeCompany?.()
-  const db = getFirebaseDb()
-  console.log('🔥 db:', db) // ✅ 여기서 undefined 이면 문제
+// export let unsubscribeCompany: (() => void) | null = null
 
-  const companyCollection = COLLECTION_PERMISSIONS.companies.name
-  console.log('companyCollection:', companyCollection)
-  console.log('companyId:', companyId)
-  const companyDocRef = doc(db, companyCollection, companyId)
+// export function watchCompanyRealtime(companyId : string) {
+//   if (!companyId) return
+//   const companyCollection = COLLECTION_PERMISSIONS.companies.name
+//   const companyDocRef = doc(getFirebaseDb(), companyCollection, companyId)
+//   let prevVersions = loadVersionCache()
 
-  const prevVersions = loadVersionCache()
+//   unsubscribeCompany = onSnapshot(companyDocRef, async (snapshot) => {
+//     const company = snapshot.data()
+//     if (!company) return
 
-  unsubscribeCompany = onSnapshot(companyDocRef, async (snapshot) => {
-    const company = snapshot.data()
-    if (!company) return
+//     let versionChanged = false
 
-    // product 변경 감지
-    if (company.productVersion !== prevVersions.productVersion) {
-      console.log('🔁 상품 버전 변경 감지')
-      const store = useProductStore()
-      await store.syncWithServer()
-      prevVersions.productVersion = company.productVersion
-    }
+//     for (const key of Object.keys(versionWatchers) as VersionKey[]) {
+//       const newVersion = company[key]
+//       const oldVersion = prevVersions[key]
 
-    // category 변경 감지
-    if (company.categoryVersion !== prevVersions.categoryVersion) {
-      console.log('🔁 카테고리 버전 변경 감지')
-      const store = useCategoryStore()
-      await store.syncWithServer()
-      prevVersions.categoryVersion = company.categoryVersion
-    }
+//       if (newVersion != null && oldVersion != null && newVersion !== oldVersion) {
+//         const majorNew = Math.floor(newVersion)
+//         const majorOld = Math.floor(oldVersion)
 
-    // option 변경 감지
-    if (company.optionVersion !== prevVersions.optionVersion) {
-      console.log('🔁 옵션 버전 변경 감지')
-      const store = useOptionStore()
-      await store.syncWithServer()
-      prevVersions.optionVersion = company.optionVersion
-    }
+//         const { store, label } = versionWatchers[key]
 
-    // optionGroup 변경 감지
-    if (company.optionGroupVersion !== prevVersions.optionGroupVersion) {
-      console.log('🔁 옵션 그룹 버전 변경 감지')
-      const store = useOptionGroupStore()
-      await store.syncWithServer()
-      prevVersions.optionGroupVersion = company.optionGroupVersion
-    }
+//         if (majorNew !== majorOld) {
+//           console.log(`🧨 ${label} 스키마 변경 감지 → 전체 초기화`)
+//           await store().syncFromScratch?.()
+//         } else {
+//           console.log(`🔄 ${label} 변경 감지 → 변경 항목만 동기화`)
+//           await store().syncWithServer?.()
+//         }
 
-    saveVersionCache(prevVersions)
-  })
-}
+//         // 변경된 버전 저장
+//         prevVersions[key] = newVersion
+//         versionChanged = true
+//       }
+//     }
 
-export function unwatchCompanyRealtime() {
-  unsubscribeCompany?.()
-  unsubscribeCompany = null
-}
+//     // 저장소에 반영
+//     if (versionChanged) {
+//       saveVersionCache(prevVersions)
+//     }
+//   })
+// }

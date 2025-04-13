@@ -1,48 +1,206 @@
 <script setup lang="ts">
+import { ref, computed, watchEffect, nextTick } from 'vue'
 import { useProductStore } from '@/stores/product/useProductStore'
+import { useCategoryStore } from '@/stores/category/useCategoryStore'
+import type { Product } from '@/shared-types/product/product'
 
-const productStore = useProductStore()
+const productStore = useProductStore
+const categoryStore = useCategoryStore
+
+const selectedCategoryId = ref('ALL')
+const editableProducts = ref<Product[]>([])
+watchEffect(() => {
+  editableProducts.value = productStore.items.map(p => ({ ...p }))
+})
+
+const editingCell = ref<{ rowIndex: number; key: string } | null>(null)
+const inputRefs: Record<string, HTMLInputElement> = {}
+
+function setRef(el: HTMLInputElement | null, key: string) {
+  if (el) inputRefs[key] = el
+}
+
+const filteredProducts = computed(() => {
+  if (selectedCategoryId.value === 'ALL') return editableProducts.value
+  if (selectedCategoryId.value === 'UNCATEGORIZED') {
+    return editableProducts.value.filter(p => !p.categories || p.categories.length === 0)
+  }
+  return editableProducts.value.filter(p => p.categories?.includes(selectedCategoryId.value))
+})
+
+function startEditing(rowIndex: number, key: string) {
+  editingCell.value = { rowIndex, key }
+  nextTick(() => {
+    const refKey = `${rowIndex}-${key}`
+    const input = inputRefs[refKey]
+    if (input) {
+      input.focus()
+      setTimeout(() => input.select(), 0)
+    }
+  })
+}
+function onlyNumberInput(e: Event) {
+  const input = e.target as HTMLInputElement | null;
+  if (input) {
+    input.value = input.value.replace(/[^0-9]/g, '');
+  }
+}
+
+function handleKeydown(e: KeyboardEvent, rowIndex: number, key: string) {
+  const allowedKeys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Tab', 'Backspace', 'Delete', 'Enter']
+const isNumberKey = /^[0-9]$/.test(e.key)
+
+if (!isNumberKey && !allowedKeys.includes(e.key)) {
+  e.preventDefault()
+  return
+}
+
+
+
+  const keys = ['priceOri', 'priceSale'];
+  const idx = keys.indexOf(key);
+  const input = e.target as HTMLInputElement;
+
+  const cursorPos = input.selectionStart ?? 0;
+  const textLength = input.value.length;
+  const allSelected = input.selectionStart === 0 && input.selectionEnd === textLength;
+
+  console.log(`cursorPos: ${cursorPos}, textLength: ${textLength}, allSelected: ${allSelected}`);
+
+  // 오른쪽 이동
+  if (e.key === 'ArrowRight' && idx < keys.length - 1 && (cursorPos === textLength || allSelected)) {
+    e.preventDefault();
+    editingCell.value = { rowIndex, key: keys[idx + 1] };
+    nextTick(() => {
+      const nextInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex}-${keys[idx + 1]}`);
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.select();
+      }
+    });
+  }
+
+  // 왼쪽 이동
+  else if (e.key === 'ArrowLeft' && idx > 0 && (cursorPos === 0 || allSelected)) {
+    e.preventDefault();
+    editingCell.value = { rowIndex, key: keys[idx - 1] };
+    nextTick(() => {
+      const prevInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex}-${keys[idx - 1]}`);
+      if (prevInput) {
+        prevInput.focus();
+        prevInput.select();
+      }
+    });
+  }
+
+  // 아래 이동
+  else if (e.key === 'ArrowDown' && rowIndex < filteredProducts.value.length - 1) {
+    e.preventDefault();
+    editingCell.value = { rowIndex: rowIndex + 1, key };
+    nextTick(() => {
+      const downInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex + 1}-${key}`);
+      if (downInput) {
+        downInput.focus();
+        downInput.select();
+      }
+    });
+  }
+
+  // 위 이동
+  else if (e.key === 'ArrowUp' && rowIndex > 0) {
+    e.preventDefault();
+    editingCell.value = { rowIndex: rowIndex - 1, key };
+    nextTick(() => {
+      const upInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex - 1}-${key}`);
+      if (upInput) {
+        upInput.focus();
+        upInput.select();
+      }
+    });
+  }
+}
 </script>
 
 <template>
-  <main class="flex-1 bg-gray-100 p-6">
-    <h1 class="text-2xl font-bold text-gray-800 mb-4">상품 목록</h1>
+  <main class="p-6">
+    <div class="mb-4">
+      <button
+        v-for="cat in ['ALL', 'UNCATEGORIZED', ...categoryStore.items.map(c => c.id)]"
+        :key="cat"
+        @click="selectedCategoryId = cat"
+        class="mr-2 px-3 py-1 rounded"
+        :class="{
+          'bg-blue-600 text-white': selectedCategoryId === cat,
+          'bg-gray-200': selectedCategoryId !== cat
+        }"
+      >
+      {{ cat === 'ALL' ? '전체' : cat === 'UNCATEGORIZED' ? '미등록' : categoryStore.items.find(c => c.id === cat)?.categoryName || cat }}
 
-    <div v-if="productStore.loading" class="text-center text-gray-500">상품을 불러오는 중...</div>
-    <div v-if="productStore.error" class="text-center text-red-500">{{ productStore.error }}</div>
-
-    <div v-if="productStore.products.length > 0">
-      <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-gray-200 text-left">
-          <tr>
-            <th class="px-4 py-2">번호</th>
-            <th class="px-4 py-2">id</th>
-            <th class="px-4 py-2">이미지</th>
-            <th class="px-4 py-2">상품명</th>
-            <th class="px-4 py-2">수정</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(product, index) in productStore.products" :key="product.id" class="border-t">
-            <td class="px-4 py-2">{{ index + 1 }}</td>
-            <td class="px-4 py-2">{{ product.id }}</td>
-            <td class="px-4 py-2">
-              <!-- 이미지가 있을 경우에만 출력 -->
-              <!-- <img :src="product.imageThumbnailUrl" alt="상품 이미지" class="h-12 w-12 object-cover rounded" /> -->
-            </td>
-            <td class="px-4 py-2">{{ product.productName }}</td>
-            <td class="px-4 py-2">
-              <router-link :to="`/admin/product/edit/${product.id}`" class="text-blue-600 hover:underline">수정</router-link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      </button>
     </div>
 
-    <div v-else-if="!productStore.loading" class="text-center text-gray-500 mt-4">상품이 없습니다.</div>
+    <table class="w-full table-fixed border">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="p-2 w-12">#</th>
+          <th class="p-2 w-32">상품명</th>
+          <th class="p-2 w-32">원가</th>
+          <th class="p-2 w-32">판매가</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(product, rowIndex) in filteredProducts"
+          :key="product.id"
+          class="border-t"
+        >
+          <td class="p-2 text-center">{{ rowIndex + 1 }}</td>
+          <td class="p-2">{{ product.productName }}</td>
 
-    <div class="mt-6 text-center">
-      <router-link to="/admin/product/create" class="text-blue-600 hover:underline">상품 추가하기</router-link>
-    </div>
+          <!-- 원가 -->
+          <td class="p-2">
+            <input
+              :id="`input-${rowIndex}-priceOri`"
+              v-if="editingCell?.rowIndex === rowIndex && editingCell?.key === 'priceOri'"
+              :readonly="editingCell?.rowIndex !== rowIndex || editingCell?.key !== 'priceOri'"
+              v-model="product.priceOri"
+              :ref="el => setRef(el as HTMLInputElement, `${rowIndex}-priceOri`)"
+              @keydown="e => handleKeydown(e, rowIndex, 'priceOri')"
+              @input="onlyNumberInput"
+              type="text"
+              class="w-full px-1 py-1 border rounded text-right"
+            />
+            <span
+              v-else
+              @click="startEditing(rowIndex, 'priceOri')"
+              class="block cursor-pointer"
+            >
+              {{ product.priceOri }}
+            </span>
+          </td>
+
+          <!-- 판매가 -->
+          <td class="p-2">
+            <input
+              :id="`input-${rowIndex}-priceSale`"
+              v-if="editingCell?.rowIndex === rowIndex && editingCell?.key === 'priceSale'"
+              v-model="product.priceSale"
+              :ref="el => setRef(el as HTMLInputElement, `${rowIndex}-priceSale`)"
+              @keydown="e => handleKeydown(e, rowIndex, 'priceSale')"
+              @input="onlyNumberInput"
+              type="text"
+              class="w-full px-1 py-1 border rounded text-right"
+            />
+            <span
+              v-else
+              @click="startEditing(rowIndex, 'priceSale')"
+              class="block cursor-pointer"
+            >
+              {{ product.priceSale }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </main>
 </template>

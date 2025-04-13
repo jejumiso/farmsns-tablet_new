@@ -4,7 +4,7 @@ import { createDocumentService } from '@/services/common/documentService'
 import type { ApiResponse } from '@/shared-types/apiResponse'
 
 export function createOptionService() {
-  const documentService = createDocumentService<Option>('options')
+  const documentService = createDocumentService<Option>('option')
 
   return {
     /**

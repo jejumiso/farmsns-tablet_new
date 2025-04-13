@@ -4,7 +4,7 @@ import { createDocumentService } from '@/services/common/documentService'
 import type { ApiResponse } from '~/shared-types/apiResponse'
 
 export function createCategoryService() {
-  const documentService = createDocumentService<Category>('categories') // 'categories'는 collectionId입니다.
+  const documentService = createDocumentService<Category>('category') // 'categories'는 collectionId입니다.
 
   return {
     /**

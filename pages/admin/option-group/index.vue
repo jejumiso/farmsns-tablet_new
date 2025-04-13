@@ -30,7 +30,6 @@
 
     <div v-if="optionGroups.length === 0" class="text-center text-gray-500 mt-4">옵션 그룹이 없습니다.</div>
 
-    <!-- 옵션 그룹 추가 링크 -->
     <div class="mt-6 text-center">
       <router-link to="/admin/option-group/create" class="text-blue-600 hover:underline">옵션 그룹 추가하기</router-link>
     </div>
@@ -38,33 +37,29 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import type { OptionGroup } from '@/shared-types/option/optionGroup';
+import { computed, onMounted, ref } from 'vue';
 import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore';
+import type { OptionGroup } from '@/shared-types/option/optionGroup';
 
-const optionGroupStore = useOptionGroupStore();
+const optionGroupStore = useOptionGroupStore;
 
-const optionGroups = ref<OptionGroup[]>([]);
+const optionGroups = computed(() => optionGroupStore.items);
+
 const loading = ref(false);
 const error = ref('');
 
-async function loadOptionGroups() {
-  loading.value = true;
-  error.value = '';
-  try {
-    optionGroups.value = optionGroupStore.optionGroups;
-  } catch (err) {
-    error.value = '옵션 그룹 목록을 불러오는 데 실패했습니다.';
-  } finally {
-    loading.value = false;
-  }
-}
+// const loadOptionGroups = async () => {
+//   loading.value = true;
+//   try {
+//     optionGroups.value = optionGroupStore.optionGroups;
+//   } catch (err) {
+//     error.value = '옵션 그룹 목록을 불러오는 데 실패했습니다.';
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
 onMounted(() => {
-  loadOptionGroups();
+  // loadOptionGroups();
 });
 </script>
-
-<style scoped>
-/* 스타일은 필요 시 여기에 추가 */
-</style>

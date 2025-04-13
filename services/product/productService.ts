@@ -3,7 +3,7 @@ import type { Product } from '@/shared-types/product/product'
 import { createDocumentService } from '@/services/common/documentService'
 
 export function createProductService() {
-  const documentService = createDocumentService<Product>('products')
+  const documentService = createDocumentService<Product>('product')
 
   return {
     /**

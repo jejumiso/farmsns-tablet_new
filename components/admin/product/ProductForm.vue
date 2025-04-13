@@ -93,7 +93,7 @@
           class="px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50 hover:bg-red-700"
         :class="{ 'opacity-50 cursor-not-allowed': loading }"
       :disabled="loading"
-      @click="emit('delete')">
+      @click="confirmDelete">
           삭제하기
         </button>
     </div>
@@ -111,10 +111,7 @@ const props = defineProps<{
   loading: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: 'submit', product: Product): void;
-  (e: 'delete'): void // ✅ 삭제 이벤
-}>();
+
 
 const tabs = [
   '기본 정보',
@@ -145,6 +142,14 @@ watch(categoriesInput, (val) => {
   props.product.categories = val.split(',').map((s) => s.trim()).filter(Boolean);
 });
 
+const emit = defineEmits<{
+  (e: 'submit', product: Product): void;
+  (e: 'delete'): void // ✅ 삭제 이벤
+}>();
+const confirmDelete = async () => {
+  emit('delete'); // 실제 삭제는 edit/[id].vue에서
+
+};
 const submitForm = () => {
   emit('submit', props.product);
 };

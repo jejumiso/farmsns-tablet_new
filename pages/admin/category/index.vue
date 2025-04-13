@@ -56,31 +56,32 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useCategoryStore } from '@/stores/category/useCategoryStore';
 import type { Category } from '@/shared-types/category/category';
 
-const categoryStore = useCategoryStore();
+const categoryStore = useCategoryStore;
 
-const categories = ref<Category[]>([]);
 const loading = ref(false);
 const error = ref('');
 
+const categories = computed(() => categoryStore.items);
+
 // 카테고리 목록 불러오기
-async function loadCategories() {
-  loading.value = true;
-  error.value = '';
-  try {
-    categories.value = categoryStore.categories;
-  } catch (err) {
-    error.value = '카테고리 목록을 불러오는 데 실패했습니다.';
-  } finally {
-    loading.value = false;
-  }
-}
+// async function loadCategories() {
+//   loading.value = true;
+//   error.value = '';
+//   try {
+//     categories.value = categoryStore.categories;
+//   } catch (err) {
+//     error.value = '카테고리 목록을 불러오는 데 실패했습니다.';
+//   } finally {
+//     loading.value = false;
+//   }
+// }
 
 onMounted(() => {
-  loadCategories();
+  // loadCategories();
 });
 </script>
 

@@ -7,10 +7,10 @@ import type { User } from 'firebase/auth'; // Firebase User 타입 가져오기
 import { createAdministratorService } from '@/services/administrator/administratorService'; 
 import { createCompanyService } from '@/services/company/companyService'; 
 import { useProductStore } from '@/stores/product/useProductStore';
-import { unwatchCompanyRealtime, watchCompanyRealtime } from '@/composables/company/useCompanyWatcher';
 import { useCategoryStore } from '@/stores/category/useCategoryStore'
 import { useOptionStore } from '@/stores/option/useOptionStore'
 import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
+import { stopCompanyRealtimeWatcher } from '~/utils/watchCompanyRealtime';
 
 
 
@@ -52,13 +52,13 @@ export const useAuthStore = defineStore('auth', {
       this.currentCompany = null; // 회사 정보 초기화
     
       // ✅ 모든 관련 저장소 초기화
-      useProductStore().$reset()
-      useCategoryStore().$reset()
-      useOptionStore().$reset()
-      useOptionGroupStore().$reset()
+      useProductStore.$reset()
+      useCategoryStore.$reset()
+      useOptionStore.$reset()
+      useOptionGroupStore.$reset()
     
       console.log('[authStore] User logged out'); // 디버깅 로그
-      unwatchCompanyRealtime();
+      stopCompanyRealtimeWatcher();
     },
     
     setFirebaseUser(user: any) {
@@ -100,7 +100,7 @@ export const useAuthStore = defineStore('auth', {
                 this.currentCompany = getCompanyResponse.data as Company
                 console.log('[authStore] App User and Company set:', this.currentAdministrator, this.currentCompany);
                  // ✅ 여기 추가!
-                watchCompanyRealtime(this.currentCompany.id)
+                // watchCompanyRealtime(this.currentCompany.id)
                 
 
               } else {

@@ -3,7 +3,7 @@ import { createDocumentService } from '@/services/common/documentService'
 import type { ApiResponse } from '@/shared-types/apiResponse'
 
 export function createOptionGroupService() {
-  const documentService = createDocumentService<OptionGroup>('optionGroups')
+  const documentService = createDocumentService<OptionGroup>('optionGroup')
 
   return {
     /**
