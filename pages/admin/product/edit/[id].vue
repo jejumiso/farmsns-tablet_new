@@ -88,6 +88,8 @@ const confirmDelete = async () => {
   if (res.isSuccess) {
     // 스토어에서 삭제된 상태는 이미 반영됨
     // alert('상품이 삭제되었습니다.')
+    productStore.items = productStore.items.filter(p => p.id !== product.value?.id)
+
     router.push('/admin/product') // 목록으로 이동
   } else {
     alert('삭제 실패: ' + (res.message || '알 수 없는 오류입니다.'))

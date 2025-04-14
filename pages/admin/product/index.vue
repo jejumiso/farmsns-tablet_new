@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, watch, watchEffect } from 'vue'
+import { ref, computed, nextTick, onMounted, watch, watchEffect ,onBeforeUnmount} from 'vue'
 import { useProductStore } from '@/stores/product/useProductStore'
 import { useCategoryStore } from '@/stores/category/useCategoryStore'
 import type { Product } from '@/shared-types/product/product'
 import { useRouter } from 'vue-router'
+import isEqual from 'lodash.isequal'
+import draggable from 'vuedraggable' // Nuxt에서 자동 등록되면 생략 가능
 const productStore = useProductStore()
 const categoryStore = useCategoryStore()
 
@@ -13,6 +15,29 @@ const originalProducts = ref<Product[]>([])
 const isServerUpdated = ref(false)
 
 const router = useRouter()
+
+function handleClickOutside(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  // input, span 둘 다 클릭 허용
+  if (!target.closest('input') && !target.closest('.editable-cell')) {
+    // 다음 tick에 실행되도록 지연
+    setTimeout(() => {
+      editingCell.value = null
+    }, 0)
+  }
+}
+function updateDisplayOrder() {
+  editableProducts.value.forEach((product, index) => {
+    product.displayLevel = index + 1
+  })
+}
+
+onMounted(() => {
+  window.addEventListener('click', handleClickOutside)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleClickOutside)
+})
 
 
 function goToEdit(productId: string) {
@@ -26,15 +51,21 @@ watchEffect(() => {
   }
 })
 
+function stripMetaFields(obj: any) {
+  const { dateModified, dateCreated, ...rest } = obj
+  return rest
+}
 // 서버에서 items가 바뀌면 덮어쓰기 방지 및 비활성화 플래그 설정
+
 watch(
-  () => productStore.items,
-  (items) => {
-    if (originalProducts.value.length === 0) return
-    const oldJson = JSON.stringify(originalProducts.value)
-    const newJson = JSON.stringify(items)
-    if (oldJson !== newJson) {
-      isServerUpdated.value = true // ✅ 알림 표시 조건
+  () => productStore.items.map(stripMetaFields),
+  (serverItems) => {
+    if (editableProducts.value.length === 0) return
+
+    const localItems = editableProducts.value.map(stripMetaFields)
+
+    if (!isEqual(localItems, serverItems)) {
+      isServerUpdated.value = true
     }
   },
   { deep: true }
@@ -48,11 +79,14 @@ function setRef(el: HTMLInputElement | null, key: string) {
 }
 
 const filteredProducts = computed(() => {
-  if (selectedCategoryId.value === 'ALL') return editableProducts.value
-  if (selectedCategoryId.value === 'UNCATEGORIZED') {
-    return editableProducts.value.filter(p => !p.categories || p.categories.length === 0)
+  let list = editableProducts.value
+  if (selectedCategoryId.value === 'ALL') {
+    return [...list].sort((a, b) => a.displayLevel - b.displayLevel)
   }
-  return editableProducts.value.filter(p => p.categories?.includes(selectedCategoryId.value))
+  if (selectedCategoryId.value === 'UNCATEGORIZED') {
+    return list.filter(p => !p.categories || p.categories.length === 0).sort((a, b) => a.displayLevel - b.displayLevel)
+  }
+  return list.filter(p => p.categories?.includes(selectedCategoryId.value)).sort((a, b) => a.displayLevel - b.displayLevel)
 })
 
 const modifiedProducts = computed(() => {
@@ -86,59 +120,81 @@ function onlyNumberInput(e: Event) {
 function handleKeydown(e: KeyboardEvent, rowIndex: number, key: string) {
   const allowedKeys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Tab', 'Backspace', 'Delete', 'Enter']
   const isNumberKey = /^[0-9]$/.test(e.key)
-  if (!isNumberKey && !allowedKeys.includes(e.key)) {
-    e.preventDefault()
-    return
+
+  // ✅ 숫자만 입력 가능한 필드에만 제한 적용
+  const numberOnlyFields = ['priceOri', 'priceSale']
+  if (numberOnlyFields.includes(key)) {
+    if (!isNumberKey && !allowedKeys.includes(e.key)) {
+      e.preventDefault()
+      return
+    }
   }
 
-  const keys = ['priceOri', 'priceSale']
+  const keys = ['productName', 'priceOri', 'priceSale']
   const idx = keys.indexOf(key)
   const input = e.target as HTMLInputElement
   const cursorPos = input.selectionStart ?? 0
   const textLength = input.value.length
   const allSelected = input.selectionStart === 0 && input.selectionEnd === textLength
 
-  if (e.key === 'ArrowRight' && idx < keys.length - 1 && (cursorPos === textLength || allSelected)) {
-    e.preventDefault()
-    editingCell.value = { rowIndex, key: keys[idx + 1] }
-    nextTick(() => {
-      const nextInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex}-${keys[idx + 1]}`)
-      nextInput?.focus()
-      nextInput?.select()
-    })
-  } else if (e.key === 'ArrowLeft' && idx > 0 && (cursorPos === 0 || allSelected)) {
-    e.preventDefault()
-    editingCell.value = { rowIndex, key: keys[idx - 1] }
-    nextTick(() => {
-      const prevInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex}-${keys[idx - 1]}`)
-      prevInput?.focus()
-      prevInput?.select()
-    })
-  } else if (e.key === 'ArrowDown' && rowIndex < filteredProducts.value.length - 1) {
-    e.preventDefault()
-    editingCell.value = { rowIndex: rowIndex + 1, key }
-    nextTick(() => {
-      const downInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex + 1}-${key}`)
-      downInput?.focus()
-      downInput?.select()
-    })
-  } else if (e.key === 'ArrowUp' && rowIndex > 0) {
-    e.preventDefault()
-    editingCell.value = { rowIndex: rowIndex - 1, key }
-    nextTick(() => {
-      const upInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex - 1}-${key}`)
-      upInput?.focus()
-      upInput?.select()
-    })
-  }
+  if (
+      (e.key === 'ArrowRight' || e.key === 'Tab') &&
+      idx < keys.length - 1 &&
+      (cursorPos === textLength || allSelected)
+    ) {
+      e.preventDefault()
+      editingCell.value = { rowIndex, key: keys[idx + 1] }
+      nextTick(() => {
+        const nextInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex}-${keys[idx + 1]}`)
+        nextInput?.focus()
+        nextInput?.select()
+      })
+    } else if (
+      e.key === 'ArrowLeft' &&
+      idx > 0 &&
+      (cursorPos === 0 || allSelected)
+    ) {
+      e.preventDefault()
+      editingCell.value = { rowIndex, key: keys[idx - 1] }
+      nextTick(() => {
+        const prevInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex}-${keys[idx - 1]}`)
+        prevInput?.focus()
+        prevInput?.select()
+      })
+    } else if (
+      e.key === 'ArrowDown' || e.key === 'Enter'
+    ) {
+      if (rowIndex < filteredProducts.value.length - 1) {
+        e.preventDefault()
+        editingCell.value = { rowIndex: rowIndex + 1, key }
+        nextTick(() => {
+          const downInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex + 1}-${key}`)
+          downInput?.focus()
+          downInput?.select()
+        })
+      }
+    } else if (e.key === 'ArrowUp') {
+      if (rowIndex > 0) {
+        e.preventDefault()
+        editingCell.value = { rowIndex: rowIndex - 1, key }
+        nextTick(() => {
+          const upInput = document.querySelector<HTMLInputElement>(`#input-${rowIndex - 1}-${key}`)
+          upInput?.focus()
+          upInput?.select()
+        })
+      }
+    }
 }
 
 async function saveAll() {
   if (isServerUpdated.value) return
   const res = await productStore.saveItems(modifiedProducts.value)
   if (res.isSuccess) {
-    alert('저장 완료!')
+    
     originalProducts.value = editableProducts.value.map(p => ({ ...p }))
+    // editableProducts.value = productStore.items.map(p => ({ ...p }))
+
+    alert('저장 완료!')
   } else {
     alert('저장 실패: ' + res.message)
   }
@@ -199,7 +255,24 @@ function goToCreate() {
           class="hover:bg-yellow-50 border-t border-t"
         >
           <td class="p-2 text-center">{{ rowIndex + 1 }}</td>
-          <td class="p-2">{{ product.productName }}</td>
+          <td class="p-2">
+            <input
+              :id="`input-${rowIndex}-productName`"
+              v-if="editingCell?.rowIndex === rowIndex && editingCell?.key === 'productName'"
+              v-model="product.productName"
+              :ref="el => setRef(el as HTMLInputElement, `${rowIndex}-productName`)"
+              @keydown="e => handleKeydown(e, rowIndex, 'productName')"
+              type="text"
+              class="w-full px-1 py-1 border rounded"
+            />
+            <span
+              v-else
+              @click="startEditing(rowIndex, 'productName')"
+              class="editable-cell block cursor-pointer"
+            >
+              {{ product.productName }}
+            </span>
+          </td>
 
           <td class="p-2">
             <input
@@ -216,7 +289,7 @@ function goToCreate() {
             <span
               v-else
               @click="startEditing(rowIndex, 'priceOri')"
-              class="block cursor-pointer"
+              class="editable-cell block cursor-pointer"
             >
               {{ product.priceOri }}
             </span>
@@ -236,7 +309,7 @@ function goToCreate() {
             <span
               v-else
               @click="startEditing(rowIndex, 'priceSale')"
-              class="block cursor-pointer"
+              class="editable-cell block cursor-pointer"
             >
               {{ product.priceSale }}
             </span>

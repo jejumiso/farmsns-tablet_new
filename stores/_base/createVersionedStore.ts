@@ -63,6 +63,12 @@ export function createVersionedStore<T extends { id: string }>(options: CreateVe
       const since = now - lastFetched > oneDay ? 0 : lastFetched
     
       const resDeleted = await options.getDataDeleted(companyId)
+      if (!resDeleted.isSuccess) {
+        error.value = resDeleted.message || '불러오기 실패'
+        return { isSuccess: false, message: error.value }
+      }else{
+        console.log('삭제된 아이템:', resDeleted.data)
+      }
       const resModified = await options.getDataModified(companyId, since)
     
       if (!resModified.isSuccess) {
