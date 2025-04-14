@@ -27,7 +27,7 @@ import { getCompanyId } from '~/utils/getCompanyId';
   const handleSubmit = async (submittedOption: Option) => {
     const companyId = getCompanyId();
     if (!companyId) return;
-    const res = await createOptionService().save(companyId,submittedOption);
+    const res = await createOptionService().saveItem(companyId,submittedOption);
 
     if (res.isSuccess) {
       alert('옵션이 성공적으로 저장되었습니다.');

@@ -31,14 +31,14 @@ export function createOptionService() {
     /**
      * 옵션 저장 (단일)
      */
-    async save(companyId: string, option: Option): Promise<ApiResponse> {
+    async saveItem(companyId: string, option: Option): Promise<ApiResponse> {
       return await documentService.save(companyId, option)
     },
 
     /**
      * 옵션 저장 (복수)
      */
-    async saveMany(companyId: string, options: Option[]): Promise<ApiResponse> {
+    async saveItems(companyId: string, options: Option[]): Promise<ApiResponse> {
       return await documentService.saveMany(companyId, options)
     },
 

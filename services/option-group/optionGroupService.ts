@@ -30,14 +30,14 @@ export function createOptionGroupService() {
     /**
      * 옵션 그룹 저장 (단일)
      */
-    async save(companyId: string, group: OptionGroup): Promise<ApiResponse> {
+    async saveItem(companyId: string, group: OptionGroup): Promise<ApiResponse> {
       return await documentService.save(companyId, group)
     },
 
     /**
      * 옵션 그룹 저장 (복수)
      */
-    async saveMany(companyId: string, groups: OptionGroup[]): Promise<ApiResponse> {
+    async saveItems(companyId: string, groups: OptionGroup[]): Promise<ApiResponse> {
       return await documentService.saveMany(companyId, groups)
     },
 

@@ -60,7 +60,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useCategoryStore } from '@/stores/category/useCategoryStore';
 import type { Category } from '@/shared-types/category/category';
 
-const categoryStore = useCategoryStore;
+const categoryStore = useCategoryStore();
 
 const loading = ref(false);
 const error = ref('');

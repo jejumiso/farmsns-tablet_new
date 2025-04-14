@@ -27,13 +27,13 @@ const optionGroupStore = useOptionGroupStore;
 const optionGroup = ref<OptionGroup>(createEmptyOptionGroup());
 
 
-const optionStore = useOptionStore;
+const optionStore = useOptionStore();
 const allOptions = computed(() => optionStore.items); // 스토어에서 옵션 목록 사용
 
 const handleSubmit = async (group: OptionGroup) => {
   const companyId = getCompanyId();
   if (!companyId) return;
-  const result = await createOptionGroupService().save(companyId,group);
+  const result = await createOptionGroupService().saveItem(companyId,group);
   if (result.isSuccess) {
     alert('옵션 그룹이 저장되었습니다.');
     router.push('/admin/option-group');

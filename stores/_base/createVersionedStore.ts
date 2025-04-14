@@ -1,125 +1,157 @@
-// Pinia 스토어를 만드는 함수 (공통화된 로직을 재사용하기 위함)
 import { defineStore } from 'pinia'
 import type { ApiResponse } from '@/shared-types/apiResponse'
-import {
-  getCompanyCache,
-  setCompanyCache,
-} from '@/utils/companyCache'
+import { getCompanyCache, setCompanyCache } from '@/utils/companyCache'
+import { ref  } from 'vue'
 
-// 제네릭 타입을 받아서, 어떤 데이터 타입이든 재사용할 수 있도록 설계
-// 예: Product, Category, Option 등
-export function createVersionedStore<T extends { id: string }>(options: {
-  storeId: string // 스토어의 이름 (예: 'product', 'category')
-  cacheKey: string // 캐시 저장소 키 이름 (company별 localStorage 구분용)
-  getCompanyId: () => string | null // 회사 ID를 가져오는 함수
-  getDataModified: (companyId: string, since: number) => Promise<ApiResponse<T[]>> // 수정된 데이터 API
-  getDataDeleted: (companyId: string) => Promise<ApiResponse<string[]>> // 삭제된 ID 리스트 API
+interface CreateVersionedStoreOptions<T extends { id: string }> {
+  storeId: string
+  cacheKey: string
+  getCompanyId: () => string | null
+  getDataModified: (companyId: string, since: number) => Promise<ApiResponse<T[]>>
+  getDataDeleted: (companyId: string) => Promise<ApiResponse<string[]>>
+  saveItem?: (companyId: string, item: T) => Promise<ApiResponse<{ id: string }>>
+  saveItems?: (companyId: string, items: T[]) => Promise<ApiResponse>
+  deleteItem?: (companyId: string, id: string) => Promise<ApiResponse>
+}
 
-  getById: (companyId: string, id: string) => Promise<ApiResponse<T>>
-  getAll: (companyId: string) => Promise<ApiResponse<T[]>>
+export function createVersionedStore<T extends { id: string }>(options: CreateVersionedStoreOptions<T>) {
+  return defineStore(options.storeId, () => {
+    // ✅ state를 ref로 선언
+    const items = ref<T[]>([])
+    const loading = ref(false)
+    const error = ref<string | null>(null)
 
-}) {
-  // defineStore: Pinia에서 스토어를 생성해주는 함수
-  return defineStore(options.storeId, {
-    // state: 스토어의 데이터 상태
-    state: () => ({
-      items: [] as T[], // 실제로 보여줄 항목들 (예: 상품 목록 등)
-      dateLastFetched: 0, // 마지막으로 데이터를 받아온 시간 (timestamp)
-      loading: false, // 서버 통신 중 여부
-      error: null as string | null, // 오류 메시지
-    }),
+    const itemCount = () => items.value.length
+    const allItems = () => items.value
 
-    // actions: 비동기 처리 또는 로직이 들어가는 곳 (서버와 통신 포함)
-    actions: {
-      /**
-       * 현재 로그인한 회사의 ID를 가져오거나,
-       * 없으면 에러 메시지를 기록하고 null 반환
-       */
-      getCompanyIdOrError(): string | null {
-        const companyId = options.getCompanyId()
-        if (!companyId) {
-          this.error = '회사 정보 없음'
-          return null
+    function getCompanyIdOrError(): string | null {
+      const companyId = options.getCompanyId()
+      if (!companyId) {
+        error.value = '회사 정보 없음'
+        return null
+      }
+      return companyId
+    }
+
+    function restoreCache(): void {
+      const companyId = getCompanyIdOrError()
+      if (!companyId) return
+      const cached = getCompanyCache<{ items: T[]; dateLastFetched: number }>(options.cacheKey, companyId)
+      if (cached) {
+        items.value = [...cached.items]
+      }
+    }
+    
+
+    async function syncFromScratch(): Promise<ApiResponse> {
+      items.value = []
+      return await syncWithServer()
+    }
+
+    async function syncWithServer(): Promise<ApiResponse> {
+      const companyId = getCompanyIdOrError()
+      if (!companyId) return { isSuccess: false, message: '회사 정보 없음' }
+    
+      loading.value = true
+    
+      // ✅ 캐시에서 최근 읽은 시각을 가져와서 비교 기준으로 사용
+      const cached = getCompanyCache<{ items: T[]; dateLastFetched: number }>(options.cacheKey, companyId)
+      const lastFetched = cached?.dateLastFetched ?? 0
+    
+      const now = Date.now()
+      const oneDay = 1000 * 60 * 60 * 24
+      const since = now - lastFetched > oneDay ? 0 : lastFetched
+    
+      const resDeleted = await options.getDataDeleted(companyId)
+      const resModified = await options.getDataModified(companyId, since)
+    
+      if (!resModified.isSuccess) {
+        error.value = resModified.message || '불러오기 실패'
+        return { isSuccess: false, message: error.value }
+      }
+    
+      const updatedItems = resModified.data ?? []
+      const filtered = items.value.filter(i => !resDeleted.data?.includes(i.id))
+      const merged = [
+        ...filtered.filter(i => !updatedItems.some(u => u.id === i.id)),
+        ...updatedItems,
+      ]
+    
+      items.value = [...merged] as T[]
+      error.value = null
+    
+      setCompanyCache(options.cacheKey, companyId, {
+        items: items.value,
+        dateLastFetched: now,
+      })
+    
+      return { isSuccess: true, data: items.value }
+    }
+    
+
+    async function saveItem(item: T): Promise<ApiResponse<{ id: string }>> {
+      if (!options.saveItem) throw new Error('saveItem 함수가 주입되지 않았습니다.')
+      const companyId = getCompanyIdOrError()
+      if (!companyId) return { isSuccess: false, message: '회사 정보 없음' }
+
+      const res = await options.saveItem(companyId, item)
+      if (!res.isSuccess || !res.data?.id) return res
+
+      const { id } = res.data
+      const updated = items.value.filter(p => p.id !== id)
+      updated.push({ ...item, id } as any)
+
+
+      items.value = [...updated]
+
+      return res
+    }
+
+    async function saveItems(itemList: T[]): Promise<ApiResponse> {
+      if (!options.saveItems) throw new Error('saveItems 함수가 주입되지 않았습니다.')
+      const companyId = getCompanyIdOrError()
+      if (!companyId) return { isSuccess: false, message: '회사 정보 없음' }
+
+      const res = await options.saveItems(companyId, itemList)
+      if (res.isSuccess) {
+        const updated = [...items.value]
+        for (const item of itemList) {
+          const index = updated.findIndex(p => p.id === item.id)
+          if (index !== -1) updated[index] = item as any
+          else updated.push(item as any)
         }
-        return companyId
-      },
+        items.value = [...updated]
+      }
 
-      /**
-       * 회사별로 저장해둔 캐시(localStorage)를 불러와서 스토어에 복구
-       * 새로고침했을 때 빠르게 데이터를 보여주기 위한 용도
-       */
-      restoreCache(): void {
-        const companyId = this.getCompanyIdOrError()
-        if (!companyId) return
+      return res
+    }
 
-        // 저장소에서 해당 회사의 데이터 복원
-        const cached = getCompanyCache<{ items: T[]; dateLastFetched: number }>(
-          options.cacheKey,
-          companyId
-        )
-        if (cached) {
-          this.items = cached.items as unknown as typeof this.items
-          this.dateLastFetched = cached.dateLastFetched
-        }
-      },
+    async function deleteItem(id: string): Promise<ApiResponse> {
+      if (!options.deleteItem) throw new Error('deleteItem 함수가 주입되지 않았습니다.')
+      const companyId = getCompanyIdOrError()
+      if (!companyId) return { isSuccess: false, message: '회사 정보 없음' }
 
-      /**
-       * 모든 캐시를 비우고 서버에서 다시 받아오는 전체 동기화
-       */
-      async syncFromScratch() {
-        this.items = []
-        this.dateLastFetched = 0
-        return await this.syncWithServer() // 서버로부터 전체 데이터 재요청
-      },
-      /**
-       * 서버와 동기화: 삭제된 항목 제거 + 변경된 항목 덮어쓰기
-       * 필요 시 캐시도 함께 저장
-       */
-      async syncWithServer(): Promise<ApiResponse> {
-        const companyId = this.getCompanyIdOrError()
-        if (!companyId) return { isSuccess: false, message: '회사 정보 없음' }
+      const res = await options.deleteItem(companyId, id)
+      if (res.isSuccess) {
+        items.value = items.value.filter(p => p.id !== id)
+      }
 
-        this.loading = true
-        const now = Date.now()
-        const oneDay = 1000 * 60 * 60 * 24
-        const since = now - this.dateLastFetched > oneDay ? 0 : this.dateLastFetched
+      return res
+    }
 
-        try {
-          // 1. 삭제된 ID 목록 가져오기
-          const resDeleted = await options.getDataDeleted(companyId)
-          // 2. 변경된 항목 가져오기
-          const resModified = await options.getDataModified(companyId, since)
-
-          if (!resModified.isSuccess) {
-            this.error = resModified.message || '불러오기 실패'
-            return { isSuccess: false, message: this.error }
-          }
-          // 3. 기존 항목 중 삭제된 ID는 제거
-          const updatedItems = resModified.data ?? []
-          const filtered = this.items.filter(i => !resDeleted.data?.includes(i.id))
-          // 4. 기존 항목 중 수정되지 않은 것 + 수정된 항목을 합침
-          const merged = [
-            ...filtered.filter(i => !updatedItems.some(u => u.id === i.id)),
-            ...updatedItems,
-          ]
-          // 5. 스토어에 반영
-          this.items = merged as unknown as typeof this.items
-          this.dateLastFetched = now
-          this.error = null
-          // 6. 캐시에 저장 (회사별)
-          setCompanyCache(options.cacheKey, companyId, {
-            items: this.items,
-            dateLastFetched: this.dateLastFetched,
-          })
-
-          return { isSuccess: true }
-        } catch (err: any) {
-          this.error = err?.message || '불러오기 실패'
-          return { isSuccess: false, message: this.error ?? '불러오기 실패' }
-        } finally {
-          this.loading = false
-        }
-      },
-    },
-  })() // ← defineStore 를 즉시 실행!
+    return {
+      items,
+      loading,
+      error,
+      itemCount,
+      allItems,
+      getCompanyIdOrError,
+      restoreCache,
+      syncFromScratch,
+      syncWithServer,
+      saveItem,
+      saveItems,
+      deleteItem,
+    }
+  })
 }

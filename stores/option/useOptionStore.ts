@@ -1,4 +1,3 @@
-// stores/product/useProductStore.ts
 import { createVersionedStore } from '@/stores/_base/createVersionedStore'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { createOptionService } from '@/services/option/optionService'
@@ -8,8 +7,16 @@ export const useOptionStore = createVersionedStore<Option>({
   storeId: 'option',
   cacheKey: 'option',
   getCompanyId: () => useAuthStore().currentCompany?.id || null,
-  getDataModified: (companyId, since) => createOptionService().getModified(companyId, since),
-  getDataDeleted: (companyId) => createOptionService().getDeleted(companyId),
-    getById: (companyId, id) => createOptionService().getById(companyId, id),
-    getAll: (companyId) => createOptionService().getAll(companyId),
+  getDataModified: (companyId, since) =>
+    createOptionService().getModified(companyId, since),
+  getDataDeleted: (companyId) =>
+    createOptionService().getDeleted(companyId),
+
+  // ✅ CRUD 기능 포함
+  saveItem: (companyId, item) =>
+    createOptionService().saveItem(companyId, item),
+  saveItems: (companyId, items) =>
+    createOptionService().saveItems(companyId, items),
+  deleteItem: (companyId, id) =>
+    createOptionService().deleteItem(companyId, id),
 })

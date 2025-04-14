@@ -10,7 +10,7 @@ import { getCompanyId } from '~/utils/getCompanyId';
 const route = useRoute();
 const router = useRouter();
 const loading = ref(false)
-const optionStore = useOptionStore;
+const optionStore = useOptionStore();
 const authStore = useAuthStore()
 const optionId = route.params.id as string;
 const option = ref<Option | null>(null);
@@ -28,7 +28,7 @@ const handleSubmit = async (submittedOption: Option) => {
   if (!companyId ) return
   if (loading.value || !option.value) return
   loading.value = true;
-  const res = await createOptionService().save(companyId,submittedOption);
+  const res = await createOptionService().saveItem(companyId,submittedOption);
   if (res.isSuccess) {
     alert('옵션이 수정되었습니다.');
     router.push('/admin/option');

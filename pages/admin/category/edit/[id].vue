@@ -23,7 +23,7 @@ import { createCategoryService } from '~/services/category/categoryService';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
 const route = useRoute();
 const router = useRouter();
-const categoryStore = useCategoryStore;
+const categoryStore = useCategoryStore();
 const authStore = useAuthStore()
 const id = route.params.id as string;
 
@@ -36,7 +36,7 @@ onMounted(async () => {
 const handleSubmit = async (submitted: Category) => {
   const companyId = authStore.currentCompany?.id
   if (!companyId ) return
-  const res = await createCategoryService().save(companyId, submitted);
+  const res = await createCategoryService().saveItem(companyId, submitted);
   if (res.isSuccess) {
     alert('수정되었습니다.');
     router.push('/admin/category');

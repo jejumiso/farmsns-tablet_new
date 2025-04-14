@@ -22,7 +22,7 @@ import { useRoute } from 'vue-router';
 import type { Product } from '@/shared-types/product/product'; // 경로는 실제 위치에 맞게 조정
 import { createProductService } from '@/services/product/productService';
 import { useAuthStore } from '@/stores/auth/useAuthStore'
-const productStore = useProductStore;
+const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 const loading = ref(false)
@@ -50,7 +50,7 @@ const handleSubmit  = async (updatedProduct: Product) => {
   
   try {
     
-    const res = await createProductService().save(companyId,updatedProduct);
+    const res = await createProductService().saveItem(companyId,updatedProduct);
 
     if (res?.isSuccess) {
       // 👉 수정된 상품을 store에 반영

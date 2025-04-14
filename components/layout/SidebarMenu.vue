@@ -112,7 +112,7 @@
 </button>
     <!-- 임시 저장소 초기화 버튼 -->
 <button @click="resetStores" class="reset-button">
-  저장소 초기화
+  저장소 초기화1
 </button>
     <button @click="logout" class="logout-button">
       {{ authStore.currentCompany === null || authStore.currentCompany.shopName === '' ? '관리자' : authStore.currentCompany.shopName  }} &nbsp;
@@ -133,19 +133,47 @@ import { useOptionStore } from '@/stores/option/useOptionStore'
 import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
 
 
-const productStore = useProductStore()
+
+import { clearCompanyCache } from '@/utils/companyCache'
 
 function resetStores() {
-  productStore.$reset()
-  useProductStore().$reset()
-  useCategoryStore().$reset()
-  useOptionStore().$reset()
-  useOptionGroupStore().$reset()
-  console.log('🧹 저장소 초기화 완료')
+  const companyId = useAuthStore().currentCompany?.id
+  if (!companyId) return
+
+  const productStore = useProductStore()
+  productStore.items = []
+  productStore.dateLastFetched = 0
+  clearCompanyCache('product', companyId)
+
+  const categoryStore = useCategoryStore()
+  categoryStore.items = []
+  categoryStore.dateLastFetched = 0
+  clearCompanyCache('category', companyId)
+
+  const optionStore = useOptionStore()
+  optionStore.items = []
+  optionStore.dateLastFetched = 0
+  clearCompanyCache('option', companyId)
+
+  const optionGroupStore = useOptionGroupStore()
+  optionGroupStore.items = []
+  optionGroupStore.dateLastFetched = 0
+  clearCompanyCache('optionGroup', companyId)
+
+  console.log('🧹 저장소 + 캐시 초기화 완료')
 }
+
+
+
+
 async function syncProductStore() {
-  await productStore.syncWithServer()
-  alert('상품 동기화 완료')
+  const productStore = useProductStore()
+  var res = await productStore.syncWithServer()
+  if (res.isSuccess) {
+    alert('상품 동기화 성공' + JSON.stringify(res.data))
+  } else {
+    alert('상품 동기화 실패: ' + res.message)
+  }
 }
 
 const router = useRouter();

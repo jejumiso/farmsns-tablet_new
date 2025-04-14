@@ -23,6 +23,8 @@ export function watchCompanyRealtime(companyId: string) {
   )
 
   let prevVersions = loadVersionCache(companyId)
+  console.log('🔍 이전 버전:', prevVersions)
+
 
   unsubscribeCompany = onSnapshot(companyDocRef, async (snapshot) => {
     if (!snapshot.exists()) return

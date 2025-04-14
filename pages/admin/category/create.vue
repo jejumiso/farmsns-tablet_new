@@ -19,7 +19,7 @@ const handleSubmit = async (submittedCategory: typeof category.value) => {
   if (!companyId) return;
 
 console.log('📡 LOGGER - 제출된 카테고리:', submittedCategory);
-  const res = await createCategoryService().save(companyId,submittedCategory);
+  const res = await createCategoryService().saveItem(companyId,submittedCategory);
   if (res.isSuccess) {
     alert('카테고리가 추가되었습니다.');
     navigateTo('/admin/category');

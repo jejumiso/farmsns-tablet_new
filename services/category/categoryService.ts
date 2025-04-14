@@ -31,14 +31,14 @@ export function createCategoryService() {
     /**
      * 카테고리 저장 (단일)
      */
-    async save(companyId: string, category: Category) {
+    async saveItem(companyId: string, category: Category) {
       return await documentService.save(companyId, category)
     },
 
     /**
      * 카테고리 저장 (복수)
      */
-    async saveMany(companyId: string, categories: Category[]) {
+    async saveItems(companyId: string, categories: Category[]) {
       return await documentService.saveMany(companyId, categories)
     },
 

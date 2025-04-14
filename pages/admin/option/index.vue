@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useOptionStore } from '@/stores/option/useOptionStore'
 
-const optionStore = useOptionStore
+const optionStore = useOptionStore()
 </script>
 
 <template>

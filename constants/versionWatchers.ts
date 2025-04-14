@@ -11,10 +11,10 @@ import type { OptionGroup } from '@/shared-types/option/optionGroup'
 export type VersionKey = 'productVersion' | 'categoryVersion' | 'optionVersion' | 'optionGroupVersion'
 
 type StoreMap = {
-  productVersion: Store<any, { items: Product[]; dateLastFetched: number; loading: boolean; error: string | null }, {}, any>
-  categoryVersion: Store<any, { items: Category[]; dateLastFetched: number; loading: boolean; error: string | null }, {}, any>
-  optionVersion: Store<any, { items: Option[]; dateLastFetched: number; loading: boolean; error: string | null }, {}, any>
-  optionGroupVersion: Store<any, { items: OptionGroup[]; dateLastFetched: number; loading: boolean; error: string | null }, {}, any>
+  productVersion: Store<any, { items: Product[];  loading: boolean; error: string | null }, {}, any>
+  categoryVersion: Store<any, { items: Category[];  loading: boolean; error: string | null }, {}, any>
+  optionVersion: Store<any, { items: Option[];  loading: boolean; error: string | null }, {}, any>
+  optionGroupVersion: Store<any, { items: OptionGroup[];  loading: boolean; error: string | null }, {}, any>
 }
 
 export type VersionWatcherMap = {
@@ -27,18 +27,18 @@ export type VersionWatcherMap = {
 export const versionWatchers: VersionWatcherMap = {
   productVersion: {
     label: '상품',
-    store: () => useProductStore,
+    store: () => useProductStore(),
   },
   categoryVersion: {
     label: '카테고리',
-    store: () => useCategoryStore,
+    store: () => useCategoryStore(),
   },
   optionVersion: {
     label: '옵션',
-    store: () => useOptionStore,
+    store: () => useOptionStore(),
   },
   optionGroupVersion: {
     label: '옵션 그룹',
-    store: () => useOptionGroupStore,
+    store: () => useOptionGroupStore(),
   },
 }

@@ -33,14 +33,14 @@ export function createProductService() {
     /**
      * 상품 저장 (단일)
      */
-    async save(companyId: string, product: Product) {
+    async saveItem(companyId: string, product: Product) {
       return await documentService.save(companyId, product)
     },
 
     /**
      * 상품 저장 (복수)
      */
-    async saveMany(companyId: string, products: Product[]) {
+    async saveItems(companyId: string, products: Product[]) {
       return await documentService.saveMany(companyId, products)
     },
 

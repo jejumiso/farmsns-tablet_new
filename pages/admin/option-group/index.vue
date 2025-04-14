@@ -41,7 +41,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore';
 import type { OptionGroup } from '@/shared-types/option/optionGroup';
 
-const optionGroupStore = useOptionGroupStore;
+const optionGroupStore = useOptionGroupStore();
 
 const optionGroups = computed(() => optionGroupStore.items);
 

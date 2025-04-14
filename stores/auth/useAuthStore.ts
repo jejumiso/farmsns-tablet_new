@@ -10,7 +10,8 @@ import { useProductStore } from '@/stores/product/useProductStore';
 import { useCategoryStore } from '@/stores/category/useCategoryStore'
 import { useOptionStore } from '@/stores/option/useOptionStore'
 import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
-import { stopCompanyRealtimeWatcher } from '~/utils/watchCompanyRealtime';
+import { stopCompanyRealtimeWatcher, watchCompanyRealtime } from '~/utils/watchCompanyRealtime';
+import { getCompanyId } from '~/utils/getCompanyId';
 
 
 
@@ -52,10 +53,10 @@ export const useAuthStore = defineStore('auth', {
       this.currentCompany = null; // 회사 정보 초기화
     
       // ✅ 모든 관련 저장소 초기화
-      useProductStore.$reset()
-      useCategoryStore.$reset()
-      useOptionStore.$reset()
-      useOptionGroupStore.$reset()
+      useProductStore().$reset()
+      useCategoryStore().$reset()
+      useOptionStore().$reset()
+      useOptionGroupStore().$reset()
     
       console.log('[authStore] User logged out'); // 디버깅 로그
       stopCompanyRealtimeWatcher();
@@ -89,11 +90,12 @@ export const useAuthStore = defineStore('auth', {
         if (firebaseUser) {
           // 앱 유저 정보 가져오기
           try {
-            const getAdministratorResponse = await createAdministratorService().getAdministratorById(firebaseUser.uid);
+
+            const getAdministratorResponse = await createAdministratorService().getById('',firebaseUser.uid);
           
             if (getAdministratorResponse.isSuccess) {
               
-              const getCompanyResponse = await createCompanyService().getCompanyById(getAdministratorResponse.data!.companyId);
+              const getCompanyResponse = await createCompanyService().getById('',getAdministratorResponse.data!.companyId);
               console.log('로그인 회사 받으 값', JSON.stringify(getCompanyResponse));
               if (getCompanyResponse.isSuccess) {
                 this.currentAdministrator = getAdministratorResponse.data as Administrator

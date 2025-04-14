@@ -36,8 +36,8 @@ import { createOptionGroupService } from '~/services/option-group/optionGroupSer
 
 const route = useRoute()
 const router = useRouter()
-const optionGroupStore = useOptionGroupStore
-const optionStore = useOptionStore
+const optionGroupStore = useOptionGroupStore()
+const optionStore = useOptionStore()
 const authStore = useAuthStore()
 
 const id = route.params.id as string
@@ -54,7 +54,7 @@ const handleSubmit = async (group: OptionGroup) => {
   const companyId = authStore.currentCompany?.id
   if (!companyId || !optionGroup.value) return
 
-  const result = await createOptionGroupService().save(companyId,group);
+  const result = await createOptionGroupService().saveItem(companyId,group);
   if (result.isSuccess) {
     alert('옵션 그룹이 저장되었습니다.');
 
