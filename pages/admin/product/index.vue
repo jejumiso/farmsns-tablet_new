@@ -12,6 +12,9 @@ const categoryStore = useCategoryStore()
 const selectedCategoryId = ref('ALL')
 const editableProducts = ref<Product[]>([])
 const originalProducts = ref<Product[]>([])
+editableProducts.value = productStore.items.map(p => ({ ...p }))
+originalProducts.value = productStore.items.map(p => ({ ...p }))
+
 const isServerUpdated = ref(false)
 
 const router = useRouter()
@@ -26,11 +29,8 @@ function handleClickOutside(e: MouseEvent) {
     }, 0)
   }
 }
-function updateDisplayOrder() {
-  editableProducts.value.forEach((product, index) => {
-    product.displayLevel = index + 1
-  })
-}
+
+
 
 onMounted(() => {
   window.addEventListener('click', handleClickOutside)
@@ -44,32 +44,83 @@ function goToEdit(productId: string) {
   router.push(`/admin/product/edit/${productId}`)
 }
 
-watchEffect(() => {
-  if (originalProducts.value.length === 0 && productStore.items.length > 0) {
-    originalProducts.value = productStore.items.map(p => ({ ...p }))
-    editableProducts.value = productStore.items.map(p => ({ ...p }))
-  }
-})
+
 
 function stripMetaFields(obj: any) {
   const { dateModified, dateCreated, ...rest } = obj
   return rest
 }
 // 서버에서 items가 바뀌면 덮어쓰기 방지 및 비활성화 플래그 설정
+function updateDisplayOrderMinimal(evt: any) {
+  const from = evt.oldIndex
+  const to = evt.newIndex
+  if (from === undefined || to === undefined) return
+
+  // 현재 화면에 보이는 정렬된 배열
+  const ordered = [...filteredProducts.value]
+  const moved = ordered[to]
+
+  const prev = ordered[to - 1]
+  const next = ordered[to + 1]
+
+  const prevLevel = prev?.displayLevel ?? moved.displayLevel - 100
+  const nextLevel = next?.displayLevel ?? moved.displayLevel + 100
+
+  const newLevel = Math.floor((prevLevel + nextLevel) / 2)
+  moved.displayLevel = newLevel
+
+  // 실제 editableProducts에 있는 해당 항목 찾아서 displayLevel만 갱신
+  const target = editableProducts.value.find(p => p.id === moved.id)
+  if (target) {
+    target.displayLevel = newLevel
+  }
+
+  // 간격 부족 → 전체 재정렬
+  if (nextLevel - prevLevel <= 1) {
+    editableProducts.value
+      .sort((a, b) => a.displayLevel - b.displayLevel)
+      .forEach((p, i) => (p.displayLevel = (i + 1) * 100))
+  }
+}
+
+
+
+
+function updateDisplayOrder() {
+  // const ordered = [...filteredProducts.value]
+  // ordered.forEach((product, index) => {
+  //   product.displayLevel = index + 1
+  // })
+  // editableProducts.value = ordered.map(p => ({ ...p }))
+  filteredProducts.value.forEach((product, index) => {
+    product.displayLevel = index + 1
+  })
+}
 
 watch(
   () => productStore.items.map(stripMetaFields),
   (serverItems) => {
-    if (editableProducts.value.length === 0) return
+    const localOriginal = originalProducts.value.map(stripMetaFields)
+    const localEdited = editableProducts.value.map(stripMetaFields)
 
-    const localItems = editableProducts.value.map(stripMetaFields)
+    // 1. 서버 데이터와 내가 동기화한 시점의 데이터가 다르면
+    const isServerChanged = !isEqual(localOriginal, serverItems)
 
-    if (!isEqual(localItems, serverItems)) {
+    // 2. 하지만 내가 수정한 값과 서버 값이 같으면 내가 저장한 걸로 간주
+    const isUserJustSaved = isEqual(localEdited, serverItems)
+
+    if (isServerChanged && !isUserJustSaved) {
       isServerUpdated.value = true
+    } else {
+      isServerUpdated.value = false
+      // 동기화된 상태니까 original도 최신으로 업데이트
+      originalProducts.value = productStore.items.map(p => ({ ...p }))
+      editableProducts.value = productStore.items.map(p => ({ ...p }))
     }
   },
   { deep: true }
 )
+
 
 const editingCell = ref<{ rowIndex: number; key: string } | null>(null)
 const inputRefs = ref<Record<string, HTMLInputElement>>({})
@@ -190,8 +241,15 @@ async function saveAll() {
   if (isServerUpdated.value) return
   const res = await productStore.saveItems(modifiedProducts.value)
   if (res.isSuccess) {
+    // 저장 성공 → 수정된 항목만 productStore.items에 반영
+    modifiedProducts.value.forEach(modified => {
+    const index = productStore.items.findIndex(p => p.id === modified.id)
+    if (index !== -1) {
+      productStore.items[index] = { ...modified }
+    }
+  })
     
-    originalProducts.value = editableProducts.value.map(p => ({ ...p }))
+    // originalProducts.value = editableProducts.value.map(p => ({ ...p }))
     // editableProducts.value = productStore.items.map(p => ({ ...p }))
 
     alert('저장 완료!')
@@ -237,19 +295,103 @@ function goToCreate() {
         {{ modifiedProducts.length }}개의 상품이 변경되었습니다.
       </span>
     </div>
-
+{{ filteredProducts.length }}개의 상품이 등록되어 있습니다.
     <table class="w-full table-fixed border">
       <thead class="bg-gray-100">
         <tr>
-          <th class="p-2 w-12">#</th>
+          <th class="p-2 w-12">진열순위</th>
           <th class="p-2 w-32">상품명</th>
           <th class="p-2 w-32">원가</th>
           <th class="p-2 w-32">판매가</th>
           <th class="p-2 w-24">수정</th>
         </tr>
       </thead>
-      <tbody>
-        <tr 
+        <draggable
+  tag="tbody"
+  :list="filteredProducts"
+  item-key="id"
+  handle=".drag-handle"
+  @end="updateDisplayOrderMinimal"
+
+>
+  <template #item="{ element, index }">
+    <tr :key="element.id" class="hover:bg-yellow-50 border-t border-t">
+      <!-- 나머지 td들 그대로 -->
+      <td class="p-2 text-center drag-handle">
+        {{ index + 1 }}
+        <span class="ml-1 text-xs text-gray-400">({{ element.displayLevel }})</span>
+      </td>
+            <td class="p-2 drag-handle">
+            <input
+              :id="`input-${index}-productName`"
+              v-if="editingCell?.rowIndex === index && editingCell?.key === 'productName'"
+              v-model="element.productName"
+              :ref="el => setRef(el as HTMLInputElement, `${index}-productName`)"
+              @keydown="e => handleKeydown(e, index, 'productName')"
+              type="text"
+              class="w-full px-1 py-1 border rounded"
+            />
+            <span
+              v-else
+              @click="startEditing(index, 'productName')"
+              class="editable-cell block cursor-pointer"
+            >
+              {{ element.productName }}
+            </span>
+          </td>
+
+          <td class="p-2">
+            <input
+              :id="`input-${index}-priceOri`"
+              v-if="editingCell?.rowIndex === index && editingCell?.key === 'priceOri'"
+              :readonly="editingCell?.rowIndex !== index || editingCell?.key !== 'priceOri'"
+              v-model.number="element.priceOri"
+              :ref="el => setRef(el as HTMLInputElement, `${index}-priceOri`)"
+              @keydown="e => handleKeydown(e, index, 'priceOri')"
+              type="text"
+              class="w-full px-1 py-1 border rounded text-right"
+            />
+            <span
+              v-else
+              @click="startEditing(index, 'priceOri')"
+              class="editable-cell block cursor-pointer"
+            >
+              {{ element.priceOri }}
+            </span>
+          </td>
+
+          <td class="p-2">
+            <input
+              :id="`input-${index}-priceSale`"
+              v-if="editingCell?.rowIndex === index && editingCell?.key === 'priceSale'"
+              v-model.number="element.priceSale"
+              :ref="el => setRef(el as HTMLInputElement, `${index}-priceSale`)"
+              @keydown="e => handleKeydown(e, index, 'priceSale')"
+              type="text"
+              class="w-full px-1 py-1 border rounded text-right"
+            />
+            <span
+              v-else
+              @click="startEditing(index, 'priceSale')"
+              class="editable-cell block cursor-pointer"
+            >
+              {{ element.priceSale }}
+            </span>
+          </td>
+          <!-- 각 row에 버튼 추가 -->
+          <td class="p-2 text-center">
+            <button
+              @click="goToEdit(element.id)"
+              class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+            >
+              수정
+            </button>
+          </td>
+    </tr>
+  </template>
+</draggable>
+
+        <!-- <tr 
           v-for="(product, rowIndex) in filteredProducts"
           :key="product.id"
           class="hover:bg-yellow-50 border-t border-t"
@@ -314,7 +456,6 @@ function goToCreate() {
               {{ product.priceSale }}
             </span>
           </td>
-          <!-- 각 row에 버튼 추가 -->
           <td class="p-2 text-center">
             <button
               @click="goToEdit(product.id)"
@@ -323,8 +464,7 @@ function goToCreate() {
               수정
             </button>
           </td>
-        </tr>
-      </tbody>
+        </tr> -->
     </table>
   </main>
   <button
