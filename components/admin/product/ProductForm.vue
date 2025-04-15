@@ -18,12 +18,26 @@
     <div v-if="currentTab === '기본 정보'" class="space-y-4">
       <FormInput label="상품명" v-model="product.productName" id="productName" required />
       <FormInput label="단축 상품명" v-model="product.productNameShort" id="productNameShort" />
-      <FormInput label="썸네일 이미지 URL" v-model="product.imageThumbnailUrl" id="imageThumbnailUrl" />
-      <FormInput label="상세 이미지들 (쉼표 구분)" v-model="imageDetailUrlsInput" id="imageDetailUrls" />
+
+
+
       <FormInput label="단위" v-model="product.unit" id="unit" />
       <div>
         <label for="explanation" class="block text-sm font-medium text-gray-700">상품 설명</label>
         <textarea v-model="product.explanation" id="explanation" rows="3" class="w-full mt-2 p-2 border rounded" />
+      </div>
+    </div>
+    <div v-if="currentTab === '이미지'" class="space-y-4"> 
+      <div>
+        <ImageUploader
+  v-model:modelValue="product.galleryImageUrls"
+  v-model:thumbnail="product.thumbnailUrl"
+  :maxCount="5"
+/>
+    
+
+    
+
       </div>
     </div>
 
@@ -104,6 +118,7 @@
 import { ref, watch } from 'vue';
 import type { Product } from '@/shared-types/product/product';
 import FormInput from '@/components/common/FormInput.vue';
+import ImageUploader from '@/components/common/ImageUploader.vue';
 
 const props = defineProps<{
   product: Product;
@@ -115,6 +130,7 @@ const props = defineProps<{
 
 const tabs = [
   '기본 정보',
+  '이미지',
   '가격 정보',
   '재고 및 진열',
   '옵션 설정',
@@ -124,6 +140,10 @@ const tabs = [
 ];
 const currentTab = ref(tabs[0]);
 
+
+
+
+
 // 옵션 ID 입력 처리
 const optionIdsInput = ref(props.product.optionIds.join(','));
 watch(optionIdsInput, (val) => {
@@ -131,9 +151,9 @@ watch(optionIdsInput, (val) => {
 });
 
 // 이미지 URL 배열 처리
-const imageDetailUrlsInput = ref(props.product.imageDetailUrls.join(','));
+const imageDetailUrlsInput = ref(props.product.galleryImageUrls.join(','));
 watch(imageDetailUrlsInput, (val) => {
-  props.product.imageDetailUrls = val.split(',').map((s) => s.trim()).filter(Boolean);
+  props.product.galleryImageUrls = val.split(',').map((s) => s.trim()).filter(Boolean);
 });
 
 // 카테고리 처리
@@ -151,6 +171,9 @@ const confirmDelete = async () => {
 
 };
 const submitForm = () => {
+  alert(props.product.galleryImageUrls.length)
   emit('submit', props.product);
 };
+
+
 </script>

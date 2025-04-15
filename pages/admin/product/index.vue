@@ -66,6 +66,8 @@
             <td class="p-2 text-center drag-handle">
               {{ index + 1 }}
               <span class="ml-1 text-xs text-gray-400">({{ element.displayLevel }})</span>
+              <span class="ml-1 text-xs text-gray-400">({{ element.thumbnailUrl }})</span>
+              <span class="ml-1 text-xs text-gray-400">({{ element.galleryImageUrls }})</span>
             </td>
 
             <!-- 반복 가능한 인풋 필드 렌더링 -->
