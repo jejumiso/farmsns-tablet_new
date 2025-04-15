@@ -29,12 +29,24 @@
     </div>
     <div v-if="currentTab === '이미지'" class="space-y-4"> 
       <div>
-        <ImageUploader
-  v-model:modelValue="product.galleryImageUrls"
-  v-model:thumbnail="product.thumbnailUrl"
+<!-- 이미지 업로드 -->
+
+<ImageUploader
+  v-model="product.galleryImageUrls"
   :maxCount="5"
+  :maxSizeKb="1024"           
+  :maxWidth="1000"          
+  :minWidth="300"           
+  :minHeight="300"          
 />
-    
+
+<br />
+<!-- 이미지 리스트 + 썸네일 지정 -->
+<ImageList
+  v-model="product.galleryImageUrls"
+  v-model:thumbnail="product.thumbnailUrl"
+  :showControls="true"
+/>
 
     
 
@@ -119,13 +131,15 @@ import { ref, watch } from 'vue';
 import type { Product } from '@/shared-types/product/product';
 import FormInput from '@/components/common/FormInput.vue';
 import ImageUploader from '@/components/common/ImageUploader.vue';
+import ImageList from '@/components/common/ImageList.vue';
 
 const props = defineProps<{
   product: Product;
   isEditMode: boolean;
   loading: boolean;
 }>();
-
+const galleryImages = ref<string[]>([])
+const thumbnail = ref('')
 
 
 const tabs = [
