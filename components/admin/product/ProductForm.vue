@@ -32,19 +32,22 @@
 <!-- 이미지 업로드 -->
 
 <ImageUploader
-  v-model="product.galleryImageUrls"
+  v-model="product.imageGalleryFileNames"
+  :imageType="'product'"
+  :companyId="companyId??''"
   :maxCount="5"
-  :maxSizeKb="1024"           
-  :maxWidth="1000"          
-  :minWidth="300"           
-  :minHeight="300"          
+  :maxSizeKb="512"           
+  :maxWidth="1000"      
+  :maxHeight="1000"    
+  :minWidth="30"           
+  :minHeight="30"          
 />
 
 <br />
 <!-- 이미지 리스트 + 썸네일 지정 -->
 <ImageList
-  v-model="product.galleryImageUrls"
-  v-model:thumbnail="product.thumbnailUrl"
+  v-model="product.imageGalleryFileNames"
+  v-model:thumbnail="product.imageThumbnailFileName"
   :showControls="true"
 />
 
@@ -132,6 +135,7 @@ import type { Product } from '@/shared-types/product/product';
 import FormInput from '@/components/common/FormInput.vue';
 import ImageUploader from '@/components/common/ImageUploader.vue';
 import ImageList from '@/components/common/ImageList.vue';
+import { getCompanyId } from '~/utils/getCompanyId';
 
 const props = defineProps<{
   product: Product;
@@ -140,7 +144,7 @@ const props = defineProps<{
 }>();
 const galleryImages = ref<string[]>([])
 const thumbnail = ref('')
-
+const companyId = getCompanyId();
 
 const tabs = [
   '기본 정보',
@@ -165,9 +169,9 @@ watch(optionIdsInput, (val) => {
 });
 
 // 이미지 URL 배열 처리
-const imageDetailUrlsInput = ref(props.product.galleryImageUrls.join(','));
+const imageDetailUrlsInput = ref(props.product.imageGalleryFileNames.join(','));
 watch(imageDetailUrlsInput, (val) => {
-  props.product.galleryImageUrls = val.split(',').map((s) => s.trim()).filter(Boolean);
+  props.product.imageGalleryFileNames = val.split(',').map((s) => s.trim()).filter(Boolean);
 });
 
 // 카테고리 처리
@@ -185,7 +189,7 @@ const confirmDelete = async () => {
 
 };
 const submitForm = () => {
-  alert(props.product.galleryImageUrls.length)
+  alert(props.product.imageGalleryFileNames.length)
   emit('submit', props.product);
 };
 

@@ -16,7 +16,6 @@ export const useApi = () => {
     timeout: 10000,
     headers: {
       Authorization: token.value ? `Bearer ${token.value}` : undefined,
-      'Content-Type': 'application/json', // ✅ 이 줄 추가
     },
   })
 

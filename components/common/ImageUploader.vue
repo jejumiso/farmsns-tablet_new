@@ -8,14 +8,14 @@
         <div
           class="absolute z-10 w-60 text-xs text-white bg-gray-800 rounded p-2 shadow-md opacity-0 group-hover:opacity-100 transition pointer-events-none mt-1 left-1/2 -translate-x-1/2"
         >
-          최대 {{ props.maxCount ?? '무제한' }}개<br />
-          최대 용량: {{ props.maxSizeKb ?? '제한 없음' }}KB<br />
-          크기: {{ props.minWidth ?? '-' }}~{{ props.maxWidth ?? '-' }}px 가로 /
-          {{ props.minHeight ?? '-' }}~{{ props.maxHeight ?? '-' }}px 세로<br />
+          최대 {{ MAX_COUNT ?? '무제한' }}개<br />
+          최대 용량: {{ MAX_SIZE_KB ?? '제한 없음' }}KB<br />
+          크기: {{ MIN_WIDTH ?? '-' }}~{{ MAX_WIDTH ?? '-' }}px 가로 /
+          {{ MIN_HEIGHT ?? '-' }}~{{ MAX_HEIGHT ?? '-' }}px 세로<br />
           비율:
-          {{ props.minAspectRatio ? `최소 ${props.minAspectRatio}` : '제한 없음' }}
+          {{ MIN_ASPECT_RATIO ? `최소 ${MIN_ASPECT_RATIO}` : '제한 없음' }}
           ~
-          {{ props.maxAspectRatio ? `최대 ${props.maxAspectRatio}` : '제한 없음' }}
+          {{ MAX_ASPECT_RATIO ? `최대 ${MAX_ASPECT_RATIO}` : '제한 없음' }}
         </div>
       </div>
     </div>
@@ -44,11 +44,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { uploadImage } from '@/services/image'
+
 
 const images = defineModel<string[]>({ default: () => [] })
 const isUploading = ref(false)
 
 const props = defineProps<{
+  imageType: 'company' | 'product'
+  companyId: string
   maxCount?: number
   maxSizeKb?: number
   maxWidth?: number
@@ -88,7 +92,7 @@ async function handleDrop(e: DragEvent) {
 }
 
 async function uploadFiles(files: File[]): Promise<string[]> {
-  const uploadedUrls: string[] = []
+  const uploadedFileNames : string[] = []
   const remaining = MAX_COUNT - images.value.length
 
   if (remaining <= 0) {
@@ -113,8 +117,15 @@ async function uploadFiles(files: File[]): Promise<string[]> {
       const { resizedBlob, isValid } = await resizeAndValidateImage(file)
       if (!isValid) continue
 
-      const url = URL.createObjectURL(resizedBlob)
-      uploadedUrls.push(url)
+
+      // 예: 서비스 레이어 함수 호출
+      const res = await uploadImage(resizedBlob,props.companyId, props.imageType)
+      if (res.isSuccess !== true) {
+        alert('이미지 업로드에 실패했습니다.')
+        continue
+      }
+      uploadedFileNames .push(res.data!.fileName)
+
     } catch (err) {
       console.error('업로드 실패:', err)
       alert('이미지 업로드 중 오류가 발생했습니다.')
@@ -122,7 +133,11 @@ async function uploadFiles(files: File[]): Promise<string[]> {
   }
 
   isUploading.value = false
-  return uploadedUrls
+
+  // ✅ 업로드된 이미지들을 images에 반영!
+  images.value.push(...uploadedFileNames )
+
+  return uploadedFileNames 
 }
 
 async function resizeAndValidateImage(file: File): Promise<{ resizedBlob: Blob, isValid: boolean }> {

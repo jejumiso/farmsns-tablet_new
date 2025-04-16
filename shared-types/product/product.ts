@@ -13,8 +13,8 @@ export interface Product {
   productNameShort: string
   priceOri: number
   priceSale: number
-  thumbnailUrl : string
-  galleryImageUrls: string[]
+  imageThumbnailFileName : string
+  imageGalleryFileNames: string[]
   unit: string
   explanation: string
   stockQuantity : number
@@ -48,8 +48,8 @@ export function createEmptyProduct(): Product {
     productNameShort: '',
     priceOri: 0,
     priceSale: 0,
-    thumbnailUrl: '',
-    galleryImageUrls: [],
+    imageThumbnailFileName: '',
+    imageGalleryFileNames: [],
     unit: '',
     explanation: '상품설명',
     stockQuantity : -1,
