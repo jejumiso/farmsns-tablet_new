@@ -13,7 +13,7 @@
 
             <div
               class="absolute top-1 left-1 text-xs px-1 py-0.5 rounded bg-blue-600 text-white"
-              v-if="thumbnail === THUMBNAIL_PREFIX + fileName"
+             v-if="thumbnail === getThumbnailFileName(fileName)"
             >
               썸네일
             </div>
@@ -25,6 +25,7 @@
               <template v-if="thumbnail === THUMBNAIL_PREFIX + fileName">
                 <div class="text-xs bg-white text-blue-600 font-semibold px-2 py-1 rounded shadow">현재 썸네일</div>
                 <button
+                  type="button"
                   class="bg-red-500 text-white text-xs px-2 py-1 rounded shadow"
                   @click.stop="removeImage(index)"
                 >
@@ -33,12 +34,14 @@
               </template>
               <template v-else>
                 <button
+                 type="button"
                   class="bg-white text-xs px-2 py-1 rounded shadow"
                   @click.stop="setThumbnail(fileName)"
                 >
                   썸네일 지정
                 </button>
                 <button
+                  type="button"
                   class="bg-red-500 text-white text-xs px-2 py-1 rounded shadow"
                   @click.stop="removeImage(index)"
                 >
@@ -59,11 +62,14 @@
 import { defineModel, defineProps, watch } from 'vue'
 import { STORAGE_BASE_URL, THUMBNAIL_PREFIX } from '@/shared-constants/constants'
 import draggable from 'vuedraggable'
+import { generateThumbnail } from '~/services/image'
 
 const images = defineModel<string[]>({ default: () => [] })
 const thumbnail = defineModel<string>('thumbnail', { default: '' })
 
 const props = defineProps<{
+  imageType: 'company' | 'product'
+  companyId: string
   showControls?: boolean
 }>()
 
@@ -73,11 +79,20 @@ const getImageUrl = (fileName: string) => `${STORAGE_BASE_URL}/${fileName}`
 watch(
   () => images.value.length,
   (newLen, oldLen) => {
-    if (oldLen === 0 && newLen > 0 && !thumbnail.value) {
+    if (newLen === 0) {
+      thumbnail.value = ''
+    } else if (oldLen === 0 && newLen > 0 && !thumbnail.value) {
       setThumbnail(images.value[0])
     }
   }
 )
+
+function getThumbnailFileName(fileName: string): string {
+  const parts = fileName.split('/')
+  const last = parts.pop()!
+  parts.push(`thumb_${last}`)
+  return parts.join('/')
+}
 
 const removeImage = (index: number) => {
   const removed = images.value.splice(index, 1)[0]
@@ -86,7 +101,18 @@ const removeImage = (index: number) => {
   }
 }
 
-const setThumbnail = (fileName: string) => {
-  thumbnail.value = THUMBNAIL_PREFIX + fileName
+const setThumbnail = async (fileName: string) => {
+  try {
+    const res = await generateThumbnail(props.companyId, props.imageType,fileName)
+    if (res.isSuccess) {
+      thumbnail.value = res.data!.thumbnailFileName
+    } else {
+      alert('썸네일 생성에 실패했습니다.')
+    }
+  } catch (err) {
+    console.error('썸네일 생성 실패:', err)
+    alert('썸네일 생성 중 오류 발생')
+  }
 }
+
 </script>

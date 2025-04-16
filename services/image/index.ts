@@ -1,2 +1,2 @@
 export * from './uploadImage'
-export * from './createThumbnail'
+export * from './generateThumbnail'

@@ -48,6 +48,8 @@
 <ImageList
   v-model="product.imageGalleryFileNames"
   v-model:thumbnail="product.imageThumbnailFileName"
+    :imageType="'product'"
+  :companyId="companyId??''"
   :showControls="true"
 />
 
@@ -189,7 +191,7 @@ const confirmDelete = async () => {
 
 };
 const submitForm = () => {
-  alert(props.product.imageGalleryFileNames.length)
+  
   emit('submit', props.product);
 };
 
