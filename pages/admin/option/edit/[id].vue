@@ -30,6 +30,13 @@ const handleSubmit = async (submittedOption: Option) => {
   loading.value = true;
   const res = await createOptionService().saveItem(companyId,submittedOption);
   if (res.isSuccess) {
+    // 👉 수정된 상품을 store에 반영
+    const index = optionStore.items.findIndex(p => p.id === submittedOption.id);
+      if (index !== -1) {
+        optionStore.items[index] = { ...submittedOption };
+      }
+
+
     alert('옵션이 수정되었습니다.');
     router.push('/admin/option');
   } else {
@@ -50,6 +57,7 @@ const confirmDelete = async () => {
 
   if (res.isSuccess) {
     alert('삭제되었습니다.')
+    optionStore.items = optionStore.items.filter(p => p.id !== option.value?.id)
     router.push('/admin/option')
   } else {
     alert('삭제 실패: ' + (res.message || '알 수 없는 오류입니다.'))

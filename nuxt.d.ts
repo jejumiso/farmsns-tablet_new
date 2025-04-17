@@ -1,3 +1,4 @@
+/// <reference types="nuxt" />
 // 루트 디렉토리 : nuxt.d.ts
 import type { AxiosInstance } from 'axios'
 import type { Auth } from 'firebase/auth'  // firebase/auth에서 Auth 타입 가져오기
@@ -33,6 +34,8 @@ declare module 'vue' {
 declare global {
   const defineNuxtRouteMiddleware: typeof import('#app')['defineNuxtRouteMiddleware']
   const navigateTo: typeof import('#app')['navigateTo']
+  const definePageMeta: typeof import('#app')['definePageMeta'] // ✅ 이거!
+
 }
 
 

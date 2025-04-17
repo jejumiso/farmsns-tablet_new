@@ -1,28 +1,34 @@
 <template>
   <main class="p-6">
-    <!-- 상단 버튼 영역 -->
-    <div class="mb-2">
-      <button
-        @click="saveAll"
-        :disabled="isSaveDisabled"
-        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
-      >
-        저장
-      </button>
-      카테고리
-      <button
-        v-for="cat in ['ALL', 'UNCATEGORIZED', ...categoryStore.items.map(c => c.id)]"
-        :key="cat"
-        @click="selectedCategoryId = cat"
-        class="mr-2 px-3 py-1 rounded"
-        :class="{
-          'bg-blue-600 text-white': selectedCategoryId === cat,
-          'bg-gray-200': selectedCategoryId !== cat
-        }"
-      >
-        {{ cat === 'ALL' ? '전체' : cat === 'UNCATEGORIZED' ? '미등록' : categoryStore.items.find(c => c.id === cat)?.categoryName || cat }}
-      </button>
-    </div>
+<!-- 상단 버튼 영역 -->
+<div class="flex flex-wrap items-center gap-2 mb-4">
+  <button
+    @click="saveAll"
+    :disabled="isSaveDisabled"
+    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+  >
+    저장
+  </button>
+
+  <span class="text-sm text-gray-600 ml-2">카테고리:</span>
+
+  <button
+    v-for="cat in ['ALL', 'UNCATEGORIZED', ...categoryStore.items.map(c => c.id)]"
+    :key="cat"
+    @click="selectedCategoryId = cat"
+    class="px-3 py-1 text-sm font-medium rounded transition"
+    :class="{
+      'bg-blue-600 text-white': selectedCategoryId === cat,
+      'bg-gray-100 hover:bg-gray-200': selectedCategoryId !== cat,
+    }"
+  >
+    {{
+      cat === 'ALL' ? '전체' :
+      cat === 'UNCATEGORIZED' ? '미등록' :
+      categoryStore.items.find(c => c.id === cat)?.categoryName || cat
+    }}
+  </button>
+</div>
 
     <!-- 상태 메시지 -->
     <div class="mb-4 text-sm text-gray-700">
@@ -37,22 +43,24 @@
       </span>
     </div>
 
-    <!-- 상품 테이블 -->
-    <table class="w-full table-fixed border">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="p-2 w-22">진열순</th>
-          <th class="p-2 w-32">상품명</th>
-          <th class="p-2 w-32">원가</th>
-          <th class="p-2 w-32">판매가</th>
-          <th class="p-2 w-32">스탬프</th>
-          <th class="p-2 w-32">포인트</th>
-          <th class="p-2 w-32">카테고리</th>
-          <th class="p-2 w-32">옵션</th>
-          <th class="p-2 w-32">옵션그룹</th>
-          <th class="p-2 w-24">수정</th>
-        </tr>
-      </thead>
+
+<!-- 상품 테이블 -->
+<table class="w-full  border border-gray-200 shadow-sm rounded-lg  bg-white">
+  <thead class="bg-gray-50 text-gray-700 text-sm uppercase">
+    <tr>
+      <th class="p-3 w-[80px]">진열순</th>
+      <th class="p-3 w-[200px]">상품명</th>
+      <th class="p-3 w-[80px]">원가</th>
+      <th class="p-3 w-[80px]">판매가</th>
+      <th class="p-3 w-[70px]">스탬프</th>
+      <th class="p-3 w-[70px]">포인트</th>
+      <th class="p-3 w-[160px]">카테고리</th>
+      <th class="p-3 w-[160px]">옵션</th>
+      <th class="p-3 w-[160px]">옵션그룹</th>
+      <th class="p-3 w-[80px]">수정</th>
+    </tr>
+  </thead>
+
       <draggable
         tag="tbody"
         :list="filteredProducts"
@@ -61,7 +69,7 @@
         @end="updateDisplayOrderMinimal"
       >
         <template #item="{ element, index }">
-          <tr :key="element.id" class="hover:bg-yellow-50 border-t">
+          <tr :key="element.id" class="hover:bg-yellow-50 border-t text-center">
             <!-- 진열 순위 -->
             <td class="p-2 text-center drag-handle">
               {{ index + 1 }}
@@ -109,55 +117,65 @@
 
             <!-- 카테고리 (다중 선택) -->
             <td class="relative">
-              <div
-                v-if="editingCell?.rowIndex === index && editingCell?.key === 'categories'"
-                class="absolute z-10 bg-white border rounded shadow p-2 text-sm w-48"
-                @mousedown.stop
-                @click.stop
-              >
-                <label
-                  v-for="cat in categoryStore.items"
-                  :key="cat.id"
-                  class="flex items-center gap-1 mb-1"
+                <div
+                  v-if="editingCell?.rowIndex === index && editingCell?.key === 'categories'"
+                  class="absolute z-10 bg-white border rounded shadow p-2 text-sm w-48"
+                  @mousedown.stop
+                  @click.stop
+                  ref="categoryPopup"
                 >
-                  <input type="checkbox" :value="cat.id" v-model="element.categories" />
-                  {{ cat.categoryName }}
-                </label>
-              </div>
-              <span
-                v-else
-                @click="startEditing(index, 'categories')"
-                class="editable-cell block cursor-pointer text-xs"
-              >
-                {{ renderCategoryLabel(element.categories) }}
-              </span>
-            </td>
+                  <label
+                    v-for="cat in categoryStore.items"
+                    :key="cat.id"
+                    class="flex items-center gap-1 mb-1 cursor-pointer"
+                  >
+                    <input type="checkbox" :value="cat.id" v-model="localCategories" />
+                    {{ cat.categoryName }}
+                  </label>
+                </div>
+                <span
+                  v-else
+                  @click="startEditing(index, 'categories')"
+                  class="editable-cell block cursor-pointer text-xs"
+                >
+                  {{ renderCategoryLabel(element.categories) }}
+                </span>
+              </td>
 
             <!-- 옵션 (다중 선택) -->
-            <td class="relative">
-              <div
-                v-if="editingCell?.rowIndex === index && editingCell?.key === 'optionIds'"
-                class="absolute z-10 bg-white border rounded shadow p-2 text-sm w-48"
-                @mousedown.stop
-                @click.stop
-              >
-                <label
-                  v-for="opt in optionStore.items"
-                  :key="opt.id"
-                  class="flex items-center gap-1 mb-1"
-                >
-                  <input type="checkbox" :value="opt.id" v-model="element.optionIds" />
-                  {{ opt.optionName }}
-                </label>
-              </div>
-              <span
-                v-else
-                @click="startEditing(index, 'optionIds')"
-                class="editable-cell block cursor-pointer text-xs"
-              >
-                {{ renderOptionLabel(element.optionIds) }}
-              </span>
-            </td>
+<td class="relative">
+  <div
+    v-if="editingCell?.rowIndex === index && editingCell?.key === 'optionIds'"
+    class="absolute z-10 bg-white border rounded shadow p-2 text-sm w-48"
+    @mousedown.stop
+    @click.stop
+  >
+    <label
+      v-for="opt in optionStore.items"
+      :key="opt.id"
+      class="flex items-center gap-1 mb-1"
+    >
+      <input
+        type="checkbox"
+        :value="opt.id"
+        v-model="element.optionIds"
+        :disabled="!!element.optionGroupId"
+      />
+      {{ opt.optionName }}
+    </label>
+  </div>
+
+  <span
+    v-else
+    @click="element.optionGroupId ? null : startEditing(index, 'optionIds')"
+    class="editable-cell block cursor-pointer text-xs"
+    :class="{ 'text-gray-400': element.optionGroupId }" 
+  >
+    <span v-if="element.optionGroupId" class="ml-1 text-xs text-gray-400">옵션그룹 적용</span>
+    <span v-else>{{ renderOptionLabel(element.optionIds) }}</span>
+  </span>
+</td>
+
 
             <!-- 옵션그룹 (단일 선택) -->
             <td class="relative">
@@ -224,6 +242,7 @@ import { useOptionStore } from '@/stores/option/useOptionStore'
 import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
 
 import type { Product } from '@/shared-types/product/product'
+import { getCompanyId } from '~/utils/getCompanyId'
 
 // 스토어 인스턴스
 const productStore = useProductStore()
@@ -231,7 +250,7 @@ const categoryStore = useCategoryStore()
 const optionStore = useOptionStore()
 const optionGroupStore = useOptionGroupStore()
 const router = useRouter()
-
+const companyId = getCompanyId();
 // 상태 정의
 const selectedCategoryId = ref('ALL')
 const editableProducts = ref<Product[]>([])
@@ -241,15 +260,36 @@ const editingCell = ref<{ rowIndex: number; key: string } | null>(null)
 const inputRefs = ref<Record<string, HTMLInputElement>>({})
 
 // 초기 데이터 설정
-editableProducts.value = productStore.items.map(p => ({ ...p }))
-originalProducts.value = productStore.items.map(p => ({ ...p }))
+// 새로고침시 캐시에 반영이 즉각 안되기 때문에 0개일때는 캐시에 반영이 된값을 받아들임.
+watch(
+  () => productStore.items.length,
+  (newLen) => {
+    if (newLen > 0 && editableProducts.value.length === 0) {
+      editableProducts.value = productStore.items.map(p => ({ ...p }))
+      originalProducts.value = productStore.items.map(p => ({ ...p }))
+    }
+  },
+  { immediate: true }
+)
 
 // 외부 클릭 시 편집 종료
+
 function handleClickOutside(e: MouseEvent) {
   const target = e.target as HTMLElement
-  if (!target.closest('input') && !target.closest('.editable-cell') && !target.closest('.skip-outside-check')) {
-    editingCell.value = null
+  if (
+    categoryPopup.value?.contains(target) ||
+    target.closest('.editable-cell') ||
+    target.closest('input')
+  ) {
+    return
   }
+
+  if (editingCell.value?.key === 'categories') {
+    const index = editingCell.value.rowIndex
+    applyCategoryEdit(index)
+  }
+
+  editingCell.value = null
 }
 
 
@@ -263,26 +303,54 @@ function updateDisplayOrderMinimal(evt: any) {
     return
   }
 
-  const from = evt.oldIndex, to = evt.newIndex
+  const from = evt.oldIndex
+  const to = evt.newIndex
   if (from === undefined || to === undefined) return
 
   const ordered = [...filteredProducts.value]
   const moved = ordered[to]
-  const prev = ordered[to - 1], next = ordered[to + 1]
-  const prevLevel = prev?.displayLevel ?? moved.displayLevel - 100
-  const nextLevel = next?.displayLevel ?? moved.displayLevel + 100
+  const prev = ordered[to - 1]
+  const next = ordered[to + 1]
 
-  const newLevel = Math.floor((prevLevel + nextLevel) / 2)
+  const step = 100
+  const prevLevel = prev?.displayLevel ?? 0
+  const nextLevel = next?.displayLevel ?? prevLevel + step * 2
+
+  let newLevel: number
+
+  // 1. 맨 위로 올릴 때
+  if (!prev) {
+    newLevel = nextLevel - step
+    if (newLevel < 1) newLevel = 1
+  }
+  // 2. 맨 아래로 내릴 때
+  else if (!next) {
+    newLevel = prevLevel + step
+  }
+  // 3. 중간에 끼워 넣을 때
+  else {
+    newLevel = Math.floor((prevLevel + nextLevel) / 2)
+  }
+
   moved.displayLevel = newLevel
 
+  // editableProducts에 반영
   const target = editableProducts.value.find(p => p.id === moved.id)
   if (target) target.displayLevel = newLevel
 
-  if (nextLevel - prevLevel <= 1) {
+  const needsResort =
+    editableProducts.value.some(p => p.displayLevel < 1) ||
+    Math.abs(nextLevel - prevLevel) <= 1 ||
+    newLevel === prevLevel ||
+    newLevel === nextLevel
+
+  if (needsResort) {
     editableProducts.value.sort((a, b) => a.displayLevel - b.displayLevel)
-      .forEach((p, i) => (p.displayLevel = (i + 1) * 100))
+      .forEach((p, i) => (p.displayLevel = (i + 1) * step))
   }
 }
+
+
 
 // watch로 서버 변경 감지 및 동기화
 function stripMetaFields(obj: any) {
@@ -343,11 +411,20 @@ const modifiedProducts = computed(() => {
 
 const isSaveDisabled = computed(() => isServerUpdated.value || modifiedProducts.value.length === 0)
 
-// 셀 편집 관련
-function startEditing(rowIndex: number, key: string) {
-  editingCell.value = { rowIndex, key }
+
+
+const categoryPopup = ref<HTMLElement | null>(null)
+const localCategories = ref<string[]>([])
+
+function startEditing(index: number, key: string) {
+  editingCell.value = { rowIndex: index, key }
+
+  if (key === 'categories') {
+    localCategories.value = [...filteredProducts.value[index].categories ?? []]
+  }
+
   nextTick(() => {
-    const refKey = `${rowIndex}-${key}`
+    const refKey = `${index}-${key}`
     const input = inputRefs.value[refKey]
     if (input) {
       input.focus()
@@ -355,6 +432,16 @@ function startEditing(rowIndex: number, key: string) {
     }
   })
 }
+
+function applyCategoryEdit(index: number) {
+  const product = filteredProducts.value[index]
+  const target = editableProducts.value.find(p => p.id === product.id)
+  if (target) {
+    target.categories = [...localCategories.value]
+  }
+  editingCell.value = null
+}
+
 
 function setRef(el: HTMLInputElement | null, key: string) {
   if (el) inputRefs.value[key] = el
@@ -430,10 +517,24 @@ function handleKeydown(e: KeyboardEvent, rowIndex: number, key: string) {
 }
 
 // 저장 처리
+// 저장 처리
 async function saveAll() {
   if (isServerUpdated.value) return
 
-  const res = await productStore.saveItems(modifiedProducts.value)
+  // 👇 저장 전에 유효하지 않은 ID 제거
+  const validCategoryIds = new Set(categoryStore.items.map(c => c.id))
+  const validOptionIds = new Set(optionStore.items.map(o => o.id))
+  const validOptionGroupIds = new Set(optionGroupStore.items.map(g => g.id))
+
+  modifiedProducts.value.forEach(p => {
+    p.categories = (p.categories || []).filter(id => validCategoryIds.has(id))
+    p.optionIds = (p.optionIds || []).filter(id => validOptionIds.has(id))
+    if (p.optionGroupId && !validOptionGroupIds.has(p.optionGroupId)) {
+      p.optionGroupId = ''
+    }
+  })
+
+  const res = await productStore.saveItems(companyId!,modifiedProducts.value)
   if (res.isSuccess) {
     modifiedProducts.value.forEach(modified => {
       const index = productStore.items.findIndex(p => p.id === modified.id)
@@ -445,6 +546,7 @@ async function saveAll() {
   }
 }
 
+
 // 페이지 이동
 function goToEdit(productId: string) {
   router.push(`/admin/product/edit/${productId}`)
@@ -455,21 +557,28 @@ function goToCreate() {
 
 // 렌더링 텍스트 함수들
 function renderCategoryLabel(ids: string[]) {
-  if (ids.length === 0) return '없음'
-  if (ids.length === 1) return categoryStore.items.find(c => c.id === ids[0])?.categoryName || '알 수 없음'
-  const first = categoryStore.items.find(c => c.id === ids[0])?.categoryName
-  return `${first || '알 수 없음'} 외 ${ids.length - 1}개`
+  const validIds = ids.filter(id => categoryStore.items.some(c => c.id === id))
+  if (validIds.length === 0) return '없음'
+
+  const first = categoryStore.items.find(c => c.id === validIds[0])?.categoryName
+  return validIds.length === 1
+    ? first!
+    : `${first!} 외 ${validIds.length - 1}개`
 }
 
 function renderOptionLabel(ids: string[]) {
-  if (ids.length === 0) return '없음'
-  if (ids.length === 1) return optionStore.items.find(o => o.id === ids[0])?.optionName || '알 수 없음'
-  const first = optionStore.items.find(o => o.id === ids[0])?.optionName
-  return `${first || '알 수 없음'} 외 ${ids.length - 1}개`
+  const validIds = ids.filter(id => optionStore.items.some(o => o.id === id))
+  if (validIds.length === 0) return '없음'
+
+  const first = optionStore.items.find(o => o.id === validIds[0])?.optionName
+  return validIds.length === 1
+    ? first!
+    : `${first!} 외 ${validIds.length - 1}개`
 }
 
 function renderOptionGroupLabel(id: string) {
   if (!id) return '선택 안함'
-  return optionGroupStore.items.find(g => g.id === id)?.optionGroupName || '알 수 없음'
+  const group = optionGroupStore.items.find(g => g.id === id)
+  return group ? group.optionGroupName : '없음'
 }
 </script>

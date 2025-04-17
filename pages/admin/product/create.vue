@@ -29,6 +29,7 @@ const loading = ref(false)
 const product = ref<Product>(createEmptyProduct())
   product.value.companyId = authStore.currentCompany?.id || ''
 
+  
 
 const handleSubmit = async (newProduct: Product) => {
   if (loading.value) return

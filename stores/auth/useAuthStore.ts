@@ -12,6 +12,8 @@ import { useOptionStore } from '@/stores/option/useOptionStore'
 import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
 import { stopCompanyRealtimeWatcher, watchCompanyRealtime } from '~/utils/watchCompanyRealtime';
 import { getCompanyId } from '~/utils/getCompanyId';
+import { clearAllCompanyCaches } from '~/utils/cache/companyCache';
+import { handleCompanyChange } from '~/composables/company/useCompanyChange';
 
 
 
@@ -53,12 +55,15 @@ export const useAuthStore = defineStore('auth', {
       this.currentCompany = null; // 회사 정보 초기화
     
       // ✅ 모든 관련 저장소 초기화
-      useProductStore().$reset()
-      useCategoryStore().$reset()
-      useOptionStore().$reset()
-      useOptionGroupStore().$reset()
-    
-      console.log('[authStore] User logged out'); // 디버깅 로그
+      // useProductStore().$reset()
+      // useCategoryStore().$reset()
+      // useOptionStore().$reset()
+      // useOptionGroupStore().$reset()
+
+      // 캐시 초기화
+      console.log('🧹 캐시 초기화 시작')
+      clearAllCompanyCaches()
+      console.log('🧹 버전 캐시 삭제됨: companyVersionCache')
       stopCompanyRealtimeWatcher();
     },
     
@@ -103,6 +108,7 @@ export const useAuthStore = defineStore('auth', {
                 console.log('[authStore] App User and Company set:', this.currentAdministrator, this.currentCompany);
                  // ✅ 여기 추가!
                 // watchCompanyRealtime(this.currentCompany.id)
+                handleCompanyChange(this.currentCompany.id) 
                 
 
               } else {

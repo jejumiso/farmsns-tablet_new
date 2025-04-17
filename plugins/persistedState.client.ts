@@ -1,9 +1,9 @@
-// plugin/persistedState.client.ts
-import { defineNuxtPlugin } from '#app'
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import type { Pinia } from 'pinia'
+// // plugin/persistedState.client.ts
+// import { defineNuxtPlugin } from '#app'
+// import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+// import type { Pinia } from 'pinia'
 
-export default defineNuxtPlugin((nuxtApp) => {
-  const pinia = nuxtApp.$pinia as Pinia
-  pinia.use(piniaPluginPersistedstate)
-})
+// export default defineNuxtPlugin((nuxtApp) => {
+//   const pinia = nuxtApp.$pinia as Pinia
+//   pinia.use(piniaPluginPersistedstate)
+// })

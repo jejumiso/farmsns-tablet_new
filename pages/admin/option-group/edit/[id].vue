@@ -7,6 +7,7 @@
       :optionGroup="optionGroup"
       :allOptions="allOptions"
       :isEditMode="true"
+      :loading="loading"
       @submit="handleSubmit"
     />
 
@@ -43,6 +44,7 @@ const authStore = useAuthStore()
 const id = route.params.id as string
 const optionGroup = ref(optionGroupStore.items.find(g => g.id === id) || null)
 const allOptions = ref(optionStore.items)
+const loading = ref(false)
 
 onMounted(() => {
   if (!optionGroup.value) {
@@ -56,10 +58,15 @@ const handleSubmit = async (group: OptionGroup) => {
 
   const result = await createOptionGroupService().saveItem(companyId,group);
   if (result.isSuccess) {
+
+        // 👉 수정된 상품을 store에 반영
+    const index = optionGroupStore.items.findIndex(p => p.id === group.id);
+    if (index !== -1) {
+      optionGroupStore.items[index] = { ...group };
+    }
     alert('옵션 그룹이 저장되었습니다.');
 
-    // ✅ 수동으로 목록에 반영
-    optionGroupStore.items.push({ ...group, id: result.data?.id || '' });
+
 
     router.push('/admin/option-group');
   } else {
@@ -78,6 +85,8 @@ const confirmDelete = async () => {
   const res = await createOptionGroupService().deleteItem(companyId,optionGroup.value.id)
   if (res.isSuccess) {
     alert('삭제되었습니다.')
+    optionGroupStore.items = optionGroupStore.items.filter(p => p.id !== optionGroup.value?.id)
+
     router.push('/admin/option-group')
   } else {
     alert(res.message || '삭제에 실패했습니다.')

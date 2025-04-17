@@ -38,6 +38,13 @@ const handleSubmit = async (submitted: Category) => {
   if (!companyId ) return
   const res = await createCategoryService().saveItem(companyId, submitted);
   if (res.isSuccess) {
+      // 👉 수정된 상품을 store에 반영
+    const index = categoryStore.items.findIndex(p => p.id === submitted.id);
+    if (index !== -1) {
+      categoryStore.items[index] = { ...submitted };
+    }
+
+
     alert('수정되었습니다.');
     router.push('/admin/category');
   } else {
@@ -51,9 +58,11 @@ const handleDelete = async () => {
   if (!category.value) return;
   const ok = await showConfirm('정말 삭제하시겠습니까?');
   if (!ok) return;
+alert(companyId)
   const res = await createCategoryService().deleteItem(companyId,category.value.id);
   if (res.isSuccess) {
     alert('삭제되었습니다.');
+    categoryStore.items = categoryStore.items.filter(p => p.id !== category.value?.id)
     router.push('/admin/category');
   } else {
     alert(res.message || '삭제 실패');

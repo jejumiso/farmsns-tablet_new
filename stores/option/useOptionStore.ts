@@ -6,7 +6,6 @@ import type { Option } from '@/shared-types/option/option'
 export const useOptionStore = createVersionedStore<Option>({
   storeId: 'option',
   cacheKey: 'option',
-  getCompanyId: () => useAuthStore().currentCompany?.id || null,
   getDataModified: (companyId, since) =>
     createOptionService().getModified(companyId, since),
   getDataDeleted: (companyId) =>

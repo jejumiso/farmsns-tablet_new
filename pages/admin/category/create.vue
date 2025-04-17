@@ -12,7 +12,9 @@ import { createEmptyCategory } from '@/shared-types/category/category';
 import CategoryForm from '@/components/admin/category/CategoryForm.vue';
 import { createCategoryService } from '~/services/category/categoryService';
 import { getCompanyId } from '~/utils/getCompanyId';
+import { useCategoryStore } from '~/stores/category/useCategoryStore';
 const category = ref(createEmptyCategory());
+const categoryStore = useCategoryStore();
 
 const handleSubmit = async (submittedCategory: typeof category.value) => {
   const companyId = getCompanyId();
@@ -21,6 +23,7 @@ const handleSubmit = async (submittedCategory: typeof category.value) => {
 console.log('📡 LOGGER - 제출된 카테고리:', submittedCategory);
   const res = await createCategoryService().saveItem(companyId,submittedCategory);
   if (res.isSuccess) {
+    categoryStore.items.push({ ...submittedCategory, id: res.data.id }) // 스토어 반영
     alert('카테고리가 추가되었습니다.');
     navigateTo('/admin/category');
   } else {

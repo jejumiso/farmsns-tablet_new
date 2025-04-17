@@ -6,7 +6,6 @@ import { createOptionGroupService } from '@/services/option-group/optionGroupSer
 export const useOptionGroupStore = createVersionedStore<OptionGroup>({
   storeId: 'optionGroup',
   cacheKey: 'optionGroup',
-  getCompanyId: () => useAuthStore().currentCompany?.id || null,
   getDataModified: (companyId, since) =>
     createOptionGroupService().getModified(companyId, since),
   getDataDeleted: (companyId) =>

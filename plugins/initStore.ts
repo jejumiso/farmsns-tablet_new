@@ -46,30 +46,31 @@
 // })
 
 
-import { watch } from 'vue'
-import { useAuthStore } from '@/stores/auth/useAuthStore'
-import { useProductStore } from '@/stores/product/useProductStore'
-import { useCategoryStore } from '@/stores/category/useCategoryStore'
-import { useOptionStore } from '@/stores/option/useOptionStore'
-import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
-import { watchCompanyRealtime } from '~/utils/watchCompanyRealtime'
+// import { watch } from 'vue'
+// import { useAuthStore } from '@/stores/auth/useAuthStore'
+// import { useProductStore } from '@/stores/product/useProductStore'
+// import { useCategoryStore } from '@/stores/category/useCategoryStore'
+// import { useOptionStore } from '@/stores/option/useOptionStore'
+// import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
+// import { watchCompanyRealtime } from '~/utils/watchCompanyRealtime'
 
-export default defineNuxtPlugin(() => {
-  const authStore = useAuthStore()
+// export default defineNuxtPlugin(() => {
+//   const authStore = useAuthStore()
 
-  watch(
-    () => authStore.currentCompany?.id,
-    (companyId) => {
-      if (!companyId) return
+//   watch(
+//     () => authStore.currentCompany?.id,
+//     (companyId) => {
+//       if (!companyId) return
+//       console.log('관리자의 회사 아이디는 :', companyId)
 
-      useProductStore().restoreCache()
-      useCategoryStore().restoreCache()
-      useOptionStore().restoreCache()
-      useOptionGroupStore().restoreCache()
+//       useProductStore().restoreCache(companyId)
+//       useCategoryStore().restoreCache(companyId)
+//       useOptionStore().restoreCache(companyId)
+//       useOptionGroupStore().restoreCache(companyId)
 
-      // ✅ 실시간 버전 감지로 자동 sync
-      watchCompanyRealtime(companyId)
-    },
-    { immediate: true }
-  )
-})
+//       // ✅ 실시간 버전 감지로 자동 sync
+//       watchCompanyRealtime(companyId)
+//     },
+//     { immediate: true }
+//   )
+// })

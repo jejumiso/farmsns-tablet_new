@@ -6,7 +6,6 @@ import { createCategoryService } from '@/services/category/categoryService'
 export const useCategoryStore = createVersionedStore<Category>({
   storeId: 'category',
   cacheKey: 'category',
-  getCompanyId: () => useAuthStore().currentCompany?.id || null,
   getDataModified: (companyId, since) =>
     createCategoryService().getModified(companyId, since),
   getDataDeleted: (companyId) =>

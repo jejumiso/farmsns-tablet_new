@@ -4,7 +4,7 @@ import { onSnapshot, doc } from 'firebase/firestore'
 import { getFirebaseDb } from '~/services/firebaseService'
 import { COLLECTION_PERMISSIONS } from '~/shared-constants/collections'
 import { versionWatchers, type VersionKey } from '@/constants/versionWatchers'
-import { loadVersionCache, saveVersionCache } from '@/utils/versionCache'
+import { loadVersionCache, saveVersionCache } from '@/utils/cache/versionCache'
 
 let unsubscribeCompany: (() => void) | null = null
 
@@ -16,6 +16,12 @@ export function stopCompanyRealtimeWatcher() {
 }
 
 export function watchCompanyRealtime(companyId: string) {
+    // ✅ 이전 구독 해제
+    if (unsubscribeCompany) {
+      unsubscribeCompany()
+      unsubscribeCompany = null
+    }
+
   const companyDocRef = doc(
     getFirebaseDb(),
     COLLECTION_PERMISSIONS.company.name,
@@ -42,11 +48,11 @@ export function watchCompanyRealtime(companyId: string) {
 
         if (majorNew !== majorOld) {
           console.log(`🔁 ${watcher.label} 스키마 변경 감지 → 전체 초기화`)
-          await (watcher.store() as any).syncFromScratch?.()
+          await (watcher.store() as any).syncFromScratch?.(company.id)
 
         } else {
           console.log(`🔄 ${watcher.label} 단순 변경 감지 → 변경 항목만 동기화`)
-          await (watcher.store() as any).syncWithServer?.()
+          await (watcher.store() as any).syncWithServer?.(company.id)
         }
 
         prevVersions[key] = newVersion

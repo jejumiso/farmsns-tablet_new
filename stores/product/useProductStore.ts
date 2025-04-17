@@ -6,7 +6,6 @@ import type { Product } from '@/shared-types/product/product'
 export const useProductStore = createVersionedStore<Product>({
   storeId: 'product',
   cacheKey: 'product',
-  getCompanyId: () => useAuthStore().currentCompany?.id || null,
   getDataModified: (companyId, since) =>
     createProductService().getModified(companyId, since),
   getDataDeleted: (companyId) =>

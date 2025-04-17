@@ -21,7 +21,7 @@
 import { createOptionService } from '~/services/option/optionService';
 import { getCompanyId } from '~/utils/getCompanyId';
   const loading = ref(false)
-  const optionStore = useOptionStore;
+  const optionStore = useOptionStore();
   const option = ref(createEmptyOption());
   const router = useRouter();
   const handleSubmit = async (submittedOption: Option) => {
@@ -30,6 +30,7 @@ import { getCompanyId } from '~/utils/getCompanyId';
     const res = await createOptionService().saveItem(companyId,submittedOption);
 
     if (res.isSuccess) {
+      optionStore.items.push({ ...submittedOption, id: res.data.id }) // 스토어 반영
       alert('옵션이 성공적으로 저장되었습니다.');
       router.push('/admin/option');
     } else {
