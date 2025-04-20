@@ -33,6 +33,7 @@ export function watchCompanyRealtime(companyId: string) {
 
 
   unsubscribeCompany = onSnapshot(companyDocRef, async (snapshot) => {
+    console.log('🔄 회사 정보 변경 감지')
     if (!snapshot.exists()) return
 
     const company = snapshot.data()

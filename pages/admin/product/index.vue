@@ -49,6 +49,7 @@
   <thead class="bg-gray-50 text-gray-700 text-sm uppercase">
     <tr>
       <th class="p-3 w-[80px]">진열순</th>
+      <th class="p-3 w-[55px]">사진</th>
       <th class="p-3 w-[200px]">상품명</th>
       <th class="p-3 w-[80px]">원가</th>
       <th class="p-3 w-[80px]">판매가</th>
@@ -77,6 +78,13 @@
               <span class="ml-1 text-xs text-gray-400">({{ element.thumbnailUrl }})</span>
               <span class="ml-1 text-xs text-gray-400">({{ element.galleryImageUrls }})</span>
             </td>
+            <td>
+  <img
+    :src="getImageUrl(element.imageThumbnailFileName)"
+    alt="썸네일"
+    class="w-12 h-12 object-cover rounded"
+  />
+</td>
 
             <!-- 반복 가능한 인풋 필드 렌더링 -->
             <template v-for="key in ['productName', 'priceOri', 'priceSale', 'rewardStamp', 'rewardPoint']">
@@ -243,7 +251,8 @@ import { useOptionGroupStore } from '@/stores/option-group/useOptionGroupStore'
 
 import type { Product } from '@/shared-types/product/product'
 import { getCompanyId } from '~/utils/getCompanyId'
-
+import { STORAGE_BASE_URL } from '~/shared-constants/constants'
+const getImageUrl = (fileName: string) => `${STORAGE_BASE_URL}/${fileName}`
 // 스토어 인스턴스
 const productStore = useProductStore()
 const categoryStore = useCategoryStore()

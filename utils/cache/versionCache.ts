@@ -1,7 +1,13 @@
 // src/utils/cache/versionCache.ts
-import { getCompanyCache, setCompanyCache, clearCompanyCache } from '@/utils/cache/companyCache'
+import {
+  getCompanyCache,
+  setCompanyCache,
+  clearCompanyCache,
+} from '@/utils/cache/companyCache'
+
 import type { VersionKey } from '@/constants/versionWatchers'
 import { versionKeys } from '@/constants/versionWatchers'
+
 /**
  * 버전 캐시 타입 정의
  */
@@ -22,16 +28,28 @@ function getDefaultCache(): SingleVersionCache {
 
 const CACHE_TYPE = 'version'
 
+/**
+ * 버전 캐시 불러오기
+ */
 export function loadVersionCache(companyId: string): SingleVersionCache {
-  return getCompanyCache<SingleVersionCache>(CACHE_TYPE, companyId) ?? getDefaultCache()
+  const wrapped = getCompanyCache<SingleVersionCache>(CACHE_TYPE, companyId)
+
+  return wrapped?.data ?? getDefaultCache()  // ✅ data 추출
 }
 
+/**
+ * 버전 캐시 저장
+ */
 export function saveVersionCache(companyId: string, partial: Partial<SingleVersionCache>) {
   const prev = loadVersionCache(companyId)
   const merged = { ...prev, ...partial }
+
   setCompanyCache(CACHE_TYPE, companyId, merged)
 }
 
+/**
+ * 버전 캐시 삭제
+ */
 export function clearVersionCache(companyId: string) {
   clearCompanyCache(CACHE_TYPE, companyId)
 }

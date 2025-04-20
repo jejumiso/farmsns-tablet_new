@@ -1,6 +1,6 @@
 // utils/companyCache.ts
 
-import { toRaw } from "vue"
+import { isRef, toRaw } from "vue"
 
 const CACHE_KEY_PREFIX = 'companyDataCache'
 
@@ -10,18 +10,23 @@ const CACHE_KEY_PREFIX = 'companyDataCache'
  * @param companyId 회사 ID
  * @returns T 타입의 캐시 객체
  */
-export function getCompanyCache<T>(type: string, companyId: string): T | null {
+export function getCompanyCache<T>(type: string, companyId: string): { data: T; updatedAt: number } | null {
   const key = `${CACHE_KEY_PREFIX}:${type}:${companyId}`
   const raw = localStorage.getItem(key)
+  console.log('restoreCache getCompanyCache', key, raw)
 
   if (!raw) return null
 
   try {
-    return JSON.parse(raw) as T
+    const parsed = JSON.parse(raw)
+    return parsed as { data: T; updatedAt: number }
   } catch {
+    console.warn(`⚠️ 캐시 파싱 실패: ${key}`)
     return null
   }
 }
+
+
 
 /**
  * 회사별 캐시 저장
@@ -32,8 +37,10 @@ export function getCompanyCache<T>(type: string, companyId: string): T | null {
 export function setCompanyCache<T>(type: string, companyId: string, data: T) {
   const key = `${CACHE_KEY_PREFIX}:${type}:${companyId}`
 
+  const rawData = isRef(data) ? toRaw(data.value) : toRaw(data)
+
   const wrapped = {
-    data: toRaw(data),         
+    data: rawData,
     updatedAt: Date.now(),
   }
 

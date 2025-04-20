@@ -10,6 +10,7 @@ export async function handleCompanyChange(companyId: string) {
   if (!companyId) return
 
   // ✅ 캐시 복원
+  console.log('캐시 복원 시작')
   useProductStore().restoreCache(companyId)
   useCategoryStore().restoreCache(companyId)
   useOptionStore().restoreCache(companyId)

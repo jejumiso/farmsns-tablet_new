@@ -1,5 +1,5 @@
-import type { UserModel } from "../user/userModel";
-import type { UserInCompanyType } from "../userInCompany/user_in_company_model";
+import type { CustomerProfile } from "../customer-profile/customerProfile";
+import type { CustomerCompanyActivity } from "../customer-company-activity/customerCompanyActivity";
 
 export type CartModel = {
     id: string;
@@ -31,8 +31,8 @@ export type CartModel = {
     paymentShopMoney: number; // 머니 결제 금액
     paymentShopPoint: number; // 포인트 결제 금액
     paymentCouponPoint: number; // 쿠폰 결제 포인트
-    userInCompany?: UserInCompanyType | null;
-    userInWooriPoint?: UserModel | null;
+    userInCompany?: CustomerCompanyActivity | null;
+    userInWooriPoint?: CustomerProfile | null;
     // couponUsedLogList: CouponUsedLogModel[];
     // depositList: DepositModel[];
     // pointSaveList?: PointSaveModel | null;

@@ -27,10 +27,10 @@ export function createVersionedStore<T extends { id: string }>(options: CreateVe
 
 
     function restoreCache(companyId: string): void {
-      if (!companyId) return
-      const cached = getCompanyCache<{ items: T[]; dateLastFetched: number }>(options.cacheKey, companyId)
+      if (!companyId?.trim()) return
+      const cached = getCompanyCache<T[]>(options.cacheKey, companyId)
       if (cached) {
-        items.value = [...cached.items]
+        items.value = [...cached.data] // ✅ 배열 직접 복원
       }
     }
     
@@ -46,7 +46,7 @@ export function createVersionedStore<T extends { id: string }>(options: CreateVe
     
       // ✅ 캐시에서 최근 읽은 시각을 가져와서 비교 기준으로 사용
       const cached = getCompanyCache<{ items: T[]; dateLastFetched: number }>(options.cacheKey, companyId)
-      const lastFetched = cached?.dateLastFetched ?? 0
+      const lastFetched = cached?.updatedAt ?? 0
     
       const now = Date.now()
       const oneDay = 1000 * 60 * 60 * 24
@@ -76,7 +76,7 @@ export function createVersionedStore<T extends { id: string }>(options: CreateVe
       items.value = [...merged] as T[]
       error.value = null
     
-      setCompanyCache(options.cacheKey, companyId, items)
+      setCompanyCache(options.cacheKey, companyId, items.value)
 
       loading.value = false
     
