@@ -103,6 +103,9 @@ const removeImage = (index: number) => {
 
 const setThumbnail = async (fileName: string) => {
   try {
+    console.log('썸네일 생성 시작:', fileName)
+    console.log('썸네일 생성 시작:', props.companyId)
+    console.log('썸네일 생성 시작:', props.imageType)
     const res = await generateThumbnail(props.companyId, props.imageType,fileName)
     if (res.isSuccess) {
       thumbnail.value = res.data!.thumbnailFileName
@@ -111,7 +114,7 @@ const setThumbnail = async (fileName: string) => {
     }
   } catch (err) {
     console.error('썸네일 생성 실패:', err)
-    alert('썸네일 생성 중 오류 발생')
+    alert('썸네일 생성 중 오류 발생' + err)
   }
 }
 

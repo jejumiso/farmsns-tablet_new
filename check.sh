@@ -2,7 +2,6 @@
 
 IS_MATCHED=true
 
-
 echo ""
 echo "🔍 shared-types 비교 중..."
 if ! diff -r --ignore-blank-lines --ignore-space-change ./shared-types ../farmsns-admin/shared-types; then
@@ -19,6 +18,15 @@ if ! diff -r --ignore-blank-lines --ignore-space-change ./shared-utils ../farmsn
   IS_MATCHED=false
 else
   echo "✅ utils 폴더는 일치합니다."
+fi
+
+echo ""
+echo "🔍 shared-constants 비교 중..."
+if ! diff -r --ignore-blank-lines --ignore-space-change ./shared-constants ../farmsns-admin/shared-constants; then
+  echo "❌ constants 폴더 내용이 다릅니다!"
+  IS_MATCHED=false
+else
+  echo "✅ constants 폴더는 일치합니다."
 fi
 
 if [ "$IS_MATCHED" = false ]; then

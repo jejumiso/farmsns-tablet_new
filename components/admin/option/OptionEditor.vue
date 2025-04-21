@@ -19,7 +19,20 @@
       <form @submit.prevent="submitForm" class="space-y-4">
         <div v-if="activeTab === '기본 설정'" class="space-y-4">
           <FormInput label="옵션 이름" v-model="localOption.optionName" id="optionName" required />
-          <FormInput label="스타일 타입" v-model="localOption.styleType" id="styleType" />
+          <div class="flex items-center gap-4 mb-2">
+            <label for="styleType" class="w-32 text-sm font-medium text-gray-700">스타일 타입</label>
+            <select
+              v-model="localOption.styleType"
+              id="styleType"
+              class="flex-1 p-2 border rounded">
+              <option value="default">기본</option>
+              <option value="emphasized">강조</option>
+              <option value="inline">인라인</option>
+              <option value="segmented">세그먼트</option>
+              <option value="required-highlight">필수 강조</option>
+            </select>
+          </div>
+
           <FormInput label="안내 메시지" v-model="localOption.msg" id="msg" />
           <FormInput label="표시 순서" v-model="localOption.displayLevel" id="displayLevel" type="number" />
 

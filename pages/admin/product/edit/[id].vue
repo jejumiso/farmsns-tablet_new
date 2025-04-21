@@ -22,6 +22,7 @@ import { useRoute } from 'vue-router';
 import type { Product } from '@/shared-types/product/product'; // 경로는 실제 위치에 맞게 조정
 import { createProductService } from '@/services/product/productService';
 import { useAuthStore } from '@/stores/auth/useAuthStore'
+import { createCompanyService } from '~/services/company/companyService';
 const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
@@ -84,6 +85,7 @@ const confirmDelete = async () => {
   }
 
   const res = await createProductService().deleteItem(companyId,product.value.id)
+  createCompanyService().save(companyId, authStore.currentCompany!)
 
   if (res.isSuccess) {
     // 스토어에서 삭제된 상태는 이미 반영됨

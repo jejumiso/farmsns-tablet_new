@@ -59,6 +59,7 @@ export const useAuthStore = defineStore('auth', {
       // useCategoryStore().$reset()
       // useOptionStore().$reset()
       // useOptionGroupStore().$reset()
+      // clearAllCompanyCaches() // 캐시 초기화로 모든 회사 관련 캐시 삭제
 
       // 캐시 초기화
       console.log('🧹 캐시 초기화 시작')

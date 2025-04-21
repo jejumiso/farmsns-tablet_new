@@ -1,13 +1,16 @@
 <template>
+  <div class="flex min-h-screen bg-gray-100 p-6 space-x-6">
 
-    <!-- Main Content -->
-    <main class="flex-1 bg-gray-100 p-6">
+    <!-- 왼쪽: 인증번호 등록 -->
+    <main class="flex-1 bg-white p-6 rounded shadow-md max-w-md">
       <p>카카오 채널의 등록 후 이용이 가능합니다.</p>
       <a @click="showPopup = true" class="text-blue-500 cursor-pointer mb-4 inline-block">
         카카오채널 ID 등록방법
       </a>
 
-      <form class="bg-white p-4 rounded shadow-md max-w-md">
+      <!-- 기존 인증 폼 -->
+      <form>
+        <!-- 카카오 ID -->
         <div class="mb-4">
           <label for="kakaoId" class="block text-gray-700 font-bold mb-2">카카오채널 검색용 아이디</label>
           <input
@@ -19,6 +22,7 @@
             @input="formatKakaoIdInput"
           />
         </div>
+        <!-- 핸드폰 번호 -->
         <div class="mb-4">
           <label for="phoneNumber" class="block text-gray-700 font-bold mb-2">핸드폰 번호</label>
           <input
@@ -38,7 +42,7 @@
             카카오채널 관리자 핸드폰번호 확인하기
           </a>
         </div>
-
+        <!-- 인증번호 발송 버튼 -->
         <button 
           @click="sendVerificationCode" 
           type="button" 
@@ -51,7 +55,7 @@
         >
           인증번호 발송
         </button>
-
+        <!-- 인증번호 입력 -->
         <div v-if="verificationSent" class="mt-4">
           <label for="verificationCode" class="block text-gray-700 font-bold mb-2">인증번호</label>
           <input
@@ -78,7 +82,27 @@
       </form>
     </main>
 
-    <!-- Popup -->
+    <!-- 오른쪽: SenderKey 등록 -->
+    <aside class="flex-1 bg-white p-6 rounded shadow-md max-w-md flex flex-col justify-center">
+      <p class="text-lg font-bold mb-4">이미 등록이 되어 있나요?</p>
+      <p class="mb-4">senderkey를 입력해주세요.</p>
+      <input
+        v-model="senderKey"
+        type="text"
+        class="w-full px-3 py-2 border rounded mb-4"
+        placeholder="SenderKey를 입력하세요"
+      />
+      <button
+        @click="registerSenderKey"
+        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        :disabled="!senderKey"
+        :class="{ 'cursor-not-allowed bg-gray-400': !senderKey }"
+      >
+        등록하기
+      </button>
+    </aside>
+
+    <!-- 팝업 -->
     <div v-if="showPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded shadow-lg max-w-lg w-full">
         <KakaoChannelGuide />
@@ -86,8 +110,16 @@
           닫기
         </button>
       </div>
+    </div>
   </div>
 </template>
+
+
+
+
+
+
+
 
 <script setup lang="ts">
 import { ref } from 'vue';
@@ -99,11 +131,12 @@ import KakaoChannelGuide from './kakao-channel-guide.vue';
 
 import { createKakaoService } from '@/services/kakao/kakaoService';
 import { createAuthService } from '@/services/auth/authService';
-import { encryptAndUrlSafe2 } from '@/shared-utils/encryption';
+import { encryptWithIv } from '@/shared-utils/crypto/encryption';
 import { createEmptyAdministrator, type Administrator } from '@/shared-types/administrator/administrator';
 import { createEmptyCompany, type Company } from '@/shared-types/company/company';
 import { formatPhone } from '@/shared-utils/common';
-
+import crypto from 'crypto'
+import { generateRandomIv } from '@/utils/crypto/generateRandomIv';
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -111,7 +144,7 @@ const nuxtApp = useNuxtApp()
 
 
 const form = ref({
-  kakaoId: '@moapoint',
+  kakaoId: '@farmsns',
   phoneNumber: '010-4775-2111',
   verificationCode: '',
 });
@@ -141,13 +174,6 @@ function navigateTo(path: string) {
   router.push(path);
 }
 
-async function handleLogout() {
-  try {
-    await authStore.logout();
-  } catch (error) {
-    console.error('로그아웃 실패:', error);
-  }
-}
 
 async function sendVerificationCode() {
   try {
@@ -157,12 +183,20 @@ async function sendVerificationCode() {
       alert('인증번호를 확인해주세요');
     } else {
       alert(`인증번호 발송 실패: ${result.message}`);
+      
     }
   } catch (error) {
-    console.error('인증번호 발송 실패:', error);
+    console.error('인증번호 발송 실패~:', error);
     alert('인증번호 발송 중 오류가 발생했습니다.');
   }
 }
+const senderKey = ref('0bf4b6d7f8058708198a81b8a47db020e2f9bb6b')
+async function registerSenderKey() {
+  await handleSuccessfulVerification(senderKey.value);
+}
+
+
+
 
 async function verifyCode() {
   try {
@@ -185,7 +219,6 @@ async function verifyCode() {
     if (result.isSuccess) {
       await handleSuccessfulVerification(result.data);
     } else {
-      await handleSuccessfulVerification(result.data);
       alert('인증번호 확인 실패');
     }
   } catch (error) {
@@ -203,16 +236,31 @@ async function handleSuccessfulVerification(senderKey: string) {
     }
 
     console.log('새로 등록 할 플친 정보:', result2);
-
+    const ivBase64 = generateRandomIv(); // ✅ 브라우저용 IV 생성
     const shopName = result2.data.name;
     const newCompany : Company = createEmptyCompany() as Company;
-    newCompany.shopName = shopName;
+    newCompany.businessInfo.shopName = shopName;
     newCompany.kakaoInfo.kakaoChannelId = form.value.kakaoId;
-    newCompany.kakaoInfo.resSenderKey = encryptAndUrlSafe2(senderKey);
-    newCompany.kakaoInfo.resSender = encryptAndUrlSafe2(form.value.phoneNumber);
+    newCompany.kakaoInfo.securedSenderKey = encryptWithIv(senderKey,ivBase64);
+    newCompany.kakaoInfo.securedSender = encryptWithIv(form.value.phoneNumber,ivBase64);
+    
+    let dashedPhone = ''
 
-    const newAdmin = createEmptyAdministrator();
-    alert(authStore.user!.uid);
+    if (form.value.phoneNumber) {
+      const formattedPhone = form.value.phoneNumber.replace(/^\+82/, '0').slice(-8)
+      dashedPhone = `${formattedPhone.slice(0, 4)}-${formattedPhone.slice(4)}`
+    }
+    const securedPhone = encryptWithIv(dashedPhone, ivBase64) // iv는 별도로 생성
+    const phoneSuffix = dashedPhone.slice(-4)
+
+    const newAdmin = createEmptyAdministrator({
+      uid:authStore.user!.uid,
+      securedPhone: securedPhone,
+      phoneSuffix: phoneSuffix,
+      searchField:[],
+      iv: ivBase64
+
+    }) as Administrator;
 
     newAdmin.id = authStore.user!.uid;
     console.log('새로 등록 할 회사 정보:', newCompany);

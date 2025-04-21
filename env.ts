@@ -12,3 +12,6 @@ export const getEnv = () => {
     }
   }
   
+  export const getNodeEnv = () => getEnv().nodeEnv
+export const getFirbaseProjectId = () => getEnv().firebaseProjectId
+export const getEncryptionKey = () => getEnv().getEncryptionKey

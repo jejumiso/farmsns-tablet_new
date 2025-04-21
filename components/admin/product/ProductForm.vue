@@ -22,9 +22,10 @@
 
 
       <FormInput label="단위" v-model="product.unit" id="unit" />
+      <!-- 설명 -->
       <div>
-        <label for="explanation" class="block text-sm font-medium text-gray-700">상품 설명</label>
-        <textarea v-model="product.explanation" id="explanation" rows="3" class="w-full mt-2 p-2 border rounded" />
+        <label for="description" class="block text-sm font-medium text-gray-700">상품 설명</label>
+        <textarea v-model="product.description" id="description" rows="3" class="w-full mt-2 p-2 border rounded" />
       </div>
     </div>
     <div v-if="currentTab === '이미지'" class="space-y-4"> 
@@ -58,18 +59,18 @@
       </div>
     </div>
 
-    <!-- 탭: 가격 정보 -->
+    <!-- 가격 정보 -->
     <div v-else-if="currentTab === '가격 정보'" class="space-y-4">
-      <FormInput label="정상 가격" v-model="product.priceOri" id="priceOri" type="number" required />
-      <FormInput label="할인 가격" v-model="product.priceSale" id="priceSale" type="number" />
+      <FormInput label="정상 가격" v-model="product.priceOriginal" id="priceOriginal" type="number" required />
+      <FormInput label="할인 가격" v-model="product.priceDiscounted" id="priceDiscounted" type="number" />
     </div>
 
-    <!-- 탭: 재고 및 진열 -->
+    <!-- 진열 관련 -->
     <div v-else-if="currentTab === '재고 및 진열'" class="space-y-4">
       <FormInput label="재고 수량" v-model="product.stockQuantity" id="stockQuantity" type="number" />
       <div class="flex items-center gap-2">
-        <input type="checkbox" v-model="product.isDisplay" id="isDisplay" />
-        <label for="isDisplay">진열 중</label>
+        <input type="checkbox" v-model="product.isVisible" id="isVisible" />
+        <label for="isVisible">진열 중</label>
       </div>
       <FormInput label="진열 우선순위" v-model="product.displayLevel" id="displayLevel" type="number" />
     </div>
@@ -86,11 +87,6 @@
       <FormInput label="적립 포인트" v-model="product.rewardPoint" id="rewardPoint" type="number" />
     </div>
 
-    <!-- 탭: 특가 설정 -->
-    <div v-else-if="currentTab === '특가 설정'" class="space-y-4">
-      <FormInput label="특가 가격" v-model="product.specialPrice" id="specialPrice" type="number" />
-      <FormInput label="특가 사용 제한 수량" v-model="product.specialUsedQty" id="specialUsedQty" type="number" />
-    </div>
 
     <!-- 탭: 고급 설정 -->
     <div v-else-if="currentTab === '고급 설정'" class="space-y-4">
@@ -155,7 +151,6 @@ const tabs = [
   '재고 및 진열',
   '옵션 설정',
   '보상 설정',
-  '특가 설정',
   '고급 설정',
 ];
 const currentTab = ref(tabs[0]);

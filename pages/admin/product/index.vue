@@ -87,7 +87,7 @@
 </td>
 
             <!-- 반복 가능한 인풋 필드 렌더링 -->
-            <template v-for="key in ['productName', 'priceOri', 'priceSale', 'rewardStamp', 'rewardPoint']">
+            <template v-for="key in ['productName', 'priceOriginal', 'priceDiscounted', 'rewardStamp', 'rewardPoint']">
               <td class="p-2"
               @click="startEditing(index, key)">
                 <!-- 숫자 필드 -->
@@ -394,7 +394,7 @@ const filteredProducts = computed(() => {
   if (selectedCategoryId.value === 'UNCATEGORIZED') return list.filter(p => !p.categories?.length).sort((a, b) => a.displayLevel - b.displayLevel)
   return list.filter(p => p.categories?.includes(selectedCategoryId.value)).sort((a, b) => a.displayLevel - b.displayLevel)
 })
-const numericKeys = ['priceOri', 'priceSale', 'rewardStamp', 'rewardPoint'] as const
+const numericKeys = ['priceOriginal', 'priceDiscounted', 'rewardStamp', 'rewardPoint'] as const
 type NumericKey = typeof numericKeys[number]
 // 수정된 항목 감지
 const modifiedProducts = computed(() => {
@@ -456,16 +456,16 @@ function setRef(el: HTMLInputElement | null, key: string) {
   if (el) inputRefs.value[key] = el
 }
 
-// 입력 시 숫자만 허용
-function onlyNumberInput(e: Event, key: string) {
-  const input = e.target as HTMLInputElement
-  if (!input) return
+// // 입력 시 숫자만 허용
+// function onlyNumberInput(e: Event, key: string) {
+//   const input = e.target as HTMLInputElement
+//   if (!input) return
 
-  if (['priceOri', 'priceSale', 'rewardStamp', 'rewardPoint'].includes(key)) {
-    input.value = input.value.replace(/[^\d]/g, '')
-    input.dispatchEvent(new Event('input')) // v-model 강제 반영
-  }
-}
+//   if (['priceOri', 'priceSale', 'rewardStamp', 'rewardPoint'].includes(key)) {
+//     input.value = input.value.replace(/[^\d]/g, '')
+//     input.dispatchEvent(new Event('input')) // v-model 강제 반영
+//   }
+// }
 
 
 function isNumericField(key: string): boolean {
@@ -474,7 +474,7 @@ function isNumericField(key: string): boolean {
 
 // 방향키 입력 처리
 function handleKeydown(e: KeyboardEvent, rowIndex: number, key: string) {
-  const keys = ['productName', 'priceOri', 'priceSale', 'rewardStamp', 'rewardPoint']
+  const keys = ['productName', 'priceOriginal', 'priceDiscounted', 'rewardStamp', 'rewardPoint']
   const idx = keys.indexOf(key)
   const input = e.target as HTMLInputElement
   const cursorPos = input.selectionStart ?? 0

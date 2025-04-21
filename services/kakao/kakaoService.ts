@@ -2,7 +2,7 @@
 import { useApi } from '@/composables/useApi'
 
 import type { ApiResponse } from '@/shared-types/apiResponse'; // 상대 경로로 변경
-import { decryptData2 } from '@/shared-utils/encryption';
+import { decryptWithIv } from '@/shared-utils/crypto/decryption';
 
 export function createKakaoService() {
 
@@ -66,9 +66,10 @@ export function createKakaoService() {
       }
     },
 
-    async templateList(resSenderkey: string): Promise<ApiResponse> {
+
+    async templateList(resSenderkey: string,iv:string): Promise<ApiResponse> {
       try {
-        const senderkey = decryptData2(resSenderkey);
+        const senderkey = decryptWithIv(resSenderkey, iv);
         const response = await api.post('/api/alligo/templateList', { senderkey}); // api 인스턴스 사용
         console.log('템플릿 목록 호출 결과:', response.data);
         if(response.data.code === 0 && response.data.list.length === 0){

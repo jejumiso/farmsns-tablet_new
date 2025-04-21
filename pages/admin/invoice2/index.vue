@@ -303,10 +303,10 @@ async function fetchTemplates() {
       return;
     }
 
-    const resSenderkey = currentCompany.kakaoInfo.resSenderKey;
+    const resSenderkey = currentCompany.kakaoInfo.securedSenderKey;
     const noticeCode = currentCompany.kakaoInfo.noticeCodeDeliveryStart;
 
-    const result = await createKakaoService().templateList(resSenderkey);
+    const result = await createKakaoService().templateList(resSenderkey,currentCompany.iv);
     console.log('템플릿 목록:', result.data.list);
     templates.value = result.data.list;
 
