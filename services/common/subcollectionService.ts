@@ -14,6 +14,7 @@ export function createSubcollectionService<T>(
 ) {
   const baseUrl = `/api/subcollection/${mode}/${parentCollection}/${parentId}/${subCollection}`
 
+
   return {
     async getOne(subId: string): Promise<ApiResponse<T>> {
       return withApiSafety(() =>
@@ -27,9 +28,9 @@ export function createSubcollectionService<T>(
       )
     },
 
-    async save(subId: string, item: T): Promise<ApiResponse> {
+    async save( item: T): Promise<ApiResponse> {
       return withApiSafety(() =>
-        useApi().post<ApiResponse>(`${baseUrl}/${subId}`, item)
+        useApi().post<ApiResponse>(`${baseUrl}`, item)
       )
     },
 
@@ -37,6 +38,6 @@ export function createSubcollectionService<T>(
       return withApiSafety(() =>
         useApi().delete<ApiResponse>(`${baseUrl}/${subId}`)
       )
-    },
+    }
   }
 }

@@ -7,15 +7,15 @@ export const useCategoryStore = createVersionedStore<Category>({
   storeId: 'category',
   cacheKey: 'category',
   getDataModified: (companyId, since) =>
-    createCategoryService().getModified(companyId, since),
+    createCategoryService('admin').getModified(companyId, since),
   getDataDeleted: (companyId) =>
-    createCategoryService().getDeleted(companyId),
+    createCategoryService('admin').getDeleted(companyId),
 
   // ✅ CRUD 기능 포함
   saveItem: (companyId, item) =>
-    createCategoryService().saveItem(companyId, item),
+    createCategoryService('admin').saveItem(companyId, item),
   saveItems: (companyId, items) =>
-    createCategoryService().saveItems(companyId, items),
+    createCategoryService('admin').saveItems(companyId, items),
   deleteItem: (companyId, id) =>
-    createCategoryService().deleteItem(companyId, id),
+    createCategoryService('admin').deleteItem(companyId, id),
 })

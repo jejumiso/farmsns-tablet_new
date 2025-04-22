@@ -3,6 +3,8 @@ import type { CustomerCompanyActivity } from "../customer-company-activity/custo
 
 export type CartModel = {
     id: string;
+    couponUsage: { couponId: string; usedAmount: number }[]; // 사용된 쿠폰 ID와 금액
+
     idUser: string;
     idCompany: string;
     status: string;
