@@ -11,17 +11,19 @@ export default defineNuxtConfig({
     strict: true,
   },
 
-  // app: {
-  //   head: {
-  //     meta: [
-  //       {
-  //         name: 'viewport',
-  //         content:
-  //           'width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0',
-  //       },
-  //     ],
-  //   },
-  // },
+  app: {
+    head: {
+      title: 'FarmSNS Tablet', // 기본 타이틀
+
+      meta: [
+        {
+          name: 'viewport',
+          content:
+            'width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0',
+        },
+      ],
+    },
+  },
 
   devtools: { enabled: true },
   modules: ['@pinia/nuxt','@nuxt/icon', '@nuxt/ui'],
