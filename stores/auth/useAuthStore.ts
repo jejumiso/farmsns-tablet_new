@@ -19,6 +19,7 @@ import { handleCompanyChange } from '~/composables/company/useCompanyChange';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
+    initialized: false, // 초기화 여부
     currentUser: null as User | null, // Firebase Auth 유저
     currentAdministrator: null as Administrator | null, // 앱의 유저
     currentCompany: null as Company | null, // 현재 로그인한 사용자의 회사 정보
@@ -81,6 +82,7 @@ export const useAuthStore = defineStore('auth', {
       console.log('[authStore] Company set:', company);
     },
     initializeAuth() {
+      this.initialized = true; // 초기화 완료 플래그 설정
       const nuxtApp = useNuxtApp()
       const router = useRouter(); // 라우터 인스턴스 생성
 

@@ -1,3 +1,4 @@
+<!-- layouts/default.vue -->
 <template>
   <div class="flex h-screen">
     <!-- 사이드바 -->

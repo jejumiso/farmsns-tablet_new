@@ -1,6 +1,5 @@
 export function generateRandomIv(): string {
-    const array = new Uint8Array(16);
-    window.crypto.getRandomValues(array);
-    return btoa(String.fromCharCode(...array));
-  }
-  
+  const array = crypto.getRandomValues(new Uint8Array(16));
+  const b64 = btoa(String.fromCharCode(...array));
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}

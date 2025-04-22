@@ -19,15 +19,22 @@
     </div>
       <BusinessInfo />
   </div>
+  {{ name }}
+  
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
 import BusinessInfo from '@/components/common/BusinessInfo.vue';
-
+import { decryptWithIv } from '@/shared-utils/crypto/decryption';
 const router = useRouter();
 const authStore = useAuthStore();
+
+let name = 'x';
+if(authStore.administrator != null){
+  name = decryptWithIv(authStore.administrator.securedUserName, authStore.administrator.iv);
+} 
 
 const goToLogin = () => {
   router.push('/admin/login'); // 로그인 페이지로 이동

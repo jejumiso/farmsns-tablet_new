@@ -12,6 +12,8 @@ export interface CustomerProfile {
   companyIds: string[] // 가입한 업체 목록
   isMember: boolean // 멤버십 여부
   deliveryAddressList: DeliveryAddress[] // 배송지 목록
+  defaultDeliveryAddressId: string   // ✅ 기본 배송지 ID (주소 배열에서 참조)
+
   customerRating: string // 고객 등급
   orderTotalCount: number // 총 주문 횟수
   orderTotalPrice: number // 총 주문 금액
@@ -53,6 +55,7 @@ export function createEmptyCustomerProfile(params: {
     companyIds: [],
     isMember: false,
     deliveryAddressList: [],
+    defaultDeliveryAddressId: '',
     customerRating: '',
     orderTotalCount: 0,
     orderTotalPrice: 0,

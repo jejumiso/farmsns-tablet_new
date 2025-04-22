@@ -244,12 +244,12 @@ async function handleSuccessfulVerification(senderKey: string) {
     newCompany.kakaoInfo.securedSenderKey = encryptWithIv(senderKey,ivBase64);
     newCompany.kakaoInfo.securedSender = encryptWithIv(form.value.phoneNumber,ivBase64);
     
-    let dashedPhone = ''
 
-    if (form.value.phoneNumber) {
-      const formattedPhone = form.value.phoneNumber.replace(/^\+82/, '0').slice(-8)
-      dashedPhone = `${formattedPhone.slice(0, 4)}-${formattedPhone.slice(4)}`
-    }
+    const raw = form.value.phoneNumber;                   // '010-1234-1234'
+    const digits = raw.replace(/\D/g, '');                // '01012341234'
+    const last8  = digits.slice(-8);                      // '12341234'
+    const dashedPhone = last8.replace(/(\d{4})(\d{4})/, '$1-$2'); // '1234-1234'
+
     const securedPhone = encryptWithIv(dashedPhone, ivBase64) // iv는 별도로 생성
     const phoneSuffix = dashedPhone.slice(-4)
 
