@@ -23,7 +23,7 @@ export function createEmptyTabletSettings(): TabletSettings {
     usePhoneInputScreen: true,
 
     rewardType: 'stamp',
-    pendingRewardAmount: 0,
+    pendingRewardAmount: -1,
     rewardResetValue: 0,
 
     dateCreated: Timestamp.now(), // 현재 시간으로 초기화

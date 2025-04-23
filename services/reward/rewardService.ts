@@ -12,6 +12,7 @@ export async function saveRewardByPhoneNumber(payload: {
   pointSave: PointSave
   allimtalkRequest: AllimtalkRequest
   couponCreationConditions: CouponDefinition[]
+  iv : string
 }) {
   try {
     const response = await api.post('/api/reward/saveFromTabletNew', payload)

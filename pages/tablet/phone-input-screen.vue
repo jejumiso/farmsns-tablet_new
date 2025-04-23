@@ -102,16 +102,16 @@ const handleKeypadClick = async (key: string | number) => {
 
       const pointSave: PointSave = {
         id: '',
-        companyId: '',
-        userId: '',
-        orderId: '',
-        adminUserId: '',
+        companyId: companyId,
+        userId: '',//서버에서 encryptedPhone으로 생성됨.
+        orderId: '',// 테블릿에서 적립할 경우 비어 있음.
+        adminUserId: adminUserId,
         securedPhone: encryptedPhone,
         adminSecuredPhone: adminSecuredPhone,
         stamp: tabletSettingsStore.settings.rewardType === 'stamp' ? pendingRewardAmount : 0,
         point: tabletSettingsStore.settings.rewardType === 'point' ? pendingRewardAmount : 0,
-        stampRemaining: 0,
-        pointRemaining: 0,
+        stampRemaining: 0, // 결과이고 중요한값은 아님
+        pointRemaining: 0, // 결과이고 중요한값은 아님님
         tabletNum: Number(localStorage.getItem('tabletNumber')),
         rewardType: tabletSettingsStore.settings.rewardType,
         memo: '',
@@ -151,11 +151,12 @@ const handleKeypadClick = async (key: string | number) => {
             fmessage: ''
           }
 
-      // const result = await saveRewardByPhoneNumber({
-      //   pointSave,
-      //   allimtalkRequest,
-      //   couponCreationConditions: authStore.couponDefinition
-      // })
+      const result = await saveRewardByPhoneNumber({
+        pointSave,
+        allimtalkRequest,
+        couponCreationConditions: authStore.couponDefinition,
+        iv : ivStr
+      })
 
       await updatePendingReward(companyId, tabletNum, 0)
 

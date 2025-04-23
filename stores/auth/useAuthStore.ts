@@ -47,6 +47,7 @@ export const useAuthStore = defineStore('auth', {
 
         // ✅ 테블릿 설정 리스너 정리
       const tabletSettingsStore = useTabletSettingsStore()
+      tabletSettingsStore.reset() 
       tabletSettingsStore.stop()
 
       clearAllCompanyCaches()
