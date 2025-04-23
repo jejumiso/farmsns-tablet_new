@@ -1,19 +1,27 @@
 // composables/alimtalk/useAlimtalkTemplates.ts
 import { createAlimtalkService } from '@/services/alimtalk/alimtalkService'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
+import { decryptWithIv } from '~/shared-utils/crypto/decryption'
 
 export async function useAlimtalkTemplates() {
   const authStore = useAuthStore()
-  const kakaoChannelId = authStore.company?.kakaoInfo?.kakaoChannelId
+  const securedSenderKey = authStore.company?.kakaoInfo?.securedSenderKey
 
-  if (!kakaoChannelId) {
+  if (!securedSenderKey) {
     console.warn('[Alimtalk] kakaoChannelId가 없습니다.')
     return
   }
+  if (!authStore.company?.iv) {
+    console.warn('[Alimtalk] iv가 없습니다.')
+    return
+  }
+  
+  const senderkey = decryptWithIv(securedSenderKey, authStore.company.iv)
+  
 
   try {
     const alimtalkService = createAlimtalkService()
-    const response = await alimtalkService.getTemplatesByChannelId(kakaoChannelId)
+    const response = await alimtalkService.getTemplatesByChannelId(senderkey)
 
     if (response.isSuccess && response.data) {
       console.log('✅ 템플릿 불러오기 성공:', response.data)

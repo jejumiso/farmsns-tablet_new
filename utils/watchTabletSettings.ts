@@ -3,8 +3,8 @@ import { doc, Firestore, onSnapshot } from 'firebase/firestore'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { useNuxtApp } from '#app'
 import { createEmptyTabletSettings, type TabletSettings } from '~/shared-types/tablet-settings/tabletSettings'
-import { useTabletSettingsStore } from '~/stores/tablet/useTabletSettingsStore'
-import { createTabletSettingsService } from '~/services/tablet/tabletSettingsService'
+import { useTabletSettingsStore } from '@/stores/tablet/useTabletSettingsStore'
+import { createTabletSettingsService } from '@/services/tablet/tabletSettingsService'
 
 let unsubscribeTabletSettings: (() => void) | null = null
 
@@ -36,8 +36,10 @@ export function watchTabletSettings(companyId: string, tabletNumber: number) {
         try {
           const service = createTabletSettingsService(companyId)
           const tabletId = `tablet_${tabletNumber}`
+          var d = createEmptyTabletSettings();
+          d.id = tabletId
       
-          await service.save(tabletId, createEmptyTabletSettings()) // ✅ 서비스 사용
+          await service.saveItem( d) // ✅ 서비스 사용
           console.info('✅ 서버에 TabletSettings 생성 요청 완료' + tabletId)
         } catch (error) {
           console.error('❌ TabletSettings 생성 실패:', error)

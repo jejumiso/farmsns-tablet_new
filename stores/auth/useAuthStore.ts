@@ -12,6 +12,8 @@ import { handleCompanyChange } from '~/composables/company/useCompanyChange'
 import { useTabletSettingsStore } from '../tablet/useTabletSettingsStore'
 import { createEmptyTemplate, type KakaoAlimTemplate } from '~/shared-types/kakao/templateResponse'
 import { useAlimtalkTemplates } from '~/composables/alimtalk/useAlimtalkTemplates'
+import type { CouponDefinition } from '~/shared-types/coupon/couponDefinition'
+import { userCouponDefinition } from '~/composables/couponDefinition/userCouponDefinition'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -20,6 +22,7 @@ export const useAuthStore = defineStore('auth', {
     currentAdministrator: null as Administrator | null,
     currentCompany: null as Company | null,
     kakaoAlimTemplate: null as KakaoAlimTemplate | null, // ✅ 알림톡 템플릿 정보
+    couponDefinition : [] as CouponDefinition[], // 스탬프 적립시 쿠폰 발급 조건
 
   }),
   getters: {
@@ -41,6 +44,10 @@ export const useAuthStore = defineStore('auth', {
       this.currentUser = null
       this.currentAdministrator = null
       this.currentCompany = null
+
+        // ✅ 테블릿 설정 리스너 정리
+      const tabletSettingsStore = useTabletSettingsStore()
+      tabletSettingsStore.stop()
 
       clearAllCompanyCaches()
       stopCompanyRealtimeWatcher()
@@ -81,15 +88,17 @@ export const useAuthStore = defineStore('auth', {
                 
                   // 2️⃣ 알림톡 템플릿 불러오기 (회사 kakaoChannelId 기준)
                   await useAlimtalkTemplates()
+                  // 3️⃣ 쿠폰 발급 조건 불러오기 (회사 ID 기준)
+                  await userCouponDefinition()
                 
-                  // 3️⃣ 태블릿 번호 확인 (없으면 기본값 1로 설정)
+                  // 4️⃣ 태블릿 번호 확인 (없으면 기본값 1로 설정)
                   let tabletNumber = Number(localStorage.getItem('tabletNumber'))
                   if (!tabletNumber || isNaN(tabletNumber)) {
                     tabletNumber = 1
                     localStorage.setItem('tabletNumber', '1')
                   }
                 
-                  // 4️⃣ 태블릿 설정 리스닝 시작 (Firestore 실시간 구독)
+                  // 4️5 태블릿 설정 리스닝 시작 (Firestore 실시간 구독)
                   const tabletSettingsStore = useTabletSettingsStore()
                   await tabletSettingsStore.listen(this.currentCompany.id)
                 }

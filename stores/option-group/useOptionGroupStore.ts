@@ -7,15 +7,15 @@ export const useOptionGroupStore = createVersionedStore<OptionGroup>({
   storeId: 'optionGroup',
   cacheKey: 'optionGroup',
   getDataModified: (companyId, since) =>
-    createOptionGroupService().getModified(companyId, since),
+    createOptionGroupService('admin').getModified(companyId, since),
   getDataDeleted: (companyId) =>
-    createOptionGroupService().getDeleted(companyId),
+    createOptionGroupService('admin').getDeleted(companyId),
 
   // ✅ CRUD 기능 포함
   saveItem: (companyId, item) =>
-    createOptionGroupService().saveItem(companyId, item),
+    createOptionGroupService('admin').saveItem(companyId, item),
   saveItems: (companyId, items) =>
-    createOptionGroupService().saveItems(companyId, items),
+    createOptionGroupService('admin').saveItems(companyId, items),
   deleteItem: (companyId, id) =>
-    createOptionGroupService().deleteItem(companyId, id),
+    createOptionGroupService('admin').deleteItem(companyId, id),
 })

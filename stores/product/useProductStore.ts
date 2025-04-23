@@ -7,15 +7,15 @@ export const useProductStore = createVersionedStore<Product>({
   storeId: 'product',
   cacheKey: 'product',
   getDataModified: (companyId, since) =>
-    createProductService().getModified(companyId, since),
+    createProductService('admin').getModified(companyId, since),
   getDataDeleted: (companyId) =>
-    createProductService().getDeleted(companyId),
+    createProductService('admin').getDeleted(companyId),
 
   // ✅ 기본 CRUD 기능도 포함
   saveItem: (companyId, item) =>
-    createProductService().saveItem(companyId, item),
+    createProductService('admin').saveItem(companyId, item),
   saveItems: (companyId, items) =>
-    createProductService().saveItems(companyId, items),
+    createProductService('admin').saveItems(companyId, items),
   deleteItem: (companyId, id) =>
-    createProductService().deleteItem(companyId, id),
+    createProductService('admin').deleteItem(companyId, id),
 })

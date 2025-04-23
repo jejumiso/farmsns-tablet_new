@@ -32,7 +32,6 @@ import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { useTabletSettingsStore } from '@/stores/tablet/useTabletSettingsStore'
 import Keypad from '@/components/Keypad.vue'
 import { createTabletSettingsService } from '@/services/tablet/tabletSettingsService'
-
 const rewardAmount = ref('0')
 
 const authStore = useAuthStore()
@@ -57,9 +56,9 @@ const handleKeypadClick = async (key: string | number) => {
       const service = createTabletSettingsService(companyId)
       const tabletId = `tablet_${tabletNumber}`
 
-      var res = await service.save(tabletId, {
+      var res = await service.saveItem({
         ...tabletSettingsStore.settings,
-        pendingRewardAmount: amount
+        pendingRewardAmount: 5
       })
 
       console.log('✅ API 호출 성공:', res)

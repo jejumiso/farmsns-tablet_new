@@ -1,6 +1,7 @@
 import { Timestamp } from '@/shared/firebase/firebaseTypes'
 
 export interface TabletSettings {
+  id: string             // 문서 ID (tabletId)
   useStandbyScreen: boolean        // 대기 화면 사용 여부
   allowTouchOnStandby: boolean     // 대기 화면에서 터치 허용 여부
   useRewardInputScreen: boolean    // 리워드 입력 화면 사용 여부
@@ -15,6 +16,7 @@ export interface TabletSettings {
 
 export function createEmptyTabletSettings(): TabletSettings {
   return {
+    id: '', // 문서 ID (tabletId)
     useStandbyScreen: false,
     allowTouchOnStandby: false,
     useRewardInputScreen: false,
