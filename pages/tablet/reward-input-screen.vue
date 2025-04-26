@@ -58,7 +58,7 @@ const handleKeypadClick = async (key: string | number) => {
 
       var res = await service.saveItem({
         ...tabletSettingsStore.settings,
-        pendingRewardAmount: 5
+        pendingRewardAmount: amount
       })
 
       console.log('✅ API 호출 성공:', res)

@@ -13,7 +13,8 @@ import { useTabletSettingsStore } from '../tablet/useTabletSettingsStore'
 import { createEmptyTemplate, type KakaoAlimTemplate } from '~/shared-types/kakao/templateResponse'
 import { useAlimtalkTemplates } from '~/composables/alimtalk/useAlimtalkTemplates'
 import type { CouponDefinition } from '~/shared-types/coupon/couponDefinition'
-import { userCouponDefinition } from '~/composables/couponDefinition/userCouponDefinition'
+import { useCouponDefinition } from '~/composables/couponDefinition/userCouponDefinition'
+import { useTabletSettingsWatcher } from '~/composables/tablet/useTabletSettingsListener'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -40,16 +41,19 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       const nuxtApp = useNuxtApp()
       await nuxtApp.$authService.logout()
-
+    
       this.currentUser = null
       this.currentAdministrator = null
       this.currentCompany = null
-
-        // ✅ 테블릿 설정 리스너 정리
+    
+      // ✅ 태블릿 상태 초기화
       const tabletSettingsStore = useTabletSettingsStore()
-      tabletSettingsStore.reset() 
-      tabletSettingsStore.stop()
-
+      tabletSettingsStore.reset()
+    
+      // ✅ 실시간 리스너 중단
+      const { stop: stopTabletWatcher } = useTabletSettingsWatcher()
+      stopTabletWatcher();
+    
       clearAllCompanyCaches()
       stopCompanyRealtimeWatcher()
     },
@@ -79,9 +83,12 @@ export const useAuthStore = defineStore('auth', {
           if (firebaseUser) {
             try {
               const adminRes = await createAdministratorService().getById('', firebaseUser.uid)
+              console.log('어드민 데이터 요청 결과 : ', JSON.stringify(adminRes))
+              
               if (adminRes.isSuccess) {
                 const admin = adminRes.data!
                 const companyRes = await createCompanyService().getById('', admin.companyId)
+                
                 if (companyRes.isSuccess) {
                   // 1️⃣ 관리자 및 회사 정보 저장
                   this.currentAdministrator = admin
@@ -90,24 +97,21 @@ export const useAuthStore = defineStore('auth', {
                   // 2️⃣ 알림톡 템플릿 불러오기 (회사 kakaoChannelId 기준)
                   await useAlimtalkTemplates()
                   // 3️⃣ 쿠폰 발급 조건 불러오기 (회사 ID 기준)
-                  await userCouponDefinition()
+                  await useCouponDefinition()
                 
-                  // 4️⃣ 태블릿 번호 확인 (없으면 기본값 1로 설정)
-                  let tabletNumber = Number(localStorage.getItem('tabletNumber'))
-                  if (!tabletNumber || isNaN(tabletNumber)) {
-                    tabletNumber = 1
-                    localStorage.setItem('tabletNumber', '1')
-                  }
-                
-                  // 4️5 태블릿 설정 리스닝 시작 (Firestore 실시간 구독)
-                  const tabletSettingsStore = useTabletSettingsStore()
-                  await tabletSettingsStore.listen(this.currentCompany.id)
+                  // 4️⃣ 태블릿 설정 리스닝 시작 (Firestore 실시간 구독)
+                  const { start: startTabletWatcher } = useTabletSettingsWatcher()
+                  const tabletNumber = Number(localStorage.getItem('tabletNumber') || '1')
+                  console.log('[authStore] 테블릿 와칭 스타트', tabletNumber)
+                  startTabletWatcher(this.currentCompany.id, tabletNumber)
                 }
                  else {
+                  
                   console.error('[authStore] Error fetching company:', companyRes.error)
                 }
               }
             } catch (error: any) {
+              
               console.error('[authStore] Error during user/company fetch:', error)
               this.currentAdministrator = null
               this.currentCompany = null
@@ -124,7 +128,3 @@ export const useAuthStore = defineStore('auth', {
     }
   }
 })
-function listenToTabletSettings(id: string, tabletNumber: number) {
-  throw new Error('Function not implemented.')
-}
-

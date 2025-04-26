@@ -2,6 +2,7 @@ import { useApi } from '@/composables/useApi'
 import type { PointSave } from '@/shared-types/reward/pointSave'
 import type { AllimtalkRequest } from '@/shared-types/company/allim_talk_request_type'
 import type { CouponDefinition } from '@/shared-types/coupon/couponDefinition'
+import type { ApiResponse } from '~/shared-types/apiResponse'
 
 const api = useApi()
 
@@ -13,7 +14,7 @@ export async function saveRewardByPhoneNumber(payload: {
   allimtalkRequest: AllimtalkRequest
   couponCreationConditions: CouponDefinition[]
   iv : string
-}) {
+}):Promise<ApiResponse<any>> {
   try {
     const response = await api.post('/api/reward/saveFromTabletNew', payload)
     console.log('✅ 적립 저장 성공:', response.data)
@@ -31,7 +32,7 @@ export async function updatePendingReward(
   companyId: string,
   tabletNum: number,
   newAmount: number
-) {
+):Promise<ApiResponse<any>>  {
   try {
     console.log('🔄 대기 적립 수량 업데이트 완료:', companyId ,'-', tabletNum ,'-', newAmount)
 

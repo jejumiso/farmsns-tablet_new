@@ -1,39 +1,32 @@
 import CryptoJS from 'crypto-js'
-import { fromBase64UrlSafe } from '../base64/utils'
+import { fromBase64UrlSafe, toBase64UrlSafe } from '../base64/utils'
 import { getEncryptionKey } from '@/env'
 
 /**
- * @param encryptedText URL-safe base64로 인코딩된 암호화 문자열
- * @param ivString base64 형식의 IV 문자열
- * @returns 복호화된 평문 문자열
+ * @param encryptedUrlSafe   URL-safe Base64로 인코딩된 암호문
+ * @param ivBase64           표준 Base64로 인코딩된 IV
  */
-export function decryptWithIv(encryptedText: string, ivString: string): string {
-  if (!encryptedText || !ivString) return ''
+export function decryptWithIv(
+  encryptedUrlSafe: string,
+  ivBase64: string
+): string {
+  // URL-safe → 표준 Base64
+  const base64Cipher = fromBase64UrlSafe(encryptedUrlSafe)
 
-  try {
-    const key = CryptoJS.enc.Utf8.parse(getEncryptionKey())
+  // WordArray로 파싱
+  const ciphertextWA = CryptoJS.enc.Base64.parse(base64Cipher)
+  const ivWA         = CryptoJS.enc.Base64.parse(ivBase64)
 
-    // 📦 복호화 대상: 암호화된 본문
-    const base64Ciphertext = fromBase64UrlSafe(encryptedText)
-    const ciphertextWA = CryptoJS.enc.Base64.parse(base64Ciphertext)
+  // 키 준비
+  const keyWA = CryptoJS.enc.Utf8.parse(getEncryptionKey())
 
-    // 🔓 복호화용 IV
-    const iv = CryptoJS.enc.Base64.parse(ivString)
+  // 복호화
+  const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext: ciphertextWA })
+  const decryptedWA  = CryptoJS.AES.decrypt(cipherParams, keyWA, {
+    iv: ivWA,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  })
 
-    // ✅ CipherParams 객체 생성
-    const cipherParams = CryptoJS.lib.CipherParams.create({
-      ciphertext: ciphertextWA,
-    })
-
-    const decrypted = CryptoJS.AES.decrypt(cipherParams, key, {
-      iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    })
-
-    return decrypted.toString(CryptoJS.enc.Utf8)
-  } catch (error) {
-    console.error('❌ 복호화 실패:', error)
-    return ''
-  }
+  return decryptedWA.toString(CryptoJS.enc.Utf8)
 }

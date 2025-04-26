@@ -14,7 +14,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (path.startsWith('/tablet')) {
     const onlyForGuests = ['/tablet/login']
-    const accessibleByAll = ['/tablet/login', '/tablet/guest', '/tablet/guest2']
+    const accessibleByAll = ['/tablet/login']
 
     if (currentUser && onlyForGuests.includes(path)) {
       return navigateTo('/tablet')

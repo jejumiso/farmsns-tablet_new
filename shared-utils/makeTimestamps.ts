@@ -1,4 +1,4 @@
-import { Timestamp } from "~/shared/firebase/firebaseTypes";
+import { Timestamp } from "@/shared/firebase/firebaseTypes";
 
 export function makeTimestamps() {
   const nowTs = Timestamp.now();

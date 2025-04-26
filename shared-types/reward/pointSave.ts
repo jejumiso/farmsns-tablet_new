@@ -3,8 +3,8 @@ import type { Timestamp } from "@/shared/firebase/firebaseTypes";
 export interface PointSave {
   /** 기본 정보 */
   id: string;                       // 고유 ID
+  uid: string;                     // 사용자 ID (UID)
   companyId: string;               // 회사 ID
-  userId: string;                  // 핸드폰 번호로(010-1111-1234) UID만드는 로직있음
   orderId: string;                 // 주문 ID (있다면)
   adminUserId: string;             // 적립 처리한 관리자 ID /  혹은 테블릿 로그인한 관리자 ID
 

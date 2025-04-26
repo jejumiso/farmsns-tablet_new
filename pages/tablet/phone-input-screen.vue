@@ -86,8 +86,6 @@ const handleKeypadClick = async (key: string | number) => {
       }
 
       const { rewardType, pendingRewardAmount } = tabletSettingsStore.settings
-      const stamp = rewardType === 'stamp' ? pendingRewardAmount : 0
-      const point = rewardType === 'point' ? pendingRewardAmount : 0
 
       // 1. '1234-1234' 부분만 추출
       const last8Digits = formattedPhoneNumber.value.slice(4) // '010-' 이후 부분
@@ -100,24 +98,27 @@ const handleKeypadClick = async (key: string | number) => {
       const encryptedPhone = encryptWithIv(last8Digits, ivStr)
       const adminSecuredPhone = authStore.currentAdministrator?.contactInfo.securedPhoneMain??''
 
+      const timestamps = makeTimestamps()
+
       const pointSave: PointSave = {
         id: '',
         companyId: companyId,
-        userId: '',//서버에서 encryptedPhone으로 생성됨.
+        uid: '',//서버에서 encryptedPhone으로 생성됨.
         orderId: '',// 테블릿에서 적립할 경우 비어 있음.
         adminUserId: adminUserId,
         securedPhone: encryptedPhone,
         adminSecuredPhone: adminSecuredPhone,
-        stamp: tabletSettingsStore.settings.rewardType === 'stamp' ? pendingRewardAmount : 0,
-        point: tabletSettingsStore.settings.rewardType === 'point' ? pendingRewardAmount : 0,
-        stampRemaining: 0, // 결과이고 중요한값은 아님
-        pointRemaining: 0, // 결과이고 중요한값은 아님님
-        tabletNum: Number(localStorage.getItem('tabletNumber')),
+        stamp: rewardType === 'stamp' ? pendingRewardAmount : 0,
+        point: rewardType === 'point' ? pendingRewardAmount : 0,
+        stampRemaining: 0, // 적립후 결과이고 서버에서 계산 될 것임. 중요한값은 아님
+        pointRemaining: 0, 
+        tabletNum,
         rewardType: tabletSettingsStore.settings.rewardType,
         memo: '',
         ...
-        makeTimestamps()
+        timestamps
       }
+
 
       // 알림톡 템플릿 구성
       const template = authStore.kakaoAlimTemplate
@@ -125,10 +126,15 @@ const handleKeypadClick = async (key: string | number) => {
         alert('알림톡 템플릿이 설정되지 않았습니다.')
         return
       }
+      const securedSender = authStore.company?.kakaoInfo?.securedSender
+        if (!securedSender) {
+          alert('카카오 발신자 정보가 없습니다.')
+          return
+        }
       const allimtalkRequest: AllimtalkRequest ={
             senderkey: template.senderKey,
             tpl_code: template.templtCode,
-            sender: decryptWithIv(authStore.company?.kakaoInfo.securedSender!,ivStr),
+            sender: decryptWithIv(securedSender,ivStr),
             senddate: '',
             receiver_1: formattedPhoneNumber.value,
             recvname_1: '',
@@ -150,6 +156,8 @@ const handleKeypadClick = async (key: string | number) => {
             fsubject: '',
             fmessage: ''
           }
+
+      console.log('📱 쿠폰 발급 조건:', authStore.couponDefinition)
 
       const result = await saveRewardByPhoneNumber({
         pointSave,

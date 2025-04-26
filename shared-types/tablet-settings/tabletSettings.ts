@@ -9,7 +9,6 @@ export interface TabletSettings {
 
   rewardType: 'stamp' | 'point'    // 리워드 방식: 스탬프 또는 포인트
   pendingRewardAmount: number     // 누적 리워드 수량 (적립 대기 중)
-  rewardResetValue: number        // 리워드 초기화 기준값 (예: 스탬프 10개 → 1개 교환)
 
   dateCreated: Timestamp | null   // 설정 생성일
 }
@@ -17,14 +16,13 @@ export interface TabletSettings {
 export function createEmptyTabletSettings(): TabletSettings {
   return {
     id: '', // 문서 ID (tabletId)
-    useStandbyScreen: false,
-    allowTouchOnStandby: false,
-    useRewardInputScreen: false,
+    useStandbyScreen: true,
+    allowTouchOnStandby: true,
+    useRewardInputScreen: true,
     usePhoneInputScreen: true,
 
     rewardType: 'stamp',
-    pendingRewardAmount: -1,
-    rewardResetValue: 0,
+    pendingRewardAmount: -1, // 리스닝을 위해 기본값을 -1로 주었음.
 
     dateCreated: Timestamp.now(), // 현재 시간으로 초기화
   }

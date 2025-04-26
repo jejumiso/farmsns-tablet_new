@@ -2,8 +2,9 @@
 import { createAlimtalkService } from '@/services/alimtalk/alimtalkService'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { createCouponDefinitionService } from '~/services/couponDefinition/couponDefinitionService'
+import type { CouponDefinition } from '~/shared-types/coupon/couponDefinition'
 
-export async function userCouponDefinition() {
+export async function useCouponDefinition() {
   const authStore = useAuthStore()
   const companyId = authStore.company?.id
 
@@ -17,10 +18,9 @@ export async function userCouponDefinition() {
     const response = await couponService.getAll(companyId)
 
     if (response.isSuccess && response.data) {
-      console.log('✅ 템플릿 불러오기 성공:', response.data)
-
-
-      authStore.couponDefinition = response.data
+      console.log('✅ ~템플릿 불러오기 성공:', response.data)
+      authStore.couponDefinition = response.data as CouponDefinition[]
+      console.log('✅ ~쿠폰 정의:', authStore.couponDefinition)
 
 
     } else {

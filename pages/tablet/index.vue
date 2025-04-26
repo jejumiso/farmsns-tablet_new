@@ -1,31 +1,39 @@
-<!--tablet/index.vue-->
+<!-- tablet/index.vue -->
 <template>
-    <div>
-        <h1>Tablet Settings</h1>
-        <div v-if="tabletSettings?.pendingRewardAmount !== undefined">
-            <p>Pending Reward Amount: {{ tabletSettings.pendingRewardAmount }}</p>
-            <p>Reward Type: {{ tabletSettings.rewardType }}</p>
-            <!-- 다른 필드들도 필요에 따라 표시 -->
+    <div class="min-h-screen flex items-center justify-center bg-yellow-100">
+      <div class="bg-white p-8 rounded-lg shadow-md text-center space-y-6 max-w-md w-full">
+        <h1 class="text-3xl font-bold text-yellow-500">테블릿 초기화 중...</h1>
+        <div v-if="tabletSettings?.pendingRewardAmount !== undefined" class="text-gray-700 space-y-2">
+          <p>📦 적립 대기 수량: <strong>{{ tabletSettings.pendingRewardAmount }}</strong></p>
+          <p>🎯 적립 타입: <strong>{{ tabletSettings.rewardType }}</strong></p>
         </div>
-        <div v-else>
-            <p>Loading tablet settings...</p>
-        </div>
-        <!-- 로그아웃 버튼 추가 -->
-        <button @click="logout">Logout</button>
-    </div>
-</template>
-
-<script setup>
-import { useAuthStore } from '@/stores/auth/useAuthStore'
-import { useTabletSettingsStore } from '~/stores/tablet/useTabletSettingsStore'
-  const tabletSettingsStore = useTabletSettingsStore()
-  import { computed } from 'vue'
+        <div v-else class="text-gray-500 italic">테블릿 설정을 불러오는 중입니다...</div>
+        <div class="text-sm text-gray-400">※ 설정값에 따라 자동으로 화면이 전환됩니다.</div>
   
+        <button @click="logout"
+                class="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition">
+          로그아웃
+        </button>
+      </div>
+    </div>
+  </template>
+  
+  <script setup>
+  import { useAuthStore } from '@/stores/auth/useAuthStore'
+  import { useTabletSettingsStore } from '@/stores/tablet/useTabletSettingsStore'
+  import { computed } from 'vue'
+  import { useRouter } from 'vue-router'
 
-const authStore = useAuthStore()
-const tabletSettings = computed(() => tabletSettingsStore.settings)
-// 로그아웃 함수
-const logout = () => {
+  const router = useRouter()
+  const authStore = useAuthStore()
+  const tabletSettingsStore = useTabletSettingsStore()
+  const tabletSettings = computed(() => tabletSettingsStore.settings)
+    const logout = () => {
     authStore.logout()
-}
-</script>
+    setTimeout(() => {
+      router.push('/tablet/login')
+    }, 100) // ✅ 미들웨어가 auth 상태 갱신을 반영할 시간 확보
+  }
+
+  </script>
+  
