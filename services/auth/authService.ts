@@ -14,18 +14,12 @@ export function createAuthService() {
   const auth = getFirebaseAuth();
 
 
-  const documentService = createDocumentService<CustomerProfile>('user','guest') // 'categories'는 collectionId입니다.
 
 
 
   return {
 
-    /**
-     * 단일 카테고리 조회
-     */
-    async getCustomerByUid(uid:string) {
-      return await documentService.getOne('', uid)
-    },
+
 
 
     async sendSms(phoneNumber: string): Promise<void> {
@@ -50,7 +44,7 @@ export function createAuthService() {
 
         const { customToken } = response.data;
 
-        console.log('SMS verified 성공 ',customToken);
+        console.log('SMS 인증 성공 ',customToken);
         const userCredential = await signInWithCustomToken(auth, customToken);
         return userCredential.user;
       } catch (error: any) {

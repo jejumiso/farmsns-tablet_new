@@ -1,3 +1,4 @@
+<!-- 📁 pages/tablet/phone-input-screen.vue -->
 <template>
   <div class="flex h-screen">
     <!-- 왼쪽 섹션 -->
@@ -33,13 +34,11 @@ import { useTabletSettingsStore } from '@/stores/tablet/useTabletSettingsStore'
 import Keypad from '@/components/Keypad.vue'
 import { convertToKoreanPhoneNumber } from '@/utils/common/common'
 import { encryptWithIv } from '@/shared-utils/crypto/encryption'
-import { type PointSave } from '@/shared-types/reward/pointSave'
-import type { KakaoAlimTemplate } from '~/shared-types/kakao/templateResponse'
-import { Timestamp } from '~/shared/firebase/firebaseTypes'
+import { decryptWithIv } from '@/shared-utils/crypto/decryption'
+import { makeTimestamps } from '@/shared-utils/makeTimestamps'
+import { saveRewardByPhoneNumber, updatePendingReward } from '@/services/reward/rewardService'
+import type { RewardLog } from '~/shared-types/reward/rewardLog'
 import type { AllimtalkRequest } from '~/shared-types/company/allim_talk_request_type'
-import { decryptWithIv } from '~/shared-utils/crypto/decryption'
-import { makeTimestamps } from '~/shared-utils/makeTimestamps'
-import { saveRewardByPhoneNumber, updatePendingReward } from '~/services/reward/rewardService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -48,9 +47,8 @@ const tabletSettingsStore = useTabletSettingsStore()
 const phoneNumber = ref('010-')
 const formattedPhoneNumber = computed(() => convertToKoreanPhoneNumber(phoneNumber.value))
 const clickCount = ref(0)
-const iv = authStore.company?.iv;
+const iv = authStore.company?.iv
 
-// 🎧 안내 음성
 watch(
   () => tabletSettingsStore.settings.pendingRewardAmount,
   (newValue) => {
@@ -62,7 +60,6 @@ watch(
     }
   }
 )
-
 
 const handleKeypadClick = async (key: string | number) => {
   if (key === '←') {
@@ -87,83 +84,78 @@ const handleKeypadClick = async (key: string | number) => {
 
       const { rewardType, pendingRewardAmount } = tabletSettingsStore.settings
 
-      // 1. '1234-1234' 부분만 추출
-      const last8Digits = formattedPhoneNumber.value.slice(4) // '010-' 이후 부분
-      // 2. IV 문자열은 회사 정보에서 가져옴 (항상 존재해야 함)
+      const last8Digits = formattedPhoneNumber.value.slice(4)
       const ivStr = authStore.company?.iv
-      if (!ivStr) {
-        throw new Error('IV 정보가 없습니다.')
-      }
-      // 3. 암호화 수행
-      const encryptedPhone = encryptWithIv(last8Digits, ivStr)
-      const adminSecuredPhone = authStore.currentAdministrator?.contactInfo.securedPhoneMain??''
+      if (!ivStr) throw new Error('IV 정보가 없습니다.')
 
+      const encryptedPhone = encryptWithIv(last8Digits, ivStr)
+      const adminSecuredPhone = authStore.currentAdministrator?.contactInfo.securedPhoneMain ?? ''
       const timestamps = makeTimestamps()
 
-      const pointSave: PointSave = {
+      const rewardLog: RewardLog = {
         id: '',
-        companyId: companyId,
-        uid: '',//서버에서 encryptedPhone으로 생성됨.
-        orderId: '',// 테블릿에서 적립할 경우 비어 있음.
-        adminUserId: adminUserId,
+        companyId,
+        uid: '',
+        orderId: '',
+        adminUserId,
         securedPhone: encryptedPhone,
-        adminSecuredPhone: adminSecuredPhone,
+        adminSecuredPhone,
         stamp: rewardType === 'stamp' ? pendingRewardAmount : 0,
         point: rewardType === 'point' ? pendingRewardAmount : 0,
-        stampRemaining: 0, // 적립후 결과이고 서버에서 계산 될 것임. 중요한값은 아님
-        pointRemaining: 0, 
+        usedStamp: 0,
+        usedPoint: 0,
+        stampRemaining: 0,
+        pointRemaining: 0,
         tabletNum,
-        rewardType: tabletSettingsStore.settings.rewardType,
+        rewardType: rewardType === 'stamp' ? 'stampSave' : 'pointSave',
         memo: '',
-        ...
-        timestamps
+        ...timestamps,
+        source: 'tablet'
       }
 
-
-      // 알림톡 템플릿 구성
       const template = authStore.kakaoAlimTemplate
-      if(template == null) {
+      if (!template) {
         alert('알림톡 템플릿이 설정되지 않았습니다.')
         return
       }
+
       const securedSender = authStore.company?.kakaoInfo?.securedSender
-        if (!securedSender) {
-          alert('카카오 발신자 정보가 없습니다.')
-          return
-        }
-      const allimtalkRequest: AllimtalkRequest ={
-            senderkey: template.senderKey,
-            tpl_code: template.templtCode,
-            sender: decryptWithIv(securedSender,ivStr),
-            senddate: '',
-            receiver_1: formattedPhoneNumber.value,
-            recvname_1: '',
-            subject_1: template.templtName,
-            message_1: template.templtContent,
-            emtitle_1: template.templtTitle,
-            button_1: JSON.stringify({
-              button: template.buttons.map((btn) => ({
-                name: btn.name,
-                linkType: btn.linkType,
-                linkTypeName: btn.linkTypeName,
-                linkMo: btn.linkMo,
-                linkPc: btn.linkPc,
-                linkIos: btn.linkIos,
-                linkAnd: btn.linkAnd
-              }))
-            }),
-            failover: 'N',
-            fsubject: '',
-            fmessage: ''
-          }
+      if (!securedSender) {
+        alert('카카오 발신자 정보가 없습니다.')
+        return
+      }
 
-      console.log('📱 쿠폰 발급 조건:', authStore.couponDefinition)
+      const allimtalkRequest: AllimtalkRequest = {
+        senderkey: template.senderKey,
+        tpl_code: template.templtCode,
+        sender: decryptWithIv(securedSender, ivStr),
+        senddate: '',
+        receiver_1: formattedPhoneNumber.value,
+        recvname_1: '',
+        subject_1: template.templtName,
+        message_1: template.templtContent,
+        emtitle_1: template.templtTitle,
+        button_1: JSON.stringify({
+          button: template.buttons.map((btn) => ({
+            name: btn.name,
+            linkType: btn.linkType,
+            linkTypeName: btn.linkTypeName,
+            linkMo: btn.linkMo,
+            linkPc: btn.linkPc,
+            linkIos: btn.linkIos,
+            linkAnd: btn.linkAnd
+          }))
+        }),
+        failover: 'N',
+        fsubject: '',
+        fmessage: ''
+      }
 
-      const result = await saveRewardByPhoneNumber({
-        pointSave,
+      await saveRewardByPhoneNumber({
+        rewardLog,
         allimtalkRequest,
-        couponCreationConditions: authStore.couponDefinition,
-        iv : ivStr
+        couponDefinitions: authStore.couponDefinition,
+        iv: ivStr
       })
 
       await updatePendingReward(companyId, tabletNum, 0)
@@ -173,7 +165,7 @@ const handleKeypadClick = async (key: string | number) => {
         fileName: 'reward_completed'
       }))
 
-      phoneNumber.value = '010-' // 초기화
+      phoneNumber.value = '010-'
 
     } catch (error) {
       console.error('❌ 오류 발생:', error)
@@ -191,11 +183,10 @@ const handleTitleClick = () => {
   clickCount.value++
   if (clickCount.value === 10) {
     alert('로그아웃됩니다.')
-    
     authStore.logout()
     setTimeout(() => {
       router.push('/tablet/login')
-    }, 100) // ✅ 미들웨어가 auth 상태 갱신을 반영할 시간 확보
+    }, 100)
   }
 }
 

@@ -39,8 +39,9 @@ export type StoreKey =
   | 'order'
   | 'stampLog'
   | 'adminLog'
-  | 'ordersWating'
+  | 'ordersWaiting'
   | 'counter'
+  | 'couponIssued'
 
   /**
  * COLLECTION_PERMISSIONS:
@@ -158,9 +159,9 @@ export const COLLECTION_PERMISSIONS: Record<StoreKey, CollectionPermissions> = {
       delete: ['admin'],
     },
   },
-  ordersWating: {
-    name: 'v2_ordersWating',
-    key: 'ordersWating',
+  ordersWaiting: {
+    name: 'v2_ordersWaiting',
+    key: 'ordersWaiting',
     prefix: 'ow',
     permissions: {
       read: ['admin', 'user'],
@@ -173,6 +174,17 @@ export const COLLECTION_PERMISSIONS: Record<StoreKey, CollectionPermissions> = {
     name: 'v2_categories',
     key: 'category',
     prefix: 'ctg',
+    permissions: {
+      read: ['admin', 'user'],
+      create: ['admin', 'user'],
+      update: ['admin', 'user'],
+      delete: ['admin', 'user'],
+    },
+  },
+  couponIssued: {
+    name: 'v2_couponIssued',
+    key: 'couponIssued',
+    prefix: 'cis',
     permissions: {
       read: ['admin', 'user'],
       create: ['admin', 'user'],

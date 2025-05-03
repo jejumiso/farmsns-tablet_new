@@ -1,6 +1,12 @@
 // shared-types/company/company.ts
 import { Timestamp, GeoPoint, DocumentReference } from '@/shared/firebase/firebaseTypes'
-import type { DeliveryCost } from '@/shared-types/deliveryCost/deliveryCost'
+
+export interface DeliveryConfig {
+  baseFee: number;            // 기본 배송비
+  baseDistance: number;       // 기본 거리 (예: 3000m)
+  additionalFee: number;     // 추가 요금 (예: 500원)
+  additionalDistance: number; // 추가 요금이 부과되는 거리 단위 (예: 5m)
+}
 
 export interface RewardPolicy {
   saveType: 'point' | 'stamp'
@@ -76,6 +82,15 @@ export interface OrderSupport {
   supportDelivery: boolean
   supportParcel: boolean
 }
+export interface NicepayConfig {
+  clientId: string         // 예: 'R2_467b0f0a38744046be658250a9fc1074'
+  // secretKey: string        // 예: 'e1c8ebd4bc964ea4bb5187bd3a65365b'
+  npCred: string        // 예: 'R2_467b0f0a38744046be658250a9fc1074:e1c8ebd4bc964ea4bb5187bd3a65365b'
+  useSandbox: boolean      // true = 샌드박스, false = 운영계
+  cancelPassword?: string  // (선택) 결제 취소 시 필요한 비밀번호
+  returnUrl?: string       // (선택) 커스터마이징된 리턴 URL
+}
+
 
 export interface Company {
   id: string
@@ -105,14 +120,16 @@ export interface Company {
   // 주문 지원
   orderSupport: OrderSupport
 
-  // 배송비
-  deliveryCost: DeliveryCost
-
   // 적립 정책
   rewardPolicy: RewardPolicy
 
   // 연락처 및 인증 정보
   contactInfo: ContactInfo
+
+  deliveryConfig: DeliveryConfig;  // 배달비를 설정할 필드
+
+
+  nicepayConfig: NicepayConfig;
 
   // 카카오 알림톡 설정
   kakaoInfo: KakaoInfo
@@ -122,6 +139,8 @@ export interface Company {
 
   searchField: string[] // 검색을 위한 키워드 (예: 전화번호 끝 4자리, 이메일 해시 등)
 
+  // 1스템프 대략적 가치
+  rewardStampValue : number
 
   // 메타
   dateCreated: Timestamp | null
@@ -179,13 +198,7 @@ export function createEmptyCompany(): Company {
       supportParcel: false,
     },
 
-    deliveryCost: {
-      basicCost: 0,
-      basicM: 0,
-      addCost: 0,
-      addM: 0,
-      supportStrCost: '',
-    },
+
 
     rewardPolicy: {
       saveType: 'point',
@@ -205,6 +218,21 @@ export function createEmptyCompany(): Company {
       phoneSuffix: '',
       securedEmail: '',
       emailHash: '',
+    },
+
+    deliveryConfig: {
+      baseFee: 3000,
+      baseDistance: 3000,
+      additionalFee: 500,
+      additionalDistance: 500,
+    },
+
+    nicepayConfig: {
+      clientId: '',
+      npCred: '',
+      useSandbox: true,
+      cancelPassword: '',
+      returnUrl: '',
     },
 
     kakaoInfo: {
@@ -227,6 +255,7 @@ export function createEmptyCompany(): Company {
     },
     searchField: [], // 검색을 위한 키워드 (예: 전화번호 끝 4자리, 이메일 해시 등)
 
+    rewardStampValue: 150,
 
     dateCreated: now,
     dateModified: now,

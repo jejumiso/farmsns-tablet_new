@@ -87,7 +87,7 @@ export const useAuthStore = defineStore('auth', {
               
               if (adminRes.isSuccess) {
                 const admin = adminRes.data!
-                const companyRes = await createCompanyService().getById('', admin.companyId)
+                const companyRes = await createCompanyService('admin').getById(admin.companyId)
                 
                 if (companyRes.isSuccess) {
                   // 1️⃣ 관리자 및 회사 정보 저장

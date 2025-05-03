@@ -18,7 +18,11 @@ export async function useAlimtalkTemplates() {
   
   const senderkey = decryptWithIv(securedSenderKey, authStore.company.iv)
   
-
+  console.log('✅ senderkey:', senderkey)
+  console.log('✅ senderkey:', senderkey)
+  console.log('✅ senderkey:', senderkey)
+  console.log('✅ senderkey:', senderkey)
+  console.log('✅ senderkey:', senderkey)
   try {
     const alimtalkService = createAlimtalkService()
     const response = await alimtalkService.getTemplatesByChannelId(senderkey)

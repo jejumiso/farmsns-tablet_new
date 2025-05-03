@@ -2,6 +2,7 @@ import { Timestamp } from '@/shared/firebase/firebaseTypes'
 import type { DeliveryAddress } from '@/shared-types/delivery-address/deliveryAddress'
 import { type ContactInfo } from '../company/company'
 import type { IssuedCoupon } from '../coupon/issuedCoupon'
+import type { ProfileCardInfo } from '../nicepay/ProfileCardInfo'
 
 export interface CustomerProfile {
   id: string // Firebase UID (문서 ID)
@@ -11,6 +12,7 @@ export interface CustomerProfile {
   securedUserNameHash: string // 해시된 사용자 이름 (검색용)
   photoURL: string | null // 프로필 사진
   companyIds: string[] // 가입한 업체 목록
+  companyId : string,
   isMember: boolean // 멤버십 여부
   deliveryAddressList: DeliveryAddress[] // 배송지 목록
   defaultDeliveryAddressId: string   // ✅ 기본 배송지 ID (주소 배열에서 참조)
@@ -22,6 +24,9 @@ export interface CustomerProfile {
   rewardCompany: string // 리워드 지급 업체
   coupons: IssuedCoupon[]
   version: number // 데이터 구조 버전
+  cards: {
+    [cardId: string]: ProfileCardInfo
+  }
 
   searchField: string[] // 검색을 위한 키워드 (예: 전화번호 끝 4자리, 이메일 해시 등)  
   dateLastOrder: Timestamp | null // 마지막 주문 시각
@@ -55,6 +60,7 @@ export function createEmptyCustomerProfile(params: {
     securedUserNameHash: '',
     photoURL: null,
     companyIds: [],
+    companyId: '',
     isMember: false,
     deliveryAddressList: [],
     defaultDeliveryAddressId: '',
@@ -65,6 +71,7 @@ export function createEmptyCustomerProfile(params: {
     rewardCompany: '',
     coupons: [],
     version: 1,
+    cards: {},
 
     searchField: params.searchField,
     dateLastOrder: null,
