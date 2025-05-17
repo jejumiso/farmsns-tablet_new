@@ -2,7 +2,7 @@
 import type { Timestamp } from "@/shared/firebase/firebaseTypes";
 import type { Channel } from "./couponDefinition";
 import type { CouponDefinition } from "./couponDefinition";
-import type { CouponUserSummary } from "./couponUserSummary"; // ✅ 추가
+import type { UserSummary } from "../user/userSummary";
 
 export type CouponUsageLog = {
   type: 'requested' | 'approved' | 'cancelled' | 'used'
@@ -20,7 +20,7 @@ export type CouponUsage = {
 interface BaseIssuedCoupon {
   id: string
   uid: string
-  userSummary: CouponUserSummary // ✅ 사용자 요약 정보 포함
+  userSummary: UserSummary // ✅ 사용자 요약 정보 포함
 
   couponDefinitionId: string
   couponName: string
@@ -70,7 +70,7 @@ export type IssuedCoupon =
 export function createIssuedCoupon(
   def: CouponDefinition,
   companyId: string,
-  userSummary: CouponUserSummary, // ✅ 전체 객체로 받음
+  userSummary: UserSummary, // ✅ 전체 객체로 받음
   issuedAt: Timestamp
 ): IssuedCoupon {
   const date = new Date(issuedAt.toDate())

@@ -24,6 +24,16 @@
       </div>
     </div>
   </div>
+  <!-- 자동 테스트 실행 버튼 (개발용) -->
+<div class="fixed bottom-4 right-4">
+  <button
+    @click="simulateRewardSequence"
+    class="px-4 py-2 bg-red-600 text-white rounded shadow hover:bg-red-700 text-sm"
+  >
+    자동 적립 실행
+  </button>
+</div>
+
 </template>
 
 <script setup lang="ts">
@@ -39,6 +49,32 @@ import { makeTimestamps } from '@/shared-utils/makeTimestamps'
 import { saveRewardByPhoneNumber, updatePendingReward } from '@/services/reward/rewardService'
 import type { RewardLog } from '~/shared-types/reward/rewardLog'
 import type { AllimtalkRequest } from '~/shared-types/company/allim_talk_request_type'
+
+// 🔹 테스트용 번호 리스트
+const testList = [
+  { phoneNumber: '010-4775-2111', stampRemaining: 5 },
+]
+// 🔹 시뮬레이션 실행 함수
+async function simulateRewardSequence() {
+  for (const entry of testList) {
+    phoneNumber.value = entry.phoneNumber
+
+    // 설정 변경 (optional: 임시로 보상 개수 설정 가능)
+    tabletSettingsStore.settings.pendingRewardAmount = entry.stampRemaining
+    tabletSettingsStore.settings.rewardType = 'stamp'
+
+    console.log(`➡️ 번호: ${phoneNumber.value}, 적립: ${entry.stampRemaining}개`)
+
+    // 실제 적립 실행
+    await handleKeypadClick('확인')
+
+    // 다음 번호까지 대기
+    await new Promise(resolve => setTimeout(resolve, 2000)) // 2초 대기
+  }
+
+  console.log('✅ 모든 테스트 완료!')
+}
+
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -60,6 +96,8 @@ watch(
     }
   }
 )
+
+
 
 const handleKeypadClick = async (key: string | number) => {
   if (key === '←') {
