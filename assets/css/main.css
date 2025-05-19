@@ -3,3 +3,4 @@
 
 /* Tailwind CSS 로드 */
 @import 'tailwindcss';
+@import "@nuxt/ui";

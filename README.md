@@ -4,6 +4,8 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 
 ## Setup
 
+npm run generate && firebase deploy
+
 Make sure to install dependencies:
 
 ```bash

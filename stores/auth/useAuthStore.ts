@@ -101,9 +101,27 @@ export const useAuthStore = defineStore('auth', {
                 
                   // 4️⃣ 태블릿 설정 리스닝 시작 (Firestore 실시간 구독)
                   const { start: startTabletWatcher } = useTabletSettingsWatcher()
-                  const tabletNumber = Number(localStorage.getItem('tabletNumber') || '1')
+
+
+                  const tabletNumberStr = localStorage.getItem('tabletNumber')
+                  if (!tabletNumberStr) {
+                    localStorage.setItem('tabletNumber', '1')
+                  }
+                  const tabletNumber = Number(tabletNumberStr || '1')
+
+
                   console.log('[authStore] 테블릿 와칭 스타트', tabletNumber)
                   startTabletWatcher(this.currentCompany.id, tabletNumber)
+                    // Flutter WebView가 준비된 이후에 메시지 전송
+                  try {
+                    window?.FlutterChannel?.postMessage(JSON.stringify({
+                      action: 'setOrientation',
+                      mode: 'landscape'
+                    }))
+                  } catch (e) {
+                    console.warn('FlutterChannel 메시지 전송 실패', e)
+                  }
+
                 }
                  else {
                   

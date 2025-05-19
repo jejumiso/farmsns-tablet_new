@@ -1,6 +1,8 @@
 <!-- app.vue -->
 <template>
+  <UApp>
     <NuxtPage />
+  </UApp>
 </template>
 
 <style scoped>
@@ -26,7 +28,7 @@ background-color: #dc2626;
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { useTabletSettingsStore } from '@/stores/tablet/useTabletSettingsStore'
 import { useRoute, useRouter } from 'vue-router'
-import { watch } from 'vue'
+import { watch, onMounted } from 'vue'
 
 const authStore = useAuthStore()
 const tabletSettingsStore = useTabletSettingsStore()
@@ -52,6 +54,12 @@ watch(
         console.warn('[app.vue] No valid screen configuration found.')
       }
     } else if (newValue > 0) {
+      window.FlutterChannel?.postMessage(JSON.stringify({
+        action: 'playAudio',
+        fileName: 'phone_input_instruction'
+      }))
+
+
       if (route.path !== '/tablet/phone-input-screen') {
         router.push('/tablet/phone-input-screen')
       }
@@ -61,4 +69,9 @@ watch(
   },
   { immediate: true }
 )
+// app.vue 또는 layouts/default.vue
+onMounted(() => {
+  document.documentElement.classList.remove('dark')
+})
+
 </script>

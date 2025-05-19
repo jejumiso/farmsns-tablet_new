@@ -1,3 +1,4 @@
+<!-- 📁 pages\tablet\reward-input-screen.vue -->
 <template>
   <div class="flex h-screen">
     <!-- 왼쪽 섹션 -->
@@ -32,6 +33,10 @@ import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { useTabletSettingsStore } from '@/stores/tablet/useTabletSettingsStore'
 import Keypad from '@/components/Keypad.vue'
 import { createTabletSettingsService } from '@/services/tablet/tabletSettingsService'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
+
 const rewardAmount = ref('0')
 
 const authStore = useAuthStore()
@@ -42,7 +47,7 @@ const handleKeypadClick = async (key: string | number) => {
     rewardAmount.value = rewardAmount.value.slice(0, -1) || '0'
   } else if (key === '확인') {
     if (!rewardAmount.value || rewardAmount.value === '0') {
-      alert('리워드 수량을 입력해주세요.')
+      toast.success('리워드 수량을 입력해주세요.')
       return
     }
 
@@ -81,10 +86,10 @@ const validateRewardAmount = () => {
   const amount = Number(rewardAmount.value)
 
   if (rewardType === 'stamp' && amount > 20) {
-    alert('스탬프는 최대 20개까지만 가능합니다.')
+    toast.success('스탬프는 최대 20개까지만 가능합니다.')
     rewardAmount.value = '0'
-  } else if (rewardType === 'point' && amount > 500000) {
-    alert('포인트는 최대 500,000까지만 가능합니다.')
+  } else if (rewardType === 'point' && amount > 100000) {
+    toast.success('포인트는 최대 100,000까지만 가능합니다.')
     rewardAmount.value = '0'
   } else if (amount <= 0 || isNaN(amount)) {
     alert('유효한 수량을 입력해주세요.')

@@ -1,4 +1,4 @@
-<!-- filepath: c:\dev\wooriPoint\woori_point_webview_nuxt\pages\standby-screen.vue -->
+<!-- 📁 pages\tablet\standby-screen.vue -->
 <template>
   <div
     class="flex h-screen"

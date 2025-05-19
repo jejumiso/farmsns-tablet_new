@@ -68,7 +68,7 @@ definePageMeta({
   layout: 'empty', // layouts/empty.vue 사용
 })
 
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatPhone } from '@/shared-utils/common'
 import { useNuxtApp } from '#app'
@@ -79,6 +79,14 @@ const isCodeSent = ref(false)
 const errorMessage = ref('')
 const router = useRouter()
 const nuxtApp = useNuxtApp()
+
+onMounted(() => {
+  // Flutter WebView가 준비된 이후에 메시지 전송
+  window.FlutterChannel?.postMessage(JSON.stringify({
+    action: 'setOrientation',
+    mode: 'portrait'
+  }))
+})
 
 // 인증 요청
 const sendCode = async () => {
