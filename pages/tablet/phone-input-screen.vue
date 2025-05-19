@@ -12,32 +12,36 @@
     <!-- 오른쪽 섹션 -->
     <div class="w-1/2 bg-white flex flex-col">
     <!-- 상단 40% -->
-    <div class="flex-[4] relative w-full flex flex-col items-center justify-center border-b border-gray-300">
-
-      <!-- 상태별로 내부만 분기 -->
-      <template v-if="isSubmitting">
+     <div v-if="isSubmitting" class="flex-[4] w-full border-b border-gray-300 flex flex-col items-center justify-center px-4">
+      
         <h2 class="text-2xl font-semibold mb-4">적립중입니다...</h2>
         <div class="text-4xl font-black font-[montserrat]">
           {{ phoneNumber }}
         </div>
-      </template>
+      </div>
+    <div v-else class="flex-[4] w-full border-b border-gray-300 flex flex-col items-center justify-center px-4">
+      
 
-      <template v-else>
-        <!-- 상단 우측 취소 버튼 -->
+      <!-- 상단 취소 버튼을 오른쪽 정렬된 줄로 배치 -->
+      <div class="w-full flex justify-end">
         <button
           @click="handleCancel"
-          class="absolute top-4 right-4 px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded shadow hover:bg-red-600 transition"
+          class="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded shadow hover:bg-red-600 transition"
         >
           ✕ 취소
         </button>
+      </div>
 
-        <h2 class="text-2xl font-semibold mb-4 mt-4">핸드폰 번호를 입력해주세요</h2>
-        <div class="text-4xl font-black font-[montserrat]">
-          {{ phoneNumber }}
-        </div>
-      </template>
+      <!-- 안내 텍스트 -->
+      <div class="mt-2 text-center">
+        <h2 class="text-2xl font-semibold">핸드폰 번호를 입력해주세요</h2>
+      </div>
+
+      <!-- 전화번호 -->
+      <div class="mt-2 text-4xl font-black font-[montserrat]">
+        {{ phoneNumber }}
+      </div>
     </div>
-
 
 
 
