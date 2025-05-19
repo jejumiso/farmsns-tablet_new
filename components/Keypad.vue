@@ -1,3 +1,4 @@
+<!-- 📁 components\Keypad.vue -->
 <template>
   <div class="grid grid-cols-3 border-t border-gray-300 h-full">
     <button
@@ -6,22 +7,34 @@
       @click="handleClick(num)"
       class="flex justify-center items-center text-3xl font-bold font-[poppins] border border-gray-300"
       :class="{
-        'bg-sky-500/50 text-white': num === '확인', // 확인 버튼 스타일
-        'bg-white text-black': num !== '확인', // 기본 버튼 스타일
+        'bg-sky-500/50 text-white': num === '확인',
+        'bg-white text-black': num !== '확인',
+        'opacity-50 cursor-not-allowed': num === '확인' && isSubmitting
       }"
+      :disabled="num === '확인' && isSubmitting"
     >
-      {{ num }}
+      <template v-if="num === '확인'">
+        <span v-if="isSubmitting">⏳</span>
+        <span v-else>확인</span>
+      </template>
+      <template v-else>
+        {{ num }}
+      </template>
     </button>
   </div>
 </template>
 
+
 <script setup lang="ts">
-// defineProps와 defineEmits의 import 제거
 const props = defineProps({
   keypadNumbers: {
-    type: Array as () => (string | number)[], // 키패드 숫자 배열 타입 지정
+    type: Array as () => (string | number)[],
     default: () => [1, 2, 3, 4, 5, 6, 7, 8, 9, '←', 0, '확인'],
   },
+  isSubmitting: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const emit = defineEmits<{
@@ -34,5 +47,5 @@ const handleClick = (key: string | number) => {
 </script>
 
 <style scoped>
-/* Tailwind CSS로 스타일링하므로 추가 스타일은 필요하지 않습니다. */
+/* Tailwind 기반이므로 커스텀 스타일 생략 가능 */
 </style>

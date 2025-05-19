@@ -21,7 +21,7 @@
 
       <!-- 하단 60% -->
       <div class="flex-[6]">
-        <Keypad @keypadClick="handleKeypadClick" />
+        <Keypad @keypadClick="handleKeypadClick" :isSubmitting="isSubmitting" />
       </div>
     </div>
   </div>
@@ -49,10 +49,11 @@ const handleKeypadClick = async (key: string | number) => {
 
     if (isSubmitting.value) return // 연타 방지
 
-    isSubmitting.value = true // 요청 시작
+    
 
 
   if (key === '확인') {
+    isSubmitting.value = true // 요청 시작
     if (!rewardAmount.value || rewardAmount.value === '0') {
       toast.success('리워드 수량을 입력해주세요.')
       isSubmitting.value = false // 요청 종료

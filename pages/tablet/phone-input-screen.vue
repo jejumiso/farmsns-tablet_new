@@ -11,26 +11,40 @@
 
     <!-- 오른쪽 섹션 -->
     <div class="w-1/2 bg-white flex flex-col">
-      <!-- 상단 40% -->
-      <div class="flex-[4] flex flex-col justify-center items-center border-b border-gray-300 relative w-full">
-        <!-- 취소 버튼 (오른쪽 상단) -->
+    <!-- 상단 40% -->
+    <div class="flex-[4] relative w-full flex flex-col items-center justify-center border-b border-gray-300">
+
+      <!-- 상태별로 내부만 분기 -->
+      <template v-if="isSubmitting">
+        <h2 class="text-2xl font-semibold mb-4">적립중입니다...</h2>
+        <div class="text-4xl font-black font-[montserrat]">
+          {{ phoneNumber }}
+        </div>
+      </template>
+
+      <template v-else>
+        <!-- 상단 우측 취소 버튼 -->
         <button
           @click="handleCancel"
-          class="absolute top-4 right-4 px-4 py-2 bg-red-500 text-white text-base font-semibold rounded shadow hover:bg-red-600 transition"
+          class="absolute top-4 right-4 px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded shadow hover:bg-red-600 transition"
         >
           ✕ 취소
         </button>
 
-        <h2 class="text-2xl font-semibold mb-4">핸드폰 번호를 입력해주세요</h2>
+        <h2 class="text-2xl font-semibold mb-4 mt-4">핸드폰 번호를 입력해주세요</h2>
         <div class="text-4xl font-black font-[montserrat]">
           {{ phoneNumber }}
         </div>
-      </div>
+      </template>
+    </div>
+
+
+
 
 
       <!-- 하단 60% -->
       <div class="flex-[6]">
-        <Keypad @keypadClick="handleKeypadClick" />
+        <Keypad @keypadClick="handleKeypadClick" :isSubmitting="isSubmitting" />
       </div>
     </div>
   </div>
