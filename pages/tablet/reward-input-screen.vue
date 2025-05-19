@@ -28,26 +28,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useRewardKeypadHandler } from '@/composables/useKeypadHandler'
 import { useAuthStore } from '@/stores/auth/useAuthStore'
 import { useTabletSettingsStore } from '@/stores/tablet/useTabletSettingsStore'
 import Keypad from '@/components/Keypad.vue'
 import { createTabletSettingsService } from '@/services/tablet/tabletSettingsService'
 import { useToast } from 'vue-toastification'
+import { ref } from 'vue'
 
 const toast = useToast()
 
-const rewardAmount = ref('0')
-
 const authStore = useAuthStore()
 const tabletSettingsStore = useTabletSettingsStore()
+const rewardType = tabletSettingsStore.settings.rewardType
 
+// 커스텀 키패드 핸들러 사용
+const { value: rewardAmount, handleClick: handleKeypadClickBase } = useRewardKeypadHandler('0', rewardType)
+const isSubmitting = ref(false)
 const handleKeypadClick = async (key: string | number) => {
-  if (key === '←') {
-    rewardAmount.value = rewardAmount.value.slice(0, -1) || '0'
-  } else if (key === '확인') {
+
+    if (isSubmitting.value) return // 연타 방지
+
+    isSubmitting.value = true // 요청 시작
+
+
+  if (key === '확인') {
     if (!rewardAmount.value || rewardAmount.value === '0') {
       toast.success('리워드 수량을 입력해주세요.')
+      isSubmitting.value = false // 요청 종료
       return
     }
 
@@ -59,41 +67,23 @@ const handleKeypadClick = async (key: string | number) => {
       if (!companyId || isNaN(tabletNumber)) throw new Error('회사 정보 또는 태블릿 번호가 유효하지 않습니다.')
 
       const service = createTabletSettingsService(companyId)
-      const tabletId = `tablet_${tabletNumber}`
 
-      var res = await service.saveItem({
+      await service.saveItem({
         ...tabletSettingsStore.settings,
         pendingRewardAmount: amount
       })
 
-      console.log('✅ API 호출 성공:', res)
-
-      // 입력 후 초기화 (필요 시)
+      console.log('✅ API 호출 성공: 적립 수량 저장 완료')
       rewardAmount.value = '0'
     } catch (err) {
       console.error('❌ API 호출 실패:', err)
       alert('적립 요청 중 오류가 발생했습니다.')
+    } finally {
+      isSubmitting.value = false // 요청 종료
     }
   } else {
-    // 숫자 입력
-    rewardAmount.value = rewardAmount.value === '0' ? key.toString() : rewardAmount.value + key.toString()
-    validateRewardAmount()
-  }
-}
-
-const validateRewardAmount = () => {
-  const { rewardType } = tabletSettingsStore.settings
-  const amount = Number(rewardAmount.value)
-
-  if (rewardType === 'stamp' && amount > 20) {
-    toast.success('스탬프는 최대 20개까지만 가능합니다.')
-    rewardAmount.value = '0'
-  } else if (rewardType === 'point' && amount > 100000) {
-    toast.success('포인트는 최대 100,000까지만 가능합니다.')
-    rewardAmount.value = '0'
-  } else if (amount <= 0 || isNaN(amount)) {
-    alert('유효한 수량을 입력해주세요.')
-    rewardAmount.value = '0'
+    // 나머지 키는 기본 핸들러로 처리
+    handleKeypadClickBase(key)
   }
 }
 </script>
