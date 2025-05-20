@@ -101,7 +101,7 @@ const handleKeypadClick = async (key: string | number) => {
     const ivStr = authStore.company?.iv
     if (!ivStr) throw new Error('IV 정보가 없습니다.')
 
-    const encryptedPhone = encryptWithIv(last8Digits, ivStr)
+    // const encryptedPhone = encryptWithIv(last8Digits, ivStr)
     const adminSecuredPhone = authStore.currentAdministrator?.contactInfo.securedPhoneMain ?? ''
     const timestamps = makeTimestamps()
 
@@ -111,7 +111,7 @@ const handleKeypadClick = async (key: string | number) => {
       uid: '',
       orderId: '',
       adminUserId,
-      securedPhone: encryptedPhone,
+      securedPhone: last8Digits,
       iv : '',
       adminSecuredPhone,
       stamp: rewardType === 'stamp' ? pendingRewardAmount : 0,
