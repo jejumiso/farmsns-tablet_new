@@ -112,6 +112,7 @@ const handleKeypadClick = async (key: string | number) => {
       orderId: '',
       adminUserId,
       securedPhone: encryptedPhone,
+      iv : '',
       adminSecuredPhone,
       stamp: rewardType === 'stamp' ? pendingRewardAmount : 0,
       point: rewardType === 'point' ? pendingRewardAmount : 0,
