@@ -35,6 +35,7 @@ import Keypad from '@/components/Keypad.vue'
 import { createTabletSettingsService } from '@/services/tablet/tabletSettingsService'
 import { useToast } from 'vue-toastification'
 import { ref } from 'vue'
+import {  useRouter } from 'vue-router'
 
 const toast = useToast()
 
@@ -45,6 +46,7 @@ const rewardType = tabletSettingsStore.settings.rewardType
 // 커스텀 키패드 핸들러 사용
 const { value: rewardAmount, handleClick: handleKeypadClickBase } = useRewardKeypadHandler('0', rewardType)
 const isSubmitting = ref(false)
+const router = useRouter()
 const handleKeypadClick = async (key: string | number) => {
 
     if (isSubmitting.value) return // 연타 방지
@@ -69,13 +71,15 @@ const handleKeypadClick = async (key: string | number) => {
 
       const service = createTabletSettingsService(companyId)
 
-      await service.saveItem({
+       service.saveItem({
         ...tabletSettingsStore.settings,
         pendingRewardAmount: amount
       })
 
       console.log('✅ API 호출 성공: 적립 수량 저장 완료')
-      rewardAmount.value = '0'
+      
+      router.push('/tablet/reward-input-screen')
+      // rewardAmount.value = '5'
     } catch (err) {
       console.error('❌ API 호출 실패:', err)
       alert('적립 요청 중 오류가 발생했습니다.')

@@ -165,14 +165,14 @@ const handleKeypadClick = async (key: string | number) => {
       fmessage: ''
     }
 
-    await saveRewardByPhoneNumber({
+    saveRewardByPhoneNumber({
       rewardLog,
       allimtalkRequest,
       couponDefinitions: authStore.couponDefinition,
       iv: ivStr
     })
 
-    await updatePendingReward(companyId, tabletNum, 0)
+    updatePendingReward(companyId, tabletNum, 0)
 
     window.FlutterChannel?.postMessage(JSON.stringify({
       action: 'playAudio',
@@ -180,6 +180,7 @@ const handleKeypadClick = async (key: string | number) => {
     }))
 
     phoneNumber.value = '010-'
+    router.push('/tablet/standby-screen')
 
   } catch (error) {
     console.error('❌ 오류 발생:', error)
