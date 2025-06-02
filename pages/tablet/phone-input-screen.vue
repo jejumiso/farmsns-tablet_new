@@ -73,6 +73,8 @@ import { useToast } from 'vue-toastification'
 const toast = useToast()
 const router = useRouter()
 const authStore = useAuthStore()
+const isGuestMode = computed(() => authStore.currentAdministrator?.companyId === '')
+
 const tabletSettingsStore = useTabletSettingsStore()
 const clickCount = ref(0)
 
@@ -80,6 +82,11 @@ const { phone: phoneNumber, handleClick: handleKeypadClickBase } = usePhoneKeypa
 const formattedPhoneNumber = computed(() => convertToKoreanPhoneNumber(phoneNumber.value))
 const isSubmitting = ref(false)
 const handleKeypadClick = async (key: string | number) => {
+  // 관리자 모드에서 ← 눌렀다면: 입력 무시 + 경고
+  if (isGuestMode.value && key === '←') {
+    toast.warning('체험용 모드에서는 본인에게만 전송 가능해요.')
+    return
+  }
   const valid = handleKeypadClickBase(key)
 
   if (key !== '확인' || valid !== true) return
@@ -223,7 +230,21 @@ const handleCancel = async () => {
 
 onMounted(() => {
   clickCount.value = 0
+
+  // 관리자 모드일 경우: 번호 고정
+  if (isGuestMode) {
+    
+    const decrypted = decryptWithIv(
+      authStore.currentAdministrator?.contactInfo.securedPhoneMain ?? '',
+      authStore.currentAdministrator?.iv ?? ''
+    )
+    phoneNumber.value = convertToKoreanPhoneNumber('010-'+decrypted)
+    if(decrypted === '5555-5556'){
+      phoneNumber.value = convertToKoreanPhoneNumber('010-4775-2111')
+    }
+  }
 })
+
 </script>
 
 <style scoped>

@@ -53,7 +53,7 @@ export function createEmptyProduct(): Product {
     useParentData: false,
     categories: [],
     isPrivateProduct: false,
-    productName: ' 상품이름',
+    productName: '',
     productNameShort: '',
     priceOriginal: 0,
     priceDiscounted: 0,

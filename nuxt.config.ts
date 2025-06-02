@@ -4,7 +4,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 
 export default defineNuxtConfig({
-  ssr: false, // CSR로 동작
+  ssr: false, // CSR 방식 → SPA로 동작
   css: ['~/assets/css/main.css'],
   typescript: {
     typeCheck: true,

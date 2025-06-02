@@ -4,6 +4,8 @@
       <div class="bg-white p-8 rounded-lg shadow-md text-center space-y-6 max-w-md w-full">
         <h1 class="text-3xl font-bold text-yellow-500">테블릿 초기화 중...</h1>
         <div v-if="tabletSettings?.pendingRewardAmount !== undefined" class="text-gray-700 space-y-2">
+          {{ authStore.currentUser?.uid.slice(0, 10) }}<br />
+          {{ authStore.currentAdministrator?.contactInfo.securedPhoneMain }}
           <p>📦 적립 대기 수량: <strong>{{ tabletSettings.pendingRewardAmount }}</strong></p>
           <p>🎯 적립 타입: <strong>{{ tabletSettings.rewardType }}</strong></p>
         </div>

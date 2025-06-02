@@ -71,14 +71,20 @@ const handleKeypadClick = async (key: string | number) => {
 
       const service = createTabletSettingsService(companyId)
 
-       service.saveItem({
+      service.saveItem({
         ...tabletSettingsStore.settings,
         pendingRewardAmount: amount
+      }).then(() => {
+        console.log('✅ API 저장 성공')
+      }).catch((err) => {
+        console.error('❌ API 저장 실패:', err)
+        // 여기서 알림을 줄 수도 있고, 안 줄 수도 있음
       })
 
       console.log('✅ API 호출 성공: 적립 수량 저장 완료')
       
-      router.push('/tablet/reward-input-screen')
+      router.replace('/tablet/reward-input-screen')
+
       // rewardAmount.value = '5'
     } catch (err) {
       console.error('❌ API 호출 실패:', err)
