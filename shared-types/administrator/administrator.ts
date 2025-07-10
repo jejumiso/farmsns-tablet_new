@@ -2,7 +2,7 @@ import { DocumentReference, Timestamp } from "@/shared/firebase/firebaseTypes"
 import { type ContactInfo } from "../company/company"
 
 
-
+type DemoCompanyId = 'demoCompanyCafe' | 'demoHQ' | 'demoMall' | ''
 export interface Administrator {
   id: string // Firebase UID (문서 ID)
 
@@ -18,6 +18,7 @@ export interface Administrator {
   // 🏢 회사 정보
   companyId: string // 대표 회사 ID
   companyIds: string[] // 권한이 부여된 회사 ID 목록
+  lastSelectedDemoCompanyId? :DemoCompanyId
 
   // 🛡️ 권한
   roles: string[] // 관리자 역할 (예: ['admin', 'staff'])
@@ -69,6 +70,7 @@ export function createEmptyAdministrator(params: {
 
     companyId: '',
     companyIds: [],
+    lastSelectedDemoCompanyId :'demoCompanyCafe',
 
     roles: [],
 

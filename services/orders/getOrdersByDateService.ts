@@ -15,3 +15,19 @@ export async function getOrdersByDateService(companyId: string,uid:string, searc
     })
   )
 }
+
+
+
+/**
+ * 관리자용 주문 조회: uid 없이 companyId + searchDate 기준으로 조회
+ */
+export async function getOrdersByDateAdminService(companyId: string, searchDate: number): Promise<ApiResponse<OrderToSave[]>> {
+  return withApiSafety(() =>
+    useApi().get<ApiResponse<OrderToSave[]>>('/api/orders/listByDateAdmin', {
+      params: {
+        companyId,
+        searchDate,
+      },
+    })
+  )
+}

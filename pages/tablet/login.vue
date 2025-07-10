@@ -74,7 +74,7 @@ import { formatPhone } from '@/shared-utils/common'
 import { useNuxtApp } from '#app'
 
 const phoneNumber = ref('010-')
-const verificationCode = ref('')
+const verificationCode = ref('1234')
 const isCodeSent = ref(false)
 const errorMessage = ref('')
 const router = useRouter()

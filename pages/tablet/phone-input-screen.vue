@@ -232,7 +232,7 @@ onMounted(() => {
   clickCount.value = 0
 
   // 관리자 모드일 경우: 번호 고정
-  if (isGuestMode) {
+  if (isGuestMode.value) {
     
     const decrypted = decryptWithIv(
       authStore.currentAdministrator?.contactInfo.securedPhoneMain ?? '',

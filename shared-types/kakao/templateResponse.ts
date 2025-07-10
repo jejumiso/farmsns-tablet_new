@@ -1,3 +1,4 @@
+// 📁 shared-types/kakao/templateResponse.ts
 export type TemplateResponse = {
     code: number;
     message: string;

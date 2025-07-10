@@ -14,12 +14,7 @@ export function createAuthService() {
   const auth = getFirebaseAuth();
 
 
-
-
-
   return {
-
-
 
 
     async sendSms(phoneNumber: string): Promise<void> {
@@ -52,15 +47,20 @@ export function createAuthService() {
         throw new Error(error.response?.data?.message || 'Failed to verify SMS');
       }
     },
+
+
     // 회원가입 시 user와 company를 함께 생성해야 하므로
     // auth 흐름 안에서 addUserAndCompany로 처리함
     // 향후 복잡해질 경우 registrationService로 분리 고려
-    async addAdministratorAndCompany(administrator: Administrator, company: Company): Promise<ApiResponse> {
+    async addAdministratorAndCompany(uid: string, securedPhoneSub1: string, searchField: string[], company: Company): Promise<ApiResponse> {
       try {
         // Firebase Functions 엔드포인트 호출
-
+        // administrator는 이미 생성 되어 있으니 업데이트를 해야 맞는거지만
+        // administrator 전체 전보를 주고 set을 하고 있음..문제 될 것 같지는 않음.
         const response = await api.post('/api/auth/addAdministratorAndCompany', {
-          administrator,
+          uid,
+          securedPhoneSub1,
+          searchField,
           company
         });
         console.log('User and company added via Firebase Functions:', response.data);
@@ -70,6 +70,8 @@ export function createAuthService() {
         throw new Error(error.response?.data?.message || 'Failed to add user and company');
       }
     },
+
+    
     async logout(): Promise<void> {
       try {
         await signOut(auth);
@@ -90,7 +92,7 @@ export interface AuthService {
   login(email: string, password: string): Promise<User | null>;
   sendSms(phoneNumber: string): Promise<void>;
   verifySms(phoneNumber: string, code: string): Promise<User | null>;
-  addAdministratorAndCompany(administrator: Administrator, company: Company): Promise<ApiResponse>;
+  addAdministratorAndCompany(uid: string, securedPhoneSub1: string, searchField: string[], company: Company): Promise<ApiResponse>;
   logout(): Promise<void>;
   onAuthStateChange(callback: (user: User | null) => void): void;
 }
